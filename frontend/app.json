@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "isdaok",
     "userInterfaceStyle": "automatic",
-    "splash":{
+    "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#8ccdeb"
@@ -19,13 +19,15 @@
       }
     },
     "android": {
-      "permissions": ["USE_BIOMETRIC"],
+      "permissions": [
+        "USE_BIOMETRIC"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#8ccdeb",
         "foregroundImage": "./assets/images/adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.IsdaOK"
+      "package": "com.hollowrithm.isdaok"
     },
     "web": {
       "bundler": "metro",
@@ -49,6 +51,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8da59615-fca7-4b18-9fbb-2e9e5b549ad5"
+      }
     }
   }
 }
