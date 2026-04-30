@@ -70,7 +70,7 @@ CREATE TABLE `users` (
   `created_at` datetime DEFAULT current_timestamp(),
   `is_verified` tinyint(1) DEFAULT 0,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `google_id` varchar(255) DEFAULT NULL UNIQUE,
+  `google_id` varchar(255) DEFAULT NULL UNIQUE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

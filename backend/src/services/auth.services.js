@@ -107,7 +107,7 @@ export const resendVerification = async (email) => {
 	const expiry = new Date(Date.now() + 5 * 60 * 1000);
 
 	await db.query(
-		"INSERT INTO user_token (user_id, type, token, expires_at) VALUES (?, 'verification', ?, ?)",
+		"INSERT INTO user_tokens (user_id, type, token, expires_at) VALUES (?, 'verification', ?, ?)",
 		[records[0].id, verificationToken, expiry]
   	);
 
@@ -161,8 +161,8 @@ export const resetPassword = async (token, newPassword) => {
 	);
 
 	if (!records.length) throw new Error("Invalid Token");
-	if (user.reset_token !== token) throw new Error("Invalid or already used token");
-	if (new Date() > new Date(user.reset_token_expiry)) throw new Error("Reset Link has expired.");
+	if (records[0].used) throw new Error("Invalid or already used token");
+	if (new Date() > new Date(records[0].expires_at)) throw new Error("Reset Link has expired.");
 
 	await db.query("UPDATE user_tokens set used = 1 WHERE id = ?", [records[0].id]);
 
