@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, verifyEmail, resendVerification, forgotPassword, resetPassword, verifyToken, googleLogin, googleRegister, getHistory } from "../controllers/auth.controllers.js";
+import { register, login, verifyEmail, resendVerification, forgotPassword, resetPassword, verifyToken, googleLogin, googleRegister} from "../controllers/auth.controllers.js";
 import { showUsers } from "../controllers/admin.controllers.js";
 import { auth } from "../utils/auth.js";
 import rateLimit from "express-rate-limit";
@@ -22,6 +22,6 @@ router.post("/reset-password", resetPassword);
 router.post("/verify-token", auth, verifyToken);
 router.post("/login/google", googleLogin);
 router.post("/register/google", googleRegister);
-router.get("/history", auth, getHistory);
+//router.get("/history", auth, getHistory);
 
 export default router;
