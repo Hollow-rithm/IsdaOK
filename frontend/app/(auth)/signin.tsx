@@ -214,6 +214,10 @@ export default function SignIn() {
 						</Text>
 					</TouchableOpacity>
 
+					<View className="flex-row mt-4">
+						<Text>or</Text>
+					</View>
+
 					<Modal
 						visible={guestTerms}
 						animationType="slide"
@@ -268,7 +272,7 @@ export default function SignIn() {
 							</TouchableOpacity>
 							</View>
 						</View>
-						</Modal>
+					</Modal>
 
 					<TouchableOpacity className="bg-white py-2 px-4 w-40 rounded shadow mt-4" onPress={() => setGuestTerms(true)}>
 						<Text className="text-[#0B1D51] text-center font-semibold">
@@ -276,9 +280,7 @@ export default function SignIn() {
 						</Text>
 					</TouchableOpacity>
 
-					<View className="flex-row mt-4">
-						<Text>or</Text>
-					</View>
+
 
 					<View className="flex-row">
 						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10"
