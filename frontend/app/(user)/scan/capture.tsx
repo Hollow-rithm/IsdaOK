@@ -19,6 +19,7 @@ export default function Capture(){
     const [facing, setFacing] = useState<CameraType>('back');
     const [flash, setFlash] = useState<'off' | 'on' | 'auto'>('off');
     const [permission, requestPermission] = useCameraPermissions();
+    const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
     const cameraRef = useRef<CameraView>(null);
     const insets = useSafeAreaInsets();
     const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
@@ -63,6 +64,19 @@ export default function Capture(){
             </View>
         );
     }
+
+    if (settings.saveLocally && !mediaPermission?.granted) {
+    return (
+        <View className='flex-1 items-center justify-center px-6'>
+            <Text>Storage access is required to save photos.</Text>
+            <TouchableOpacity
+                onPress={requestMediaPermission}
+                className='rounded bg-black px-4 py-2'>
+                <Text className='text-white'>Grant Permission.</Text>
+            </TouchableOpacity>
+        </View>
+    );
+}
 
     const captureImage = async () => {
         if (!cameraRef.current) return;
