@@ -1,23 +1,18 @@
 import nodemailer from "nodemailer";
-import "dotenv/config";
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env" });
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
+  service: 'Gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false
-  },
-  socket: {
-    family: 4
-  }
 });
 
 export const sendVerificationEmail = async (toEmail, verificationLink) => {
+  try{
   await transporter.sendMail({
     from: `"IsdaOK" <${process.env.EMAIL_USER}>`,
     to: toEmail,
@@ -29,6 +24,9 @@ export const sendVerificationEmail = async (toEmail, verificationLink) => {
       <p>This link expires in 5 minutes.</p>
     `,
   });
+} catch (err){
+  console.error("Mail err: ", err.message);
+}
 };
 
 export const sendResetEmail = async (toEmail, resetLink) => {
