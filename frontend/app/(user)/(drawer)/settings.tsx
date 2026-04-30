@@ -1,11 +1,81 @@
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSettings } from '@/context/settingsContext';
+import { router } from 'expo-router';
+import BackButton from '@/components/HeaderBar';
 
-export default function Settings() {
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView className="flex-1 space-y-4 items-center justify-center bg-primary px-4">
+export default function SettingsPage() {
+    const { settings, updateSetting } = useSettings();
 
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
+    return (
+        <SafeAreaView className="flex-1 bg-white">
+            <BackButton onPress={() => router.back()} />
+
+            <ScrollView className="px-6">
+                {/* Photo Quality */}
+                <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                    Photo Quality
+                </Text>
+                <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                    {(['720p', '1080p'] as const).map((q, i, arr) => (
+                        <TouchableOpacity
+                            key={q}
+                            onPress={() => updateSetting('photoQuality', q)}
+                            className={`flex-row items-center justify-between px-4 py-4 ${
+                                i < arr.length - 1 ? 'border-b border-gray-200' : ''
+                            }`}
+                        >
+                            <Text className="text-base">{q}</Text>
+                            {settings.photoQuality === q && (
+                                <Text className="text-blue-500 font-semibold">✓</Text>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                {/* Save Locally */}
+                <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                    Storage
+                </Text>
+                <View className="bg-gray-100 rounded-2xl mb-4 overflow-hidden">
+                    <View className="flex-row items-center justify-between px-4 py-4">
+                        <View className="flex-1 mr-4">
+                            <Text className="text-base font-medium">Save Photos Locally</Text>
+                            <Text className="text-sm text-gray-400">Save captured images to your device</Text>
+                        </View>
+                        <Switch
+                            value={settings.saveLocally}
+                            onValueChange={v => updateSetting('saveLocally', v)}
+                        />
+                    </View>
+                </View>
+
+                {/* Save Mode — only visible if saveLocally is on */}
+                {settings.saveLocally && (
+                    <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                        {([
+                            { value: 'result', label: 'Result Only', desc: 'Save only the scan result image' },
+                            { value: 'all',    label: 'All Photos',  desc: 'Save body, gills, and eye captures too' },
+                        ] as const).map(({ value, label, desc }, i, arr) => (
+                            <TouchableOpacity
+                                key={value}
+                                onPress={() => updateSetting('saveMode', value)}
+                                className={`flex-row items-center justify-between px-4 py-4 ${
+                                    i < arr.length - 1 ? 'border-b border-gray-200' : ''
+                                }`}
+                            >
+                                <View className="flex-1 mr-4">
+                                    <Text className="text-base font-medium">{label}</Text>
+                                    <Text className="text-sm text-gray-400">{desc}</Text>
+                                </View>
+                                {settings.saveMode === value && (
+                                    <Text className="text-blue-500 font-semibold">✓</Text>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
 }

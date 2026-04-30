@@ -12,6 +12,7 @@ import { validateEmail } from "@/utils/validate";
 import { apiFetch } from "@/utils/api";
 import * as Biometric from "@/utils/biometric";
 import * as SecureStore from "expo-secure-store";
+import { useGoogleSignIn } from "@/utils/googleAuth";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -21,9 +22,40 @@ export default function SignIn() {
 	const [emailError, setEmailError] = useState<string[]>([]);
 	const [biometric, setBiometric] = useState(false);
 	const [guestTerms, setGuestTerms] = useState(false);
-
-	//const loginURL = process.env.EXPO_PUBLIC_LOGIN as string;
 	const { logIn } = useAuth();
+	const { request, response, promptAsync } = useGoogleSignIn();
+
+	useEffect(() => {
+		if (response?.type === 'success'){
+			const token = response.authentication?.accessToken;
+			if (!token) return;
+
+			fetch('https://www.googleapis.com/userinfo/v2/me', {
+				headers: { Authorization: `Bearer ${token}`}
+			})
+			.then(res => res.json())
+			.then(async (googleUser) => {
+				try {
+					const res = await apiFetch("/api/auth/login/google", {
+						method: "POST",
+						body: JSON.stringify({
+							email: googleUser.email,
+							googleId: googleUser.id,
+							name: googleUser.name,
+						}),
+					});
+					const data = await res.json();
+					if (res.ok && data.status === "success"){
+						await logIn(data.token);
+					} else {
+						setError(data.message || "Google Sign-in Failed")
+					}
+				} catch (err) {
+					setError("Network Error: " + String(err));
+				};
+			});
+		}
+	}, [response, logIn]);
 
 	useEffect (() => {
 		const checkBiometrics = async () => {
@@ -183,6 +215,10 @@ export default function SignIn() {
 						</Text>
 					</TouchableOpacity>
 
+					<View className="flex-row mt-4">
+						<Text>or</Text>
+					</View>
+
 					<Modal
 						visible={guestTerms}
 						animationType="slide"
@@ -224,7 +260,7 @@ export default function SignIn() {
 								className="bg-[#0B1D51] py-3 rounded-xl"
 								onPress={() => {
 								setGuestTerms(false);
-								logIn("guest"); // ← only logs in after agreeing
+								logIn("guest");
 								}}
 							>
 								<Text className="text-white text-center font-semibold">Continue as Guest</Text>
@@ -237,7 +273,7 @@ export default function SignIn() {
 							</TouchableOpacity>
 							</View>
 						</View>
-						</Modal>
+					</Modal>
 
 					<TouchableOpacity className="bg-white py-2 px-4 w-40 rounded shadow mt-4" onPress={() => setGuestTerms(true)}>
 						<Text className="text-[#0B1D51] text-center font-semibold">
@@ -245,12 +281,12 @@ export default function SignIn() {
 						</Text>
 					</TouchableOpacity>
 
-					<View className="flex-row mt-4">
-						<Text>or</Text>
-					</View>
+
 
 					<View className="flex-row">
-						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10">
+						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10"
+						disabled={!request}
+						onPress={() => promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
 						</TouchableOpacity>
 

@@ -186,3 +186,35 @@ export const getUserID = async (id) => {
 
 	return records[0];
 };
+
+export const googleLogin = async ({ email, googleId, name }) => {
+  const [records] = await db.query(
+    "SELECT id, username, role FROM users WHERE email = ? OR google_id = ?",
+    [email, googleId]
+  );
+
+  if (!records.length) throw new Error("No account found. Please sign up first.");
+
+  return records[0];
+};
+
+export const googleRegister = async ({ email, googleId, username }) => {
+  const [exist] = await db.query(
+    "SELECT id FROM users WHERE email = ? OR google_id = ?",
+    [email, googleId]
+  );
+
+  if (exist.length) throw new Error("Account already exists. Please sign in.");
+
+  const [result] = await db.query(
+    "INSERT INTO users (username, email, google_id, is_verified) VALUES (?, ?, ?, 1)",
+    [username, email, googleId]
+  );
+
+  const [user] = await db.query(
+    "SELECT id, username, role FROM users WHERE id = ?",
+    [result.insertId]
+  );
+
+  return user[0];
+};
