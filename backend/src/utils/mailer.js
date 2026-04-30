@@ -12,6 +12,9 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false
   },
+  socket: {
+    family: 4
+  }
 });
 
 export const sendVerificationEmail = async (toEmail, verificationLink) => {
