@@ -17,6 +17,7 @@ export const analyzeFish = async (req, res) => {
             })
         }
 
+        const userId = req.user?.id ?? null;
         const result = await fishService.analyzeFish({fishImage, gillImage});
 
         if (!result.has_fish) {

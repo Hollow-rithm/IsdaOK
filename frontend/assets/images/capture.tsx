@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
-import ViewShot, { captureRef } from 'react-native-view-shot';
 
 export default function Capture(){
     const { settings } = useSettings();
@@ -88,9 +87,11 @@ export default function Capture(){
         });
 
         if(!firstUri){
+            await saveImageIfNeeded(image.uri, true);
             setFirstUri(image.uri);
             Alert.alert('Fish Body Captured!', 'Next is Capture Gills, or Skip to Proceed', [{text: 'OK'}]);
         } else if (!secondUri) {
+            await saveImageIfNeeded(image.uri, true);
             setSecondUri(image.uri);
             Alert.alert('Gills Captured!', 'Next is Capture Eyes, or Skip to Proceed', [{text: 'OK'}]);
         } else {
@@ -101,6 +102,7 @@ export default function Capture(){
         //         uri2: image.uri,
         //         metadata: JSON.stringify(image.exif)
         // });
+        await saveImageIfNeeded(image.uri, true);
         await upload(firstUri, secondUri, image.uri);
     }
 }
@@ -182,10 +184,7 @@ export default function Capture(){
             const result = await response.json();
             console.log("JSON Response: ", result);
 
-            await saveImageIfNeeded(fishUri, true);
-            if (gillUri && gillUri !== 'skipped') await saveImageIfNeeded(gillUri, true);
-            if (eyeUri) await saveImageIfNeeded(eyeUri, true);
-            if (result.data?.resultImageURI) await saveImageIfNeeded(result.data.resultImageURI, false);
+            await saveImageIfNeeded(result.data.resultImageURI, false);
 
             router.push({
                 pathname: "/scan/result",
@@ -342,7 +341,7 @@ export default function Capture(){
                 <SafeAreaView>
                     <View className="absolute top-12 w-full items-center z-10">
                         <Text className="text-white text-lg font-bold bg-black/50 px-4 py-4 rounded-full">
-                            {stepLabel}
+                            {firstUri ? 'Capture Gills (Recommended)' : 'Capture Fish Body'}
                         </Text>
 
                         <TouchableOpacity onPress={toggleFlash} className='pt-2'>
