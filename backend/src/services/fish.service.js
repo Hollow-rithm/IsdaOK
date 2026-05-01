@@ -1,3 +1,4 @@
+import db from "../config/database.js";
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
@@ -6,7 +7,7 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
 export const analyzeFish = async ({ fishImage, gillImage }) => {
     const form_data = new FormData();
-    
+
     form_data.append("fish_image", fs.createReadStream(fishImage.path));
 
     if (gillImage){
@@ -49,7 +50,7 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             error.status = 504;
             throw error;
         }
-        
+
         if (err.response) {
             const error = new Error(err.response.data.detail || "ML service returned an error.");
             error.status = err.response.status;
@@ -72,4 +73,20 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             }
         } 
     }
+};
+
+export const getHistory = async (userId) => {
+  const [records] = await db.query(`
+    SELECT
+      s.id,
+      s.created_at,
+      sr.species,
+      sr.overall_score,
+      sr.quality_grade
+    FROM scans s
+    JOIN scan_results sr ON s.id = sr.scan_id
+    WHERE s.user_id = ?
+    ORDER BY s.created_at DESC
+  `, [userId]);
+  return records;
 };

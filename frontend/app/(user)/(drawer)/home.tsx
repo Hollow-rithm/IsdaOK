@@ -23,8 +23,11 @@ export default function Home() {
         </TouchableOpacity>
 
         {!isGuest && (
-        <TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4">
-        <Text className="text-center font-semibold text-[#0B1D51] ">History</Text>
+        <TouchableOpacity
+          className="bg-white py-2 px-4 w-40 border border-black rounded mt-4"
+          onPress={() => router.push('/(user)/(drawer)/history')}
+        >
+          <Text className="text-center font-semibold text-[#0B1D51]">History</Text>
         </TouchableOpacity>
         )}
 
