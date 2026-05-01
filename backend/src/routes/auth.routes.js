@@ -22,6 +22,5 @@ router.post("/reset-password", resetPassword);
 router.post("/verify-token", auth, verifyToken);
 router.post("/login/google", googleLogin);
 router.post("/register/google", googleRegister);
-//router.get("/history", auth, getHistory);
 
 export default router;

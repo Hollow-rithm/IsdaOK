@@ -3,7 +3,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { apiFetch } from "@/utils/api";
-import HeaderBar from "@/components/HeaderBar";
 
 type ScanHistory = {
   id: number;
@@ -57,7 +56,6 @@ export default function History() {
 
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-primary">
-      <HeaderBar onPress={() => router.back()} title="History" />
 
       {loading ? (
         <View className="flex-1 items-center justify-center">

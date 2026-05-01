@@ -1,4 +1,5 @@
 import * as fishService from "../services/fish.service.js";
+import db from "../config/database.js";
 
 export const analyzeFish = async (req, res) => {
     try {
@@ -15,7 +16,7 @@ export const analyzeFish = async (req, res) => {
                 message: "Fish image is required.",
             })
         }
-        
+
         const result = await fishService.analyzeFish({fishImage, gillImage});
 
         if (!result.has_fish) {
@@ -36,4 +37,14 @@ export const analyzeFish = async (req, res) => {
             message: err.message || "Failed to analyze fish image.",
         });
     }
+};
+
+export const getHistory = async (req, res) => {
+     console.log("User from token:", req.user);
+  try {
+    const result = await fishService.getHistory(req.user.id);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
