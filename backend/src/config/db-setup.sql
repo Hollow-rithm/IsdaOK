@@ -31,7 +31,8 @@ CREATE TABLE `scans` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `fish_image_path` varchar(500) NOT NULL,
-  `gill_image_path` varchar(500) NOT NULL,
+  `gill_image_path` varchar(500) DEFAULT NULL,
+  `eye_image_path` varchar(500) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
