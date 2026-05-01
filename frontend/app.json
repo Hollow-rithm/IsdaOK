@@ -46,7 +46,13 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",[
+        "expo-media-library",{
+          "photosPermission": "Allow IsdaOK to access your photos.",
+          "savePhotosPermission": "Allow IsdaOK to save photos",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

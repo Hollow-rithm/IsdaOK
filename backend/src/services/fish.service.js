@@ -20,6 +20,8 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             timeout: 15000,
         });
 
+        const data = response.data;
+
         return {
             has_fish: response.data.has_fish,
             species: response.data.species,
@@ -38,6 +40,30 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             // ml_score: response.data.ml_score,
             // quality: response.data.quality,
         };
+
+        if (userId) {
+            const [scan] = await db.query(
+                "INSERT INTO scans (user_id, fish_image_path, gill_image_path) VALUES (?, ?, ?)",
+                [userId, fishImage.path, gillImage?.path ?? null]
+            );
+
+            await db.query(
+                `INSERT INTO scan_results
+                (scan_id, species, species_confidence, eye_score, gill_score, body_score, overall_score, quality_grade)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                scan.insertId,
+                result.species,
+                result.ml_score,
+                result.eye_score,
+                result.gill_score,
+                result.body_score,
+                result.final_score,
+                computeGrade(result.final_score)
+                ]
+            );
+        }
+
     } catch (err) {
         if (err.code === "ECONNREFUSED") {
             const error = new Error ("Python ML service is down or unreachable.");
@@ -71,7 +97,7 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             } catch (e) {
                 console.error("Failed to delete file: ", e);
             }
-        } 
+        }
     }
 };
 
