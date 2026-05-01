@@ -9,7 +9,7 @@ import { useRef } from 'react';
 
 
 export default function ViewImage () {
-    const { result, uri, uri2 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string}>();
+    const { result, uri, uri2, uri3 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string; uri3?: string}>();
     const parsedResult = result ? JSON.parse(result) : null;
     const insets = useSafeAreaInsets();
     const score = Math.floor(Math.random() * 100);
@@ -42,16 +42,21 @@ export default function ViewImage () {
             </SafeAreaView>
 
             {uri && (
-                <View style={{ flex: 1, flexDirection: uri2 ? 'row' : 'column', alignItems: 'center', paddingHorizontal: 12 }}>
+                <View style={{ flex: 1, flexDirection: ( uri2 || uri3 ) ? 'row' : 'column', alignItems: 'center', paddingHorizontal: 12 }}>
                 <View style={{flex: 1 , alignItems: "center"}}>
                     <Text className='text-sm font-semibold mb-1'>Whole Fish</Text>
                     <Image source={{ uri }} style={{ width: '100%', aspectRatio: 1}} resizeMode="contain"/>
                 </View>
-
                 {uri2 && (
                     <View style={{ flex: 1, alignItems: 'center' }}>
                     <Text className='text-sm font-semibold mb-1'>Gills</Text>
                     <Image source={{ uri: uri2 }} style={{ width: '100%', aspectRatio: 1 }} resizeMode="contain"/>
+                    </View>
+                )}
+                {uri3 && (
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                    <Text className='text-sm font-semibold mb-1'>Eyes</Text>
+                    <Image source={{ uri: uri3 }} style={{ width: '100%', aspectRatio: 1 }} resizeMode="contain"/>
                     </View>
                 )}
                 </View>
