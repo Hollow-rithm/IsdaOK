@@ -5,13 +5,16 @@ import fs from "fs";
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL;
 
-export const analyzeFish = async ({ fishImage, gillImage }) => {
+export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) => {
     const form_data = new FormData();
 
     form_data.append("fish_image", fs.createReadStream(fishImage.path));
 
-    if (gillImage){
+    if (gillImage?.path){
         form_data.append("gill_image", fs.createReadStream(gillImage.path));
+    }
+    if (eyeImage?.path){
+        form_data.append("eye_image", fs.createReadStream(eyeImage.path));
     }
 
     try {
@@ -20,19 +23,41 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             timeout: 15000,
         });
 
-        const data = response.data;
+        const result = response.data;
+        
+        if (userId) {
+            const [scan] = await db.query(
+                "INSERT INTO scans (user_id, fish_image_path, gill_image_path, eye_image_path) VALUES (?, ?, ?, ?)",
+                [userId, fishImage.path, gillImage?.path ?? null, eyeImage?.path ?? null]
+            );
+
+            await db.query(
+                `INSERT INTO scan_results
+                (scan_id, species, species_confidence, eye_score, gill_score, body_score, overall_score, quality_grade)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    scan.insertId,
+                    result.species,
+                    result.features.eye_score,
+                    result.features.gill_score,
+                    result.features.body_score,
+                    result.ml_score,
+                    result.final_score,
+                    result.quality.toUpperCase(),
+                    //computeGrade(result.final_score)
+                ]
+            );
+        }
 
         return {
-            has_fish: response.data.has_fish,
-            species: response.data.species,
-            eye_score: response.data.features.eye_score,
-            gill_score: response.data.features.gill_score,
-            body_score: response.data.features.body_score,
-            tail_score: response.data.features.tail_score,
-            rule_score: response.data.rule_score,
-            ml_score: response.data.ml_score,
-            final_score: response.data.final_score,
-            quality: response.data.quality,
+            has_fish: result.has_fish,
+            species: result.species,
+            eye_score: result.features.eye_score,
+            gill_score: result.features.gill_score,
+            body_score: result.features.body_score,
+            ml_score: result.ml_score,
+            final_score: result.final_score,
+            quality: result.quality,
 
             // species: response.data.species,
             // features: response.data.features,
@@ -41,28 +66,6 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
             // quality: response.data.quality,
         };
 
-        if (userId) {
-            const [scan] = await db.query(
-                "INSERT INTO scans (user_id, fish_image_path, gill_image_path) VALUES (?, ?, ?)",
-                [userId, fishImage.path, gillImage?.path ?? null]
-            );
-
-            await db.query(
-                `INSERT INTO scan_results
-                (scan_id, species, species_confidence, eye_score, gill_score, body_score, overall_score, quality_grade)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                scan.insertId,
-                result.species,
-                result.ml_score,
-                result.eye_score,
-                result.gill_score,
-                result.body_score,
-                result.final_score,
-                computeGrade(result.final_score)
-                ]
-            );
-        }
 
     } catch (err) {
         if (err.code === "ECONNREFUSED") {
@@ -87,7 +90,7 @@ export const analyzeFish = async ({ fishImage, gillImage }) => {
         error.status = 500;
         throw error;
     } finally {
-        const files = [fishImage, gillImage];
+        const files = [fishImage, gillImage, eyeImage].filter(Boolean);
 
         for (const file of files){
             try {

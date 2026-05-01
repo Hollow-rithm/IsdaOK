@@ -9,6 +9,7 @@ export const analyzeFish = async (req, res) => {
 
         const fishImage = req.files?.fish_image?.[0];
         const gillImage = req.files?.gill_image?.[0];
+        const eyeImage = req.files?.eye_image?.[0];
 
         if (!fishImage) {
             return res.status(400).json({
@@ -18,7 +19,7 @@ export const analyzeFish = async (req, res) => {
         }
 
         const userId = req.user?.id ?? null;
-        const result = await fishService.analyzeFish({fishImage, gillImage});
+        const result = await fishService.analyzeFish({fishImage, gillImage, eyeImage, userId});
 
         if (!result.has_fish) {
             return res.status(400).json({
