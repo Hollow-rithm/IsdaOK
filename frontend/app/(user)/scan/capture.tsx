@@ -101,7 +101,7 @@ export default function Capture(){
         //         uri2: image.uri,
         //         metadata: JSON.stringify(image.exif)
         // });
-        await upload(firstUri, secondUri, image.uri);
+        await upload(firstUri, secondUri === 'skipped' ? undefined : secondUri, image.uri);
     }
 }
 
@@ -178,6 +178,7 @@ export default function Capture(){
 
             console.log("Fish URI: ", fishUri);
             console.log("Gills URI: ", gillUri);
+            console.log("Eye URI: ", eyeUri);
 
             const result = await response.json();
             console.log("JSON Response: ", result);
