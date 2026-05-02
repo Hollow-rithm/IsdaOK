@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert, Dimensions, StyleSheet} from 'react-native'
+import { View, Text, TouchableOpacity, Alert, Dimensions, StyleSheet, ActivityIndicator} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useCameraPermissions, CameraView, CameraType } from "expo-camera";
 import { useRef, useState } from 'react';
@@ -24,6 +24,7 @@ export default function Capture(){
     const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
     const cameraRef = useRef<CameraView>(null);
     const insets = useSafeAreaInsets();
+    const [uploading, setUploading] = useState(false);
     const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
     // Fish Box Dimensions
@@ -142,6 +143,7 @@ export default function Capture(){
     }
 
     const upload = async (fishUri: string, gillUri?: string, eyeUri?: string) => {
+        setUploading(true);
         // console.log("TYPE OF URI:", typeof uri);
         // console.log("URI VALUE:", uri);
         const form_data = new FormData();
@@ -206,6 +208,7 @@ export default function Capture(){
             console.error("Upload error: ", error);
             Alert.alert("Error", "Failed to process image");
         }
+        setUploading(false);
     }
 
     function toggleCameraFacing(){
@@ -426,6 +429,24 @@ export default function Capture(){
                     <Text className="text-white font-semibold">Skip Eyes</Text>
                 </TouchableOpacity>
             )}
+
+            {uploading && (
+                <View style={{
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 99
+                }}>
+                    <ActivityIndicator size="large" color="white" />
+                    <Text style={{ color: 'white', marginTop: 16, fontSize: 16, fontWeight: 'bold' }}>
+                        Analyzing your fish...
+                    </Text>
+                    <Text style={{ color: '#ccc', marginTop: 8, fontSize: 13 }}>
+                        Please wait a moment
+                    </Text>
+                </View>
+                )}
 
             <BackButton onPress={() => router.push('/home')}/>
 
