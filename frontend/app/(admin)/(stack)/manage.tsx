@@ -4,6 +4,7 @@ import info from "@/assets/images/info.png";
 import trash from "@/assets/images/trash.png";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/utils/api";
+import { router }from "expo-router";
 
 type User = {
     id: number;
@@ -70,7 +71,7 @@ export default function ManageUsers() {
                             setUsers((prev) => prev.filter((user) => user.id !== id));
                             setTimeout(() => setSuccess(''), 3000);
                         } else {
-                            setError(data.message || "Something went wrong");
+                            setError(data.message || "Failed to delete");
                         }
                     } catch (err) {
                         setError("Network Error. Please Try Again " + String(err));
@@ -84,8 +85,14 @@ export default function ManageUsers() {
         );
     }
 
-    const infoUser = async () => {
-        // TODO (fish table)
+    const infoUser = (user: User) => {
+        router.push({
+            pathname: "/(admin)/(stack)/manageHistory",
+            params: {
+                userId: user.id,
+                username: user.username
+            },
+        });
     }
 
   return (
@@ -113,7 +120,7 @@ export default function ManageUsers() {
                                 <View className="flex-row">
                                     <TouchableOpacity className="mr-4"
                                         onPress={() => {
-                                            infoUser();
+                                            infoUser(user);
                                         }}>
                                         <Image source={info} style={{ width: 28, height: 28 }} resizeMode="contain" />
                                     </TouchableOpacity>

@@ -121,11 +121,11 @@ export const getHistory = async (userId) => {
   return records;
 };
 
-export const deleteFish = async (scanId, userId) => {
+export const deleteRecord = async (scanId, userId) => {
 	const [records] = await db.query("SELECT `id` FROM `scans` WHERE `id` = ? AND user_id = ?", [scanId, userId]);
 
 	if(!records.length){
-		const error = new Error("Scan record not found");
+		const error = new Error("Record not found");
 		error.status = 404;
 		throw error;
 	}

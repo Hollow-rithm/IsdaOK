@@ -51,10 +51,10 @@ export const getHistory = async (req, res) => {
   }
 };
 
-export const deleteFish = async (req, res) => {
+export const deleteRecord = async (req, res) => {
     try {
         const scanId = parseInt(req.params.id);
-        await fishService.deleteFish(scanId, req.user.id);
+        await fishService.deleteRecord(scanId, req.user.id);
 
         res.status(200).json({
             status: "success",
