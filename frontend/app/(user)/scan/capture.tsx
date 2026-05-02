@@ -10,6 +10,7 @@ import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import { getStoredToken } from "@/utils/authContext";
 
 export default function Capture(){
     const { settings } = useSettings();
@@ -152,7 +153,7 @@ export default function Capture(){
             type: "image/jpeg",
         } as any);
 
-        // Optional gill image
+        // Optional gill & eye image
         if(gillUri){
             form_data.append("gill_image", {
                 uri: gillUri,
@@ -170,10 +171,14 @@ export default function Capture(){
         }
 
         try {
+            const token = await getStoredToken();
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/fish/analyze`,
                 {
                     method: "POST",
                     body: form_data,
+                    headers: {
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    }
                 });
 
             console.log("Fish URI: ", fishUri);

@@ -89,8 +89,9 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         const error = new Error ("Unknown error occured.");
         error.status = 500;
         throw error;
+
     } finally {
-        const files = [fishImage, gillImage, eyeImage].filter(Boolean);
+        const files = [fishImage, gillImage, eyeImage];
 
         for (const file of files){
             try {
@@ -108,6 +109,7 @@ export const getHistory = async (userId) => {
   const [records] = await db.query(`
     SELECT
       s.id,
+      s.user_id,
       s.created_at,
       sr.species,
       sr.overall_score,
