@@ -1,8 +1,9 @@
-import { Text, View, ScrollView, TouchableOpacity } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { apiFetch } from "@/utils/api";
+import trash from "@/assets/images/trash.png";
 
 type ScanHistory = {
   id: number;
@@ -15,6 +16,7 @@ type ScanHistory = {
 export default function History() {
   const [history, setHistory] = useState<ScanHistory[]>([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,6 +24,8 @@ export default function History() {
   }, []);
 
   const fetchHistory = async () => {
+    setSuccess('');
+		setError('');
     try {
       const res = await apiFetch("/api/fish/history", { method: "GET" });
       const data = await res.json();
@@ -54,6 +58,35 @@ export default function History() {
     });
   };
 
+  const deleteFish = async (id: number) => {
+          Alert.alert(
+              "Delete Fish",
+              "Are you sure you want to delete this record?",
+              [{
+                  text: "Delete",
+                  onPress: async () => {
+                      try {
+                          const res = await apiFetch(`/api/fish/delete/${id}`, { method: "DELETE" });
+                          const data = await res.json();
+                          if (res.ok) {
+                              setSuccess("Record deleted");
+                              setHistory((prev) => prev.filter((scan) => scan.id !== id));
+                              setTimeout(() => setSuccess(''), 3000);
+                          } else {
+                              setError(data.message || "Something went wrong");
+                          }
+                      } catch (err) {
+                          setError("Network Error. Please Try Again " + String(err));
+                      }
+                  },
+              },  {
+                    text: "Nevermind",
+                    style: "cancel"
+                  },
+              ]
+          );
+      }
+
   return (
     <SafeAreaView edges={['top']} className="flex-1 bg-primary">
 
@@ -85,7 +118,13 @@ export default function History() {
               </TouchableOpacity>
             </View>
           ) : (
-            history.map((scan) => (
+            <>
+            {success && (
+              <View className="flex-1 items-center justify-center px-6 py-4">
+                <Text className="text-green-700 mx-4">{success}</Text>
+              </View>
+            )}
+            {history.map((scan) => (
               <View key={scan.id} className="bg-secondary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
@@ -101,8 +140,17 @@ export default function History() {
                   </Text>
                   <Text className="text-gray-400 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
+                <View className="flex-row justify-end mt-1">
+                  <TouchableOpacity
+                      onPress={() => {
+                          deleteFish(scan.id);
+                      }}>
+                      <Image source={trash} style={{ width: 25, height: 25 }} resizeMode="contain" />
+                  </TouchableOpacity>
+                </View>
               </View>
-            ))
+            ))}
+          </>
           )}
         </ScrollView>
       )}

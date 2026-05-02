@@ -68,6 +68,7 @@ export default function ManageUsers() {
                         if (res.ok) {
                             setSuccess("User deleted");
                             setUsers((prev) => prev.filter((user) => user.id !== id));
+                            setTimeout(() => setSuccess(''), 3000);
                         } else {
                             setError(data.message || "Something went wrong");
                         }

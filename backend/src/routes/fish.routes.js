@@ -1,6 +1,6 @@
 import { Router } from "express";
 import upload from "../middleware/upload.middleware.js";
-import { analyzeFish, getHistory } from "../controllers/fish.controller.js";
+import { analyzeFish, getHistory, deleteFish } from "../controllers/fish.controller.js";
 import { auth, optionalAuth } from "../utils/auth.js";
 
 const router = Router();
@@ -19,5 +19,6 @@ const uploadFields = (req, res, next) => {
 
 router.get("/history", auth, getHistory);
 router.post("/analyze", optionalAuth, uploadFields, analyzeFish);
+router.delete("/delete/:id", auth, deleteFish);
 
 export default router;

@@ -109,7 +109,6 @@ export const getHistory = async (userId) => {
   const [records] = await db.query(`
     SELECT
       s.id,
-      s.user_id,
       s.created_at,
       sr.species,
       sr.overall_score,
@@ -120,4 +119,23 @@ export const getHistory = async (userId) => {
     ORDER BY s.created_at DESC
   `, [userId]);
   return records;
+};
+
+export const deleteFish = async (scanId, userId) => {
+	const [records] = await db.query("SELECT `id` FROM `scans` WHERE `id` = ? AND user_id = ?", [scanId, userId]);
+
+	if(!records.length){
+		const error = new Error("Scan record not found");
+		error.status = 404;
+		throw error;
+	}
+
+	await db.query("DELETE FROM `scans` WHERE `id` = ?", [scanId]);
+
+	return {
+		status: "success",
+		message: "Record deleted successfully",
+		scanId: records[0].id,
+		userId: records[0].user_id
+	};
 };
