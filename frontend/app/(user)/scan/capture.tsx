@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Alert, Dimensions, StyleSheet} from 'react-native'
+import { View, Text, TouchableOpacity, Alert, Dimensions, StyleSheet, ActivityIndicator} from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useCameraPermissions, CameraView, CameraType } from "expo-camera";
 import { useRef, useState } from 'react';
@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
-import ViewShot, { captureRef } from 'react-native-view-shot';
 import { getStoredToken } from "@/utils/authContext";
 
 export default function Capture(){
@@ -24,6 +23,7 @@ export default function Capture(){
     const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
     const cameraRef = useRef<CameraView>(null);
     const insets = useSafeAreaInsets();
+    const [uploading, setUploading] = useState(false);
     const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
     // Fish Box Dimensions
@@ -95,14 +95,7 @@ export default function Capture(){
             setSecondUri(image.uri);
             Alert.alert('Gills Captured!', 'Next is Capture Eyes, or Skip to Proceed', [{text: 'OK'}]);
         } else {
-        // router.push({ // Second capture, proceed to result
-        //     pathname: "/scan/result",
-        //     params: {
-        //         uri: firstUri,
-        //         uri2: image.uri,
-        //         metadata: JSON.stringify(image.exif)
-        // });
-        await upload(firstUri, secondUri === 'skipped' ? undefined : secondUri, image.uri);
+            await upload(firstUri, secondUri === 'skipped' ? undefined : secondUri, image.uri);
     }
 }
 
@@ -123,25 +116,27 @@ export default function Capture(){
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
-            aspect: [BOX_WIDTH,BOX_HEIGHT],
-            quality: 0.6
+            quality: 0.6,
+            allowsMultipleSelection: false,
         })
 
-        console.log("Permission result: ", result)
 
         if (!result.canceled){
-            const resultUri = result.assets[0].uri;
-            await upload(resultUri);
-            setImage(resultUri)
-
-            router.push({
-            pathname: "/scan/result",
-            params: { uri: resultUri, metadata: JSON.stringify(result.assets[0])}
-            });
+            const pickedUri = result.assets[0].uri;
+            if (step === 'body'){
+                setFirstUri(pickedUri);
+                Alert.alert('Fish Body Selected!', 'Next is Capture Gills, or Skip to Proceed', [{ text: 'OK' }]);
+            } else if (step === 'gills'){
+                setSecondUri(pickedUri);
+                Alert.alert('Gills Selected!', 'Next is Capture Eyes, or Skip to Proceed', [{ text: 'OK' }]);
+            } else if (step === 'eyes'){
+                await upload(firstUri!, secondUri === 'skipped' ? undefined : secondUri ?? undefined, pickedUri);
+            }
         }
     }
 
     const upload = async (fishUri: string, gillUri?: string, eyeUri?: string) => {
+        setUploading(true);
         // console.log("TYPE OF URI:", typeof uri);
         // console.log("URI VALUE:", uri);
         const form_data = new FormData();
@@ -206,6 +201,7 @@ export default function Capture(){
             console.error("Upload error: ", error);
             Alert.alert("Error", "Failed to process image");
         }
+        setUploading(false);
     }
 
     function toggleCameraFacing(){
@@ -405,7 +401,7 @@ export default function Capture(){
             {step === 'gills' && (
                 <TouchableOpacity
                     onPress={() => {
-                        // Skip gills → go to eyes step by setting a sentinel
+                        // Skip gills
                         setSecondUri('skipped');
                     }}
                     className="absolute bottom-40 self-center z-10 bg-black/60 px-6 py-2 rounded-full">
@@ -426,6 +422,25 @@ export default function Capture(){
                     <Text className="text-white font-semibold">Skip Eyes</Text>
                 </TouchableOpacity>
             )}
+
+            {/* Loading Overlay */}
+            {uploading && (
+                <View style={{
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 99
+                }}>
+                    <ActivityIndicator size="large" color="white" />
+                    <Text style={{ color: 'white', marginTop: 16, fontSize: 16, fontWeight: 'bold' }}>
+                        Analyzing your fish...
+                    </Text>
+                    <Text style={{ color: '#ccc', marginTop: 8, fontSize: 13 }}>
+                        Please wait a moment
+                    </Text>
+                </View>
+                )}
 
             <BackButton onPress={() => router.push('/home')}/>
 

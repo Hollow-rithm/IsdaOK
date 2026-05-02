@@ -15,7 +15,7 @@ export default function Home() {
         <Image source={logo} className="w-32 h-32 mb-22 -mt-16" resizeMode="contain"/>
 
         <Text className="text-[#0B1D51] text-3xl font-semibold text-center">
-          Welcome{isGuest ? ", Guest" : `, ${username}`}
+          Welcome{isGuest ? " Guest!" : ` ${username}!`}
         </Text>
 
         <TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4" onPress={() => router.push('/scan/capture')}>
