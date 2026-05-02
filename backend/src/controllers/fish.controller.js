@@ -50,3 +50,21 @@ export const getHistory = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const deleteFish = async (req, res) => {
+    try {
+        const scanId = parseInt(req.params.id);
+        await fishService.deleteFish(scanId, req.user.id);
+
+        res.status(200).json({
+            status: "success",
+            message: "Record deleted"
+        });
+        
+    } catch (err) {
+        res.status(err.status || 500).json({
+            status: "error",
+            message: err.message,
+        });
+    }
+};
