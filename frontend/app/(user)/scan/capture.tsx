@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
-import ViewShot, { captureRef } from 'react-native-view-shot';
 import { getStoredToken } from "@/utils/authContext";
 
 export default function Capture(){
@@ -96,14 +95,7 @@ export default function Capture(){
             setSecondUri(image.uri);
             Alert.alert('Gills Captured!', 'Next is Capture Eyes, or Skip to Proceed', [{text: 'OK'}]);
         } else {
-        // router.push({ // Second capture, proceed to result
-        //     pathname: "/scan/result",
-        //     params: {
-        //         uri: firstUri,
-        //         uri2: image.uri,
-        //         metadata: JSON.stringify(image.exif)
-        // });
-        await upload(firstUri, secondUri === 'skipped' ? undefined : secondUri, image.uri);
+            await upload(firstUri, secondUri === 'skipped' ? undefined : secondUri, image.uri);
     }
 }
 
@@ -124,21 +116,22 @@ export default function Capture(){
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
-            aspect: [BOX_WIDTH,BOX_HEIGHT],
-            quality: 0.6
+            quality: 0.6,
+            allowsMultipleSelection: false,
         })
 
-        console.log("Permission result: ", result)
 
         if (!result.canceled){
-            const resultUri = result.assets[0].uri;
-            await upload(resultUri);
-            setImage(resultUri)
-
-            router.push({
-            pathname: "/scan/result",
-            params: { uri: resultUri, metadata: JSON.stringify(result.assets[0])}
-            });
+            const pickedUri = result.assets[0].uri;
+            if (step === 'body'){
+                setFirstUri(pickedUri);
+                Alert.alert('Fish Body Selected!', 'Next is Capture Gills, or Skip to Proceed', [{ text: 'OK' }]);
+            } else if (step === 'gills'){
+                setSecondUri(pickedUri);
+                Alert.alert('Gills Selected!', 'Next is Capture Eyes, or Skip to Proceed', [{ text: 'OK' }]);
+            } else if (step === 'eyes'){
+                await upload(firstUri!, secondUri === 'skipped' ? undefined : secondUri ?? undefined, pickedUri);
+            }
         }
     }
 
@@ -408,7 +401,7 @@ export default function Capture(){
             {step === 'gills' && (
                 <TouchableOpacity
                     onPress={() => {
-                        // Skip gills → go to eyes step by setting a sentinel
+                        // Skip gills
                         setSecondUri('skipped');
                     }}
                     className="absolute bottom-40 self-center z-10 bg-black/60 px-6 py-2 rounded-full">
@@ -430,6 +423,7 @@ export default function Capture(){
                 </TouchableOpacity>
             )}
 
+            {/* Loading Overlay */}
             {uploading && (
                 <View style={{
                     ...StyleSheet.absoluteFillObject,
