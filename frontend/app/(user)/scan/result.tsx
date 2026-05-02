@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, Alert } from 'react-native'
+import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native'
 import { router, useGlobalSearchParams } from 'expo-router'
 import HeaderBar from '@/components/HeaderBar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,27 +6,33 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import { useRef } from 'react';
 
-
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 export default function ViewImage () {
     const { result, uri, uri2 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string}>();
     const parsedResult = result ? JSON.parse(result) : null;
     const insets = useSafeAreaInsets();
-    const score = Math.floor(Math.random() * 100);
-    const resultRef = useRef(null);
+    const score = Math.floor(Math.random() * 100); //remove
+    const resultCardRef = useRef<ViewShot>(null);
 
-    const downloadResult = async () => {
-        try{
-            const uri = await captureRef(resultRef, {
-                format: 'jpg',
-                quality: 0.9
-            });
-            await MediaLibrary.saveToLibraryAsync(uri);
-            Alert.alert('Saved', 'Result saved to your library')
+    const saveResult = async () => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Allow access to save to gallery.');
+        return;
+      }
+      const capturedUri = await captureRef(resultCardRef, {
+        format: 'jpg',
+        quality: 0.95,
+      });
+
+        await MediaLibrary.saveToLibraryAsync(capturedUri);
+            Alert.alert('Saved!', 'Result saved to your gallery.');
         } catch (err) {
-            Alert.alert('Error', 'Failed to Save Result');
+            Alert.alert('Error', 'Failed to save result.');
         }
-    }
+    };
 
     const gradeColor = (grade: string) => {
         if (grade === 'HIGH') return '#16a34a';
@@ -58,7 +64,7 @@ export default function ViewImage () {
             )}
 
             <View className='flex-1 bg-primary justify-center items-center max-h-24'>
-                <Text className='text-3xl font-extrabold'>Surface Quality Score:</Text>
+                <Text className='text-3xl font-extrabold'>Overall Score:</Text>
                 <Text className='text-3xl font-extrabold'>{score}</Text>
             </View>
 
@@ -104,13 +110,12 @@ export default function ViewImage () {
                             <Text className=''>Scan Again</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={downloadResult} style={styles.button}>
+                        <TouchableOpacity onPress={saveResult} style={styles.button}>
                             <Text>Download</Text>
                         </TouchableOpacity>
 
                     </View>
                 </SafeAreaView>
-            
 
             <HeaderBar onPress={() => router.back()} title='Fish' />
 
