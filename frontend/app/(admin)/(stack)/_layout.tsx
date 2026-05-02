@@ -36,6 +36,13 @@ export default function AdminLayout() {
                 title: "Manage Users",
                 headerLeft: () => <BackButton />
                 }}/>
+
+              <Stack.Screen name="manageHistory"
+                options={{
+                headerShown: true,
+                title: "Manage History",
+                headerLeft: () => <BackButton />
+                }}/>
           </Stack>
       </SafeAreaProvider>
     );

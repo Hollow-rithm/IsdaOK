@@ -31,3 +31,22 @@ export const deleteUser = async (id) => {
 		email: records[0].email
 	};
 };
+
+export const deleteUserRecord = async (scanId) => {
+	const [records] = await db.query("SELECT `id` FROM `scans` WHERE `id` = ?", [scanId]);
+
+	if(!records.length){
+		const error = new Error("Record not found");
+		error.status = 404;
+		throw error;
+	}
+
+	await db.query("DELETE FROM `scans` WHERE `id` = ?", [scanId]);
+
+	return {
+		status: "success",
+		message: "Record deleted successfully",
+		scanId: records[0].id,
+		userId: records[0].user_id
+	};
+}

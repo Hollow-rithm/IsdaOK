@@ -1,7 +1,7 @@
 import { Text, View, ScrollView, TouchableOpacity, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { apiFetch } from "@/utils/api";
 import trash from "@/assets/images/trash.png";
 
@@ -13,7 +13,8 @@ type ScanHistory = {
   created_at: string;
 };
 
-export default function History() {
+export default function ManageHistory() {
+  const {userId, username} = useGlobalSearchParams<{ userId: string; username: string }>();
   const [history, setHistory] = useState<ScanHistory[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,9 +27,9 @@ export default function History() {
   const fetchHistory = async () => {
     setLoading(true);
     setSuccess('');
-		setError('');
+	setError('');
     try {
-      const res = await apiFetch("/api/fish/history", { method: "GET" });
+      const res = await apiFetch(`/api/admin/users/${userId}/history`, { method: "GET" });
       const data = await res.json();
       if (res.ok) {
         setHistory(data);
@@ -68,11 +69,11 @@ export default function History() {
                   style: "destructive",
                   onPress: async () => {
                       try {
-                          const res = await apiFetch(`/api/fish/delete/${id}`, { method: "DELETE" });
+                          const res = await apiFetch(`/api/admin/delete/record/${id}`, { method: "DELETE" });
                           const data = await res.json();
                           if (res.ok) {
                               setSuccess("Record deleted");
-                              setHistory((prev) => prev.filter((scan) => scan.id !== id));
+                              setHistory((prev) => prev.filter(s => s.id !== id));
                               setTimeout(() => setSuccess(''), 3000);
                           } else {
                               setError(data.message || "Failed to delete");
@@ -90,7 +91,11 @@ export default function History() {
       }
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-primary">
+    <SafeAreaView edges={['top']} className="flex-1 bg-[#FFE3A9]">
+
+        <View className="flex-row justify-center items-center">
+            <Text className="text-xl font-semibold text-[#0B1D51]">{username}'s Records</Text>
+        </View>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -111,13 +116,7 @@ export default function History() {
           {history.length === 0 ? (
             <View className="flex-1 items-center justify-center mt-20">
               <Text className="text-[#0B1D51] text-lg font-semibold">No scans yet!</Text>
-              <Text className="text-gray-500 mt-2">Start by scanning a fish.</Text>
-              <TouchableOpacity
-                className="bg-white py-2 px-4 rounded mt-4 border border-black"
-                onPress={() => router.push('/scan/capture')}
-              >
-                <Text className="text-[#0B1D51] font-semibold">Scan a Fish!</Text>
-              </TouchableOpacity>
+              <Text className="text-gray-500 mt-2">This user hasn't scanned any fish.</Text>
             </View>
           ) : (
             <>
@@ -127,7 +126,7 @@ export default function History() {
               </View>
             )}
             {history.map((scan) => (
-              <View key={scan.id} className="bg-secondary rounded-xl p-4 mb-3 border border-gray-200">
+              <View key={scan.id} className="bg-primary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
                     {scan.species ?? "Unknown Species"}
@@ -137,10 +136,10 @@ export default function History() {
                   </Text>
                 </View>
                 <View className="flex-row justify-between mt-2">
-                  <Text className="text-gray-500 text-sm">
+                  <Text className="text-gray-600 text-sm">
                     Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.overall_score}</Text>
                   </Text>
-                  <Text className="text-gray-400 text-xs">{formatDate(scan.created_at)}</Text>
+                  <Text className="text-gray-500 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
                 <View className="flex-row justify-end mt-1">
                   <TouchableOpacity
