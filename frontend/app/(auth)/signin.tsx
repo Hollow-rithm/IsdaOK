@@ -13,6 +13,8 @@ import { apiFetch } from "@/utils/api";
 import * as Biometric from "@/utils/biometric";
 import * as SecureStore from "expo-secure-store";
 import { useGoogleSignIn } from "@/utils/googleAuth";
+import { jwtDecode } from "jwt-decode";
+import { JWTPayload } from "@/utils/authContext";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -61,8 +63,10 @@ export default function SignIn() {
 		const checkBiometrics = async () => {
 			const hasHardware = await LocalAuthentication.hasHardwareAsync();
 			const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-			const hasSetup = await Biometric.hasBiometric();
-			setBiometric(hasHardware && isEnrolled && hasSetup);
+			const email = await Biometric.getBiometricActiveEmail();
+			const hasSetup = email ? await Biometric.hasBiometric(email) : false;
+    		const isEnabled = email ? await Biometric.isBiometricEnabled(email) : false;
+			setBiometric(hasHardware && isEnrolled && hasSetup && isEnabled);
 		};
 		checkBiometrics();
 	}, []);
@@ -84,38 +88,11 @@ export default function SignIn() {
 
 				if (res.ok && data.status === "success") {
 					setSuccess("Login Successful");
-					const hasHardware = await LocalAuthentication.hasHardwareAsync();
-					const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-					const hasBiometric = await Biometric.hasBiometric(email);
-					const biometricEnabled = await Biometric.isBiometricEnabled(email);
-
-					if(hasHardware && isEnrolled && !hasBiometric && !biometricEnabled){
-						Alert.alert(
-          	    			"Enable Biometrics",
-          					"Would you like to use Biometrics for future logins?",
-          					[{
-          				  		text: "Yes",
-          				  		onPress: async () => {
-          				  		    await Biometric.saveBiometric(data.token, email);
-          				  		    setBiometric(true);
-									await logIn(data.token);
-          				  		},
-          					},{
-								text: "Not Now",
-								style: "cancel",
-								onPress: async () => {
-									await logIn(data.token);
-								},
-							},]
-						);
-					} else if(hasHardware && isEnrolled && !hasBiometric && biometricEnabled) {
+					await SecureStore.setItemAsync("biometric-email", email);
+					const enabled = await Biometric.isBiometricEnabled(email);
+					if(enabled)
 						await Biometric.saveBiometric(data.token, email);
-						setBiometric(true);
-						await logIn(data.token);
-					} else {
-						await SecureStore.setItemAsync("biometric-email", email);
-						await logIn(data.token);
-					}
+					await logIn(data.token);
 				} else {
 					setError(data.message || "Invalid Email or Password");
 				}
@@ -139,6 +116,7 @@ export default function SignIn() {
 					await Biometric.deleteBiometric();
 					setBiometric(false);
 					setError("Biometric expired. Login via Password");
+					setTimeout(() => setError(''), 3000);
 					return;
 				}
 
@@ -153,12 +131,15 @@ export default function SignIn() {
 				const data = await res.json();
 
 				if(res.ok && data.status === "success"){
+					const decoded = jwtDecode<JWTPayload>(data.token);
 					await Biometric.refreshBiometricToken(data.token);
+					await SecureStore.setItemAsync("biometric-email", decoded.email);
 					await logIn(data.token);
 				} else {
 					await Biometric.deleteBiometric();
 					setBiometric(false);
 					setError("Biometric expired. Login via Password");
+					setTimeout(() => setError(''), 3000);
 				}
 			} else {
 				Alert.alert("Error: " + biometricsResult.error);

@@ -44,7 +44,7 @@ export const register = async ({ username, email, password }) => {
 };
 
 export const login = async ({ email, password }) => {
-	const [records] = await db.query("SELECT `id`, `username`, `password`, `role`, `is_verified` FROM `users` WHERE `email` = ?", [email]);
+	const [records] = await db.query("SELECT `id`, `username`, `email`, `password`, `role`, `is_verified` FROM `users` WHERE `email` = ?", [email]);
 
 	if(!records.length){
 		throw new Error("Invalid Email or Password");
@@ -68,6 +68,7 @@ export const login = async ({ email, password }) => {
 		message: "User Logged In Successfully",
 		id: user.id,
 		username: user.username,
+		email: user.email,
 		role: user.role
 	};
 };
@@ -177,7 +178,7 @@ export const resetPassword = async (token, newPassword) => {
 
 export const getUserID = async (id) => {
 	const [records] = await db.query(
-		"SELECT `id`, `username`, `role` FROM `users` WHERE `id` = ?",
+		"SELECT `id`, `username`, `email`, `role` FROM `users` WHERE `id` = ?",
 		[id]);
 
 	if(!records.length){
@@ -189,7 +190,7 @@ export const getUserID = async (id) => {
 
 export const googleLogin = async ({ email, googleId, name }) => {
   const [records] = await db.query(
-    "SELECT id, username, role FROM users WHERE email = ? OR google_id = ?",
+    "SELECT id, username, email, role FROM users WHERE email = ? OR google_id = ?",
     [email, googleId]
   );
 
@@ -212,7 +213,7 @@ export const googleRegister = async ({ email, googleId, username }) => {
   );
 
   const [user] = await db.query(
-    "SELECT id, username, role FROM users WHERE id = ?",
+    "SELECT id, username, email, role FROM users WHERE id = ?",
     [result.insertId]
   );
 

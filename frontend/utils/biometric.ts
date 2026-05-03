@@ -5,6 +5,7 @@ const BIOMETRIC_TOKEN_KEY = (email: string) => {
     return `biometric-auth-key-${emailKey}`;
 };
 const BIOMETRIC_EMAIL_KEY = "biometric-email";
+const BIOMETRIC_EMAIL_ACTIVE = "biometric-email-active";
 const BIOMETRIC_ENABLED = (email: string) => {
     const emailKey = email.replace(/[^a-zA-Z0-9]/g, "-");
     return `enabled-biometrics-for-${emailKey}`;
@@ -12,6 +13,16 @@ const BIOMETRIC_ENABLED = (email: string) => {
 
 export const enableBiometric = async (email: string, enabled: boolean) => {
     await SecureStore.setItemAsync(BIOMETRIC_ENABLED(email), String(enabled));
+};
+
+export const disableBiometric = async (email?: string) => {
+    const target = email ?? await SecureStore.getItemAsync(BIOMETRIC_EMAIL_KEY);
+    if(target){
+        await SecureStore.deleteItemAsync(BIOMETRIC_ENABLED(target));
+        await enableBiometric(target, false);
+    }
+    await SecureStore.deleteItemAsync(BIOMETRIC_EMAIL_KEY);
+    await SecureStore.deleteItemAsync(BIOMETRIC_EMAIL_ACTIVE);
 };
 
 export const isBiometricEnabled = async (email: string): Promise<boolean> => {
@@ -22,13 +33,17 @@ export const isBiometricEnabled = async (email: string): Promise<boolean> => {
 export const saveBiometric = async (token: string, email: string) => {
     await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY(email), token);
     await SecureStore.setItemAsync(BIOMETRIC_EMAIL_KEY, email);
-    await enableBiometric(email, true);
+    await SecureStore.setItemAsync(BIOMETRIC_EMAIL_ACTIVE, email);
 };
 
 export const getBiometricToken = async (): Promise<string | null> => {
-    const email = await SecureStore.getItemAsync(BIOMETRIC_EMAIL_KEY);
+    const email = await SecureStore.getItemAsync(BIOMETRIC_EMAIL_ACTIVE);
     if(!email) return null;
     return await SecureStore.getItemAsync(BIOMETRIC_TOKEN_KEY(email));
+};
+
+export const getBiometricActiveEmail = async (): Promise<string | null> => {
+    return await SecureStore.getItemAsync(BIOMETRIC_EMAIL_ACTIVE);
 };
 
 export const hasBiometric = async (email?: string): Promise<boolean> => {
