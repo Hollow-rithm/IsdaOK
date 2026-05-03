@@ -117,6 +117,8 @@ export default function SignUp() {
 							onChangeText={setEmail}
 							onBlur={() => setEmailError(validateEmail(sanitizeEmail(email)))}
 							placeholder="JuanDelaCruz@email.com"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -134,6 +136,8 @@ export default function SignUp() {
 							onChangeText={setUsername}
 							onBlur={() => setUsernameError(validateUsername(username))}
 							placeholder="Juan Dela Cruz"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -152,6 +156,8 @@ export default function SignUp() {
 							onChangeText={setPassword}
 							onBlur={() => setPasswordError(validatePassword(sanitizePassword(password)))}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>
@@ -172,6 +178,8 @@ export default function SignUp() {
 								!== (password));
 							}}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>

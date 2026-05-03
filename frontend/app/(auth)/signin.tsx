@@ -168,6 +168,8 @@ export default function SignIn() {
 							onChangeText={setEmail}
 							onBlur={() => setEmailError(validateEmail(sanitizeEmail(email)))}
 							placeholder="JuanDelaCruz@email.com"
+							placeholderTextColor="#9ca3af"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -183,6 +185,8 @@ export default function SignIn() {
 							value={password}
 							onChangeText={setPassword}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>
