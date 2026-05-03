@@ -28,11 +28,11 @@ export default function RootLayout() {
 
 	return (
 		<SafeAreaProvider>
-      <SettingsProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <SettingsProvider>
           <Slot />
-        </AuthProvider>
-      </SettingsProvider>
+        </SettingsProvider>
+      </AuthProvider>
 		</SafeAreaProvider>
 	);
 }

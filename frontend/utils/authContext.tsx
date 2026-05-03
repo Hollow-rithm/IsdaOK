@@ -8,13 +8,15 @@ type AuthState = {
     isReady: boolean,
     role: string | null,
     username: string | null,
+    email: string | null,
     logIn: (token: string) => Promise<void>;
     logOut: () => Promise<void>;
 };
 
-type JWTPayload = {
+export type JWTPayload = {
     id: number;
     username: string;
+    email: string;
     role: string;
     exp: number;
     session_start: number;
@@ -29,6 +31,7 @@ export const AuthContext = createContext<AuthState>({
     isReady: false,
     role: null,
     username: null,
+    email: null,
     logIn: async () => {},
     logOut: async () => {},
 });
@@ -38,6 +41,7 @@ export function AuthProvider({ children }: PropsWithChildren){
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [role, setRole] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
     const router = useRouter();
 
     const logIn = async (token: string) => {
@@ -45,7 +49,7 @@ export function AuthProvider({ children }: PropsWithChildren){
              if (token === "guest"){
                  setIsLoggedIn(true);
                  setRole("user");
-                setUsername("Guest");
+                 setUsername("Guest");
 
                  router.replace("/(user)/(drawer)/home");
                 return
@@ -55,6 +59,7 @@ export function AuthProvider({ children }: PropsWithChildren){
             setIsLoggedIn(true);
             setRole(decoded.role);
             setUsername(decoded.username);
+            setEmail(decoded.email);
 
             if(decoded.role === "admin"){
                 router.replace("/(admin)/(stack)/adminHome");
@@ -75,6 +80,7 @@ export function AuthProvider({ children }: PropsWithChildren){
         setIsLoggedIn(false);
         setRole(null);
         setUsername(null);
+        setEmail(null);
         router.replace("/(auth)/signin");
     }
 
@@ -93,6 +99,7 @@ export function AuthProvider({ children }: PropsWithChildren){
                         setIsLoggedIn(true);
                         setRole(decoded.role);
                         setUsername(decoded.username);
+                        setEmail(decoded.email);
                     } else {
                         await SecureStore.deleteItemAsync(TOKEN_KEY);
                     }
@@ -107,7 +114,7 @@ export function AuthProvider({ children }: PropsWithChildren){
     }, []);
 
     return(
-        <AuthContext.Provider value={{ isLoggedIn, isReady, role, username, logIn, logOut }}>
+        <AuthContext.Provider value={{ isLoggedIn, isReady, role, username, email, logIn, logOut }}>
             {children}
         </AuthContext.Provider>
     )

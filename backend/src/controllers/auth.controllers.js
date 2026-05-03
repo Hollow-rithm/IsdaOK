@@ -47,6 +47,7 @@ export const login = async (req, res) => {
 		const token = jwt.sign({
 			id: user.id,
 			username: user.username,
+			email: user.email,
 			role: user.role,
 			session_start: Date.now()
 		},
@@ -122,6 +123,7 @@ export const verifyToken = async (req, res) => {
 		const newToken = jwt.sign({
 			id: user.id,
 			username: user.username,
+			email: user.email,
 			role: user.role,
 			session_start: req.user.session_start
 		},
@@ -147,9 +149,9 @@ export const googleLogin = async (req, res) => {
   try {
     const result = await authService.googleLogin({ email, googleId, name });
     const token = jwt.sign(
-      { id: result.id, username: result.username, role: result.role },
+      { id: result.id, username: result.username, email: result.email, role: result.role, session_start: Date.now() },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1d' }
     );
     res.status(200).json({ status: "success", token });
   } catch (err) {
@@ -162,9 +164,9 @@ export const googleRegister = async (req, res) => {
   try {
     const result = await authService.googleRegister({ email, googleId, username });
     const token = jwt.sign(
-      { id: result.id, username: result.username, role: result.role },
+      { id: result.id, username: result.username, email: result.email, role: result.role, session_start: Date.now() },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1d' }
     );
     res.status(201).json({ status: "success", token });
   } catch (err) {
