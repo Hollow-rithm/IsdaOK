@@ -106,6 +106,8 @@ export default function ManageUsers() {
             <View className="mt-1">
                 <TextInput
                 placeholder="Search"
+                placeholderTextColor="gray"
+				style={{color: "black" }}
                 value={searchQuery}
                 onChangeText={(text) => searchUser(text)}
                 className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
