@@ -22,13 +22,14 @@ async def image_analysis(fish_image: UploadFile = File(...),
         # returns a json
         return {"error" : "Image decoding failed"}
 
-    # Test
+    # Test (PLACEHOLDER)
     sample_features = [0.61723,0.354569,56,0.472635,164,0.478455,0.087595,0.339651,0]
-    ml_score = float(model.predict([sample_features])[0])
-
+    predict = str(model.predict([sample_features])[0]).lower()
+    quality_category = {"high": 0.85, "medium": 0.60, "low": 0.30}
+    ml_score = quality_category.get(predict, 0.50)
     rule_score = 0.70
     final_score = (ml_score * 0.6) + (rule_score * 0.4)
-    quality = "HIGH" if final_score >= 0.75 else "MEDIUM" if final_score >= 0.5 else "LOW"
+    quality = predict.upper()
     
     return {
         "has_fish": True,
