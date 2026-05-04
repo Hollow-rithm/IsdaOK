@@ -24,7 +24,7 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         });
 
         const result = response.data;
-        
+
         if (userId) {
             const [scan] = await db.query(
                 "INSERT INTO scans (user_id, fish_image_path, gill_image_path, eye_image_path) VALUES (?, ?, ?, ?)",
