@@ -60,7 +60,7 @@ export const deleteRecord = async (req, res) => {
             status: "success",
             message: "Record deleted"
         });
-        
+
     } catch (err) {
         res.status(err.status || 500).json({
             status: "error",
