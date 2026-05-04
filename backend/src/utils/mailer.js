@@ -1,18 +1,12 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  family: 4,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (toEmail, verificationLink) => {
-  await transporter.sendMail({
-    from: `"IsdaOK" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: `"IsdaOK" <onboarding@resend.dev>`,
     to: toEmail,
     subject: 'Verify Your Email (no reply)',
     html: `
@@ -25,8 +19,8 @@ export const sendVerificationEmail = async (toEmail, verificationLink) => {
 };
 
 export const sendResetEmail = async (toEmail, resetLink) => {
-  await transporter.sendMail({
-    from: `"IsdaOK" <${process.env.EMAIL_USER}>`,
+  await resend.emails.sendMail({
+    from: `"IsdaOK" <onboarding@resend.dev>`,
     to: toEmail,
     subject: 'Reset Your Password (no reply)',
     html: `
@@ -35,6 +29,6 @@ export const sendResetEmail = async (toEmail, resetLink) => {
       <a href="${resetLink}">Reset Password</a>
       <p>This link expires in 10 minutes.</p>
       <p>If you didn't request this, ignore this email.</p>
-    `
+    `,
   });
 };
