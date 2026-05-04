@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2026 at 04:01 AM
+-- Generation Time: May 04, 2026 at 10:20 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,9 +31,9 @@ CREATE TABLE `scans` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `fish_image_path` varchar(500) NOT NULL,
-  `gill_image_path` varchar(500) DEFAULT NULL,
-  `eye_image_path` varchar(500) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `gill_image_path` varchar(500) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `eye_image_path` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -71,31 +71,8 @@ CREATE TABLE `users` (
   `created_at` datetime DEFAULT current_timestamp(),
   `is_verified` tinyint(1) DEFAULT 0,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `google_id` varchar(255) DEFAULT NULL UNIQUE
+  `google_id` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`, `is_verified`, `updated_at`) VALUES
-(1, 'ChillGuy', 'chillguy@gmail.com', '', 'user', '2026-04-26 14:18:15', 0, '2026-04-27 01:50:23'),
-(2, 'Name1', 'Gh@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(3, 'John', 'xa@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(4, 'Cind', 'hasd1@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(5, 'Cwistopher', 'jasduyg@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(6, 'Hollow', 'ggaa@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(7, 'Knight', 'asdasdn@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(9, 'Andrian', 'jjgsdg@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(10, 'Liam', 'jjaqas@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(11, 'Mikey', 'oiuqp@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(12, 'Luffy', 'agqwjytrv@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(13, 'Manderson', 'jnkaslkj@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(14, 'Law', 'yurturq@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(15, 'Lmfao', 'jhqweb@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(16, 'Wishasih', 'kkkjlfda@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(17, 'Lopunny', 'hasdg@gmail.com', '', 'user', '2026-04-26 14:31:14', 0, '2026-04-27 01:50:23'),
-(31, 'ttesti', 'johnalpha220@gmail.com', '$2b$10$w/Mht8nfZS0IvMd6iMTXv.PS6WjZbkaANKjIVr6DaQyFXWPvMjHMu', 'admin', '2026-04-25 21:51:21', 1, '2026-04-27 01:50:23');
 
 -- --------------------------------------------------------
 
@@ -137,7 +114,8 @@ ALTER TABLE `scan_results`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `google_id` (`google_id`);
 
 --
 -- Indexes for table `user_tokens`
@@ -166,7 +144,7 @@ ALTER TABLE `scan_results`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user_tokens`
