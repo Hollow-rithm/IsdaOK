@@ -52,10 +52,10 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         return {
             has_fish: result.has_fish,
             species: result.species,
+            ml_score: result.ml_score,
             eye_score: result.features.eye_score,
             gill_score: result.features.gill_score,
             body_score: result.features.body_score,
-            ml_score: result.ml_score,
             final_score: result.final_score,
             quality: result.quality,
 
