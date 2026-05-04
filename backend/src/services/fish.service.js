@@ -38,10 +38,10 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
                 [
                     scan.insertId,
                     result.species,
+                    result.ml_score,
                     result.features.eye_score,
                     result.features.gill_score,
                     result.features.body_score,
-                    result.ml_score,
                     result.final_score,
                     result.quality.toUpperCase(),
                     //computeGrade(result.final_score)
