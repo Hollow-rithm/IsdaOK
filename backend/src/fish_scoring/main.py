@@ -1,0 +1,110 @@
+# from fastapi import FastAPI, File, UploadFile, HTTPException
+# from fastapi.responses import JSONResponse
+# import logging
+
+# from preprocessing import image_utils
+# from segmentation import fish_segmenter
+# from segmentation import roi_splitter
+# from segmentation import eye_segmenter
+# from segmentation import gill_segmenter
+# from features import eye_features, body_features, gill_features
+# from scoring import scorer
+# from models import evaluator
+# from species import classifier
+
+# app = FastAPI(
+#     title = "Fish Surface Quality Assessment",
+#     version = "1.0.0",
+#     description = "Analyze fish surface quality using deep learning + rule-based scoring",
+# )
+# logger = logging.getLogger(__name__)
+
+# @app.get("/health")
+# async def health_check():
+#     return {
+#         "status": "healthy",
+#         "segmenter_loaded": fish_segmenter.is_loaded(),
+#         "evaluator_loaded": evaluator._evaluator is not None,
+#     }
+
+# @app.post("api/fish/analyze")
+# async def analyze_fish(
+#     fish_image: UploadFile = File(...),
+#     gill_image: UploadFile = File(None)
+# ):
+#     try:
+#         fish_bytes = await fish_image.read()
+#         fish_img = image_utils.decode_image(fish_bytes)
+
+#         if fish_img is None:
+#             raise HTTPException(400, "fish_img could not be decoded")
+        
+#         gill_img = None
+#         has_gills = False
+
+#         if gill_img:
+#             gill_bytes = await gill_image.read()
+#             gill_img = image_utils.decode_image(gill_bytes)
+#             has_gills = gill_img is not None
+
+#         # Preprocess
+        
+#         if gill_img is not None:
+#             gill_img = image_utils.resize_gills(gill_img)
+#             gill_enhanced = image_utils.apply_clahe(gill_img)
+
+#         # Segmentation
+#         gill_result, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
+        
+#         # Feature Extraction
+#         gill_feats = gill_features.extract(gill_result, gill_mask)
+
+#         # Scoring
+#         gill_score = scorer.compute_gill_score(gill_feats)
+
+
+#         return JSONResponse({
+#             "has_fish": True,
+#             "species": species,
+#             "features": {
+#                 "eye": eye_feats,
+#                 "body": body_feats,
+#                 "gill": gill_feats
+#             },
+#             "rule_score": rule_score,
+#             "rule_quality" : rule_quality,
+#             "ml_quality": ml_quality,
+#             "final_quality": final_quality,
+#             "has_gills": has_gills,
+#         })
+    
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         logger.error(f"Processing error {e}", exc_info=True)
+#         raise HTTPException(500, f"Processing failed: {str(e)}")
+    
+def save(name, img, dir="eye_debug"):
+    import os
+    import cv2 as cv
+    os.makedirs(dir, exist_ok=True)
+    if img is None or img.size == 0:
+        return
+    out = img.copy()
+    h, w = out.shape[:2]
+    scale = min(800 / w, 800 / h, 1.0)
+    if scale < 1.0:
+        out = cv.resize(out, (int(w * scale), int(h * scale)))
+    cv.imwrite(f"{dir}/{name}.jpg", out)
+
+def main():
+    import cv2 as cv
+    from segmentation import fish_segmenter
+    from preprocessing import image_utils
+    fish_image = cv.imread("fish_image.jpg")
+    head_roi, body_roi = fish_segmenter.segment(fish_image)
+    head_rgb, head_gray = image_utils.preprocess_head(head_roi)
+    
+
+if __name__ == "__main__":
+    main()
