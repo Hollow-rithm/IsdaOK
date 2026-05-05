@@ -72,9 +72,9 @@ export default function ViewImage () {
     }
 
     return (
-        <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center'>
+        <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-8'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
-
+            <HeaderBar onPress={() => router.back()} title='Results' />
 
             <ViewShot ref={resultCardRef} style={{ width: '90%', marginVertical: 8 }}>
                 <View className="flex-row mb-3 bg-primary" style={{ justifyContent: "center" }}>
@@ -148,8 +148,6 @@ export default function ViewImage () {
                     </TouchableOpacity>
                     </View>
                 </SafeAreaView>
-
-            <HeaderBar onPress={() => router.back()} title='Results' />
         </SafeAreaView>
   );
 }
