@@ -299,7 +299,7 @@ export default function SignUp() {
 					<View className="flex-row">
 						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3"
 						disabled={!request}
-						onPress={() => 
+						onPress={() =>
 						promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
 						</TouchableOpacity>

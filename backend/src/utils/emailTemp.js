@@ -44,7 +44,6 @@ export const verifiedSuccessHTML = `
     <div class="icon">✅</div>
     <h1>Email Verified!</h1>
     <p>Your account has been successfully verified. You can now sign in to the app.</p>
-    <a class="button" href="isdaok://signin">Open App</a>
   </div>
 </body>
 </html>
@@ -256,7 +255,6 @@ export const resetSuccessHTML = `
     <div class="icon">✅</div>
     <h1>Password Reset!</h1>
     <p>Your password has been successfully reset. You can now sign in.</p>
-    <a class="button" href="isdaok://signin">Open App</a>
   </div>
 </body>
 </html>
