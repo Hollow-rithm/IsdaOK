@@ -10,7 +10,6 @@ import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
 import { getStoredToken } from "@/utils/authContext";
-import { Resend } from 'resend';
 
 export default function Capture(){
     const { settings } = useSettings();
