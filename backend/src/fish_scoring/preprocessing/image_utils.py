@@ -43,3 +43,14 @@ def preprocess_head(head_roi):
     sharpened_rgb = cv.cvtColor(sharpened_gray, cv.COLOR_GRAY2BGR)
 
     return sharpened_rgb, sharpened_gray
+
+def get_lab_mean(img):
+    lab = cv.cvtColor(img, cv.COLOR_BGR2LAB)
+    L = lab[:,:,0]
+    mask = L > 10
+
+    if not np.any(mask):
+        return 0.0
+    
+    mean_L = np.mean(L[mask]) * 100.0 / 255.0  
+    return round(mean_L, 4)

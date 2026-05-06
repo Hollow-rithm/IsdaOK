@@ -8,7 +8,7 @@
 # from segmentation import eye_segmenter
 # from segmentation import gill_segmenter
 # from features import eye_features, body_features, gill_features
-# from scoring import scorer
+# from scoring import eye_scorer, body_scorer, gill_scorer
 # from models import evaluator
 # from species import classifier
 
@@ -60,8 +60,7 @@
 #         gill_feats = gill_features.extract(gill_result, gill_mask)
 
 #         # Scoring
-#         gill_score = scorer.compute_gill_score(gill_feats)
-
+#         gill_score = gill_scorer.score(gill_feats)
 
 #         return JSONResponse({
 #             "has_fish": True,
@@ -88,7 +87,7 @@ def save(name, img, dir="eye_debug"):
     import os
     import cv2 as cv
     os.makedirs(dir, exist_ok=True)
-    if img is None or img.size == 0:
+    if img is None:
         return
     out = img.copy()
     h, w = out.shape[:2]
@@ -99,12 +98,22 @@ def save(name, img, dir="eye_debug"):
 
 def main():
     import cv2 as cv
-    from segmentation import fish_segmenter
-    from preprocessing import image_utils
-    fish_image = cv.imread("fish_image.jpg")
-    head_roi, body_roi = fish_segmenter.segment(fish_image)
-    head_rgb, head_gray = image_utils.preprocess_head(head_roi)
-    
+    from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
+    from features import body_features, eye_features, gill_features
+    img_path = "BANG_BWM_07_FULL.jpg"
+    fish_image = cv.imread(f"dataset/full/{img_path}")
 
+    # Segment
+    head_roi, body_roi = fish_segmenter.segment(fish_image)
+    eye_roi = eye_segmenter.segment(head_roi)
+
+    # Features
+    body_feats = body_features.extract(body_roi)
+    eye_feats = eye_features.extract(eye_roi)
+
+    eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) # Add Relative_L
+
+    print(eye_feats)
+    print(body_feats)
 if __name__ == "__main__":
     main()

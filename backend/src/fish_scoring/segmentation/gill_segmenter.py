@@ -3,20 +3,19 @@ import numpy as np
 
 from config import K5, K11
 
-def segment(enhanced, roi, img):
+def segment(enhanced, img):
     hsv = cv.cvtColor(enhanced, cv.COLOR_BGR2HSV)
 
     # red mask
-    red1 = cv.inRange(hsv, (0, 60, 40), (8, 255, 255))
-    red2 = cv.inRange(hsv, (168, 60, 40), (180, 255, 255))
-    mask_red = cv.bitwise_or(red1, red2)
+    mask_red = cv.inRange(hsv, (0, 60, 40), (8, 255, 255))
+    mask_red2 = cv.inRange(hsv, (168, 60, 40), (180, 255, 255))
+    cv.bitwise_or(mask_red, mask_red2, dst=mask_red)
 
     # borwn mask
-    mask_brown = cv.inRange(hsv, (8, 50, 40), (31, 190, 160))
+    mask = cv.inRange(hsv, (8, 50, 40), (31, 190, 160))
 
-    total_pixels = roi.shape[0] * roi.shape[1]
-    
-    mask = cv.bitwise_or(mask_red, mask_brown)
+    # combine masks    
+    cv.bitwise_or(mask_red, mask, dst=mask)
 
     mask = cv.morphologyEx(mask, cv.MORPH_OPEN, K5)
     mask = cv.morphologyEx(mask, cv.MORPH_CLOSE, K11)
@@ -24,9 +23,8 @@ def segment(enhanced, roi, img):
 
     contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
-    final_mask = np.zeros_like(mask)
-
     if contours:
+        final_mask = np.zeros_like(mask)
         best = max(contours, key=cv.contourArea)
         cv.drawContours(final_mask, [best], -1, 255, -1)
     else:

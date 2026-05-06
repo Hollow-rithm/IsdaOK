@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-def extract_gill_features(result, mask):
+def extract(result, mask):
     valid_pixels = cv.countNonZero(mask)
     if valid_pixels < 100:
         return {
@@ -15,23 +15,25 @@ def extract_gill_features(result, mask):
 
     hsv = cv.cvtColor(result, cv.COLOR_BGR2HSV)
 
-    h_vals = hsv[:, :, 0][mask == 255].astype(float)
-    s_vals = hsv[:, :, 1][mask == 255].astype(float)
-    v_vals = hsv[:, :, 2][mask == 255].astype(float)
+    valid = mask == 255
+    h_vals = hsv[:, :, 0][valid].astype(np.float32)
+    s_vals = hsv[:, :, 1][valid].astype(np.float32)
+    v_vals = hsv[:, :, 2][valid].astype(np.float32)
 
     # Mean Hue (hue is circular)
-    angles = h_vals * (2 * np.pi / 180.0)
-    sin_mean = np.mean(np.sin(angles))
-    cos_mean = np.mean(np.cos(angles))
+    angles = h_vals * (np.pi / 90.0) # 2 * pi / 180
+    sin_mean = np.sin(angles).mean()
+    cos_mean = np.cos(angles).mean()
+
     circular_mean = np.degrees(np.arctan2(sin_mean, cos_mean))
     if circular_mean < 0:
         circular_mean += 360
-    hue_mean = circular_mean * (180.0 / 360.0)
+    hue_mean = circular_mean * 0.5 # * 180/360
 
     # Red purity (mean saturation of red pixels)
     red_mask = (h_vals <= 8) | (h_vals >= 168)
-    if np.sum(red_mask) > 0:
-        red_purity = np.mean(s_vals[red_mask])
+    if red_mask.any():
+        red_purity = s_vals[red_mask].mean()
     else:
         red_purity = 0.0
 

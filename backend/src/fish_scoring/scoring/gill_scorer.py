@@ -2,7 +2,7 @@ import numpy as np
 
 from config import MAX_SCORE, MIN_SCORE, HUE_LOWER_1, HUE_LOWER_2, HUE_UPPER_1, HUE_UPPER_2, PURITY_LOWER, PURITY_UPPER, BROWN_LOWER, BROWN_UPPER, COV_LOWER, COV_UPPER, BEST_BRIGHTNESS_LOW_THRESH, BEST_BRIGHTNESS_HIGH_THRESH, BRIGHTNESS_LOWER, BRIGHTNESS_HIGHER
 
-def compute_gill_score(features):
+def compute(features):
     valid_pixels = features["valid_pixels"]
     if valid_pixels < 100:
         return 0.0, {}
@@ -56,8 +56,3 @@ def compute_gill_score(features):
     )
 
     return round(float(final_score), 2)
-
-
-def compute_body_score(features):
-    
-
