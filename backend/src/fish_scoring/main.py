@@ -100,23 +100,57 @@ def main():
     import cv2 as cv
     from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
     from features import body_features, eye_features, gill_features
+    from scoring import gill_scorer, eye_scorer, body_scorer, rule_scorer
+    from preprocessing import image_utils
 
-    img_path = "BANG_BWM_07_FULL.jpg"
-    fish_image = cv.imread(f"dataset/full/{img_path}")
+    img_path = "TILA_BWM_06"
+    spec = img_path.split("_")[0]
+    if spec == "TILA":
+        species = "tilapia"
+    elif spec == "BANG":
+        species = "bangus"
+    elif spec == "CARP":
+        species = "carp"
+    else:
+        species = "unknown"
+    
+    fish_image = cv.imread(f"dataset/full/{img_path}_FULL.jpg")
+    gill_image = cv.imread(f"dataset/gills/{img_path}_GILLS.jpg")
+    gill_image = image_utils.resize_gills(gill_image)
+    gill_enhanced = image_utils.apply_clahe(gill_image)
 
-    # Segment
+    # Segment   
+    gill_result, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_image)
     head_roi, body_roi = fish_segmenter.segment(fish_image)
     eye_roi = eye_segmenter.segment(head_roi)
 
     # Features
-    body_feats = body_features.extract(body_roi)
+    gill_feats = gill_features.extract(gill_result, gill_mask)
     eye_feats = eye_features.extract(eye_roi)
+    body_feats = body_features.extract(body_roi)
 
     # Add Cloudiness Feature / Delete Some Features
-    eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
+    eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats)
     
-    
+    # Scoring
+    gill_score = gill_scorer.compute(gill_feats)
+    eye_score = eye_scorer.compute(eye_feats, species)
+    body_score = body_scorer.compute(body_feats, species)
 
+    # Final Scoring
+    rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
+
+    print({
+            "has_fish": True,
+            "species": species,
+            "features": {
+                "eye": eye_feats,
+                "body": body_feats,
+                "gill": gill_feats
+            },
+            "rule_score": rule_score,
+            "rule_quality" : rule_quality,
+        })
 
 if __name__ == "__main__":
     # main()
@@ -125,22 +159,40 @@ if __name__ == "__main__":
     from features import body_features, eye_features, gill_features
     from pathlib import Path
     import csv
+    from scoring import gill_scorer, eye_scorer, body_scorer, rule_scorer
+    from preprocessing import image_utils
 
     rows = []
     folder_path = "dataset/full"
     counter = 0
     for file in Path(folder_path).iterdir():
+        print(file.stem)
         # if counter == 6:
         #     break
         # counter += 1
         print(f"Processing {file.name}")
         stem = file.stem
-        img_path = f"{file.name}"
+        fish_path = f"{folder_path}"
+        gill_path = f"{folder_path}/../gills/"
         spec, loc, num, _ = stem.split("_")
-        fish_image = cv.imread(f"dataset/full/{img_path}")
+
+        if spec == "TILA":
+            species = "tilapia"
+        elif spec == "BANG":
+            species = "bangus"
+        elif spec == "CARP":
+            species = "carp"
+        else:
+            species = "unknown"
+
+        fish_image = cv.imread(f"{fish_path}/{file.name}")
+        gill_image = cv.imread(f"{gill_path}/{spec}_{loc}_{num}_GILLS.jpg")
+        gill_image = image_utils.resize_gills(gill_image)
+        gill_enhanced = image_utils.apply_clahe(gill_image)
 
         print("Segmenting.")
         # Segment
+        gill_result, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_image)
         head_roi, body_roi = fish_segmenter.segment(fish_image)
         eye_roi = eye_segmenter.segment(head_roi)
 
@@ -148,26 +200,51 @@ if __name__ == "__main__":
         # Features
         if body_roi is None or eye_roi is None:
             print(f"Passing {file.name}")
+            rows.append({
+                "spec": spec,
+                "loc": loc,
+                "rule_quality": "none",
+            })
             continue
+        gill_feats = gill_features.extract(gill_result, gill_mask)
         body_feats = body_features.extract(body_roi)
         eye_feats = eye_features.extract(eye_roi)
 
         # Add Cloudiness Feature / Delete Some Features
         eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
+        
+        # Scoring
+        gill_score = gill_scorer.compute(gill_feats)
+        eye_score = eye_scorer.compute(eye_feats, species)
+        body_score = body_scorer.compute(body_feats, species)
+
+        # Final Scoring
+        rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
 
         print("Appending...")
         rows.append({
             "spec": spec,
             "loc": loc,
             "num": num,
+            "hue_mean": gill_feats["hue_mean"],
+            "redness_purity": gill_feats["redness_purity"],
+            "brightness_mean": gill_feats["brightness_mean"],
+            "brown_dominance": gill_feats["brown_dominance"],
+            "color_cov": gill_feats["color_cov"],
             "red_intensity": eye_feats["red_intensity"],
             "red_coverage": eye_feats["red_coverage"],
             "eye_cloudiness": eye_feats["eye_cloudiness"],
             "shine_coverage": body_feats["shine_coverage"],
             "shine_intensity": body_feats["shine_intensity"],
             "body_color_b": body_feats["body_color_b"],
+            "gill_score": gill_score,
+            "eye_score": eye_score,
+            "body_score": body_score,
+            "rule_score": rule_score,
+            "rule_quality": rule_quality,
         })
-    output_path = "csvs/features_orig_torch.csv"
+
+    output_path = "csvs/features.csv"
     # get column names from the first row
     fieldnames = rows[0].keys() if rows else []
 
