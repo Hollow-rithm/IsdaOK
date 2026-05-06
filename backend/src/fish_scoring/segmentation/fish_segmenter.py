@@ -15,7 +15,6 @@ def _load_segmenter():
     global _model, _device, _torch, _smp
 
     if _model is not None:
-        print("Model is already loaded.")
         return
     
     print("Loading segmentation model...")
@@ -56,11 +55,23 @@ def segment(img):
     ############################################################################################# segment_fish
     h, w = img.shape[:2]
 
-    # img_resized = cv.resize(cv.cvtColor(img, cv.COLOR_BGR2RGB), (IMG_SIZE, IMG_SIZE))
+    # IMG_SIZE = 256
+
+    # img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    # img_resized = cv.resize(img_rgb, (IMG_SIZE, IMG_SIZE))
     # img_norm = img_resized.astype("float32") / 255.0
+
     # img_tensor = _torch.from_numpy(img_norm).permute(2, 0, 1).unsqueeze(0).to(_device)
+
+    # with _torch.no_grad():
+    #     pred = _model(img_tensor)
+    #     pred = _torch.sigmoid(pred)
+    #     pred = (pred > 0.5).float()
+
+    # mask = pred.squeeze().cpu().numpy()
+
     img_resized = cv.resize(cv.cvtColor(img, cv.COLOR_BGR2RGB), (IMG_SIZE, IMG_SIZE))
-    img_tensor = _torch.from_numpy(img_resized).permute(2, 0, 1).unsqueeze(0).to(_device)
+    img_tensor = _torch.from_numpy(img_resized).permute(2, 0, 1).unsqueeze(0)
     img_tensor = img_tensor.float().div_(255.0).to(_device)
 
     with _torch.inference_mode():

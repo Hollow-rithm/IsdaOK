@@ -22,6 +22,6 @@ def extract(eye_result):
             }
 
 def enrich(eye_feats, body_feats):
-    eye_feats["cloudiness"] = round(eye_feats["eye_L"] / (body_feats["body_L"] + 1e-6), 4)
+    eye_feats["eye_cloudiness"] = round(eye_feats["eye_L"] / (body_feats["body_L"] + 1e-6), 4)
     del eye_feats["eye_L"], body_feats["body_L"]
     return eye_feats, body_feats

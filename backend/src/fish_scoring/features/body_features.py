@@ -24,9 +24,9 @@ def extract(body_roi):
 
     # 4. HARD INTENSITY FLOOR
     # A true "shine" is objectively bright. We ignore anything below the 60% mark.
-    v_thresh = max(otsu_val, 180)  # adaptive but still strict
-    _, v_hard_gate = cv.threshold(v_ch, v_thresh, 255, cv.THRESH_BINARY)
-    # _, v_hard_gate = cv.threshold(v_ch, 200, 255, cv.THRESH_BINARY)
+    # v_thresh = max(otsu_val, 180)  # adaptive but still strict
+    # _, v_hard_gate = cv.threshold(v_ch, v_thresh, 255, cv.THRESH_BINARY)
+    _, v_hard_gate = cv.threshold(v_ch, 200, 255, cv.THRESH_BINARY)
 
     # 5. FUSE CRITERIA
     # Seed (Peak) + Colorless (S-Otsu) + Bright (V-Gate)
@@ -46,9 +46,18 @@ def extract(body_roi):
     coverage = float(specular_pixels / body_area) if body_area > 0 else 0
     average = float(np.mean(v_ch[final_mask > 0])) if specular_pixels > 0 else 0
 
+    # Color Features
+    lab = cv.cvtColor(body_roi, cv.COLOR_BGR2LAB)
+    _, _, b_ch = cv.split(lab)
+    b_centered = b_ch.astype(np.float32) - 128.0
+
+    body_mask_bool = v_ch > 15
+    mean_b = float(np.mean(b_centered[body_mask_bool])) if body_mask_bool.any() else 0.0
+
     body_L = float(image_utils.get_lab_mean(body_roi))
 
     return {"shine_coverage": round(coverage, 4),
             "shine_intensity": round(average, 2),
+            "body_color_b": round(mean_b, 4),
             "body_L": round(body_L, 2),
             }

@@ -100,6 +100,7 @@ def main():
     import cv2 as cv
     from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
     from features import body_features, eye_features, gill_features
+
     img_path = "BANG_BWM_07_FULL.jpg"
     fish_image = cv.imread(f"dataset/full/{img_path}")
 
@@ -111,9 +112,71 @@ def main():
     body_feats = body_features.extract(body_roi)
     eye_feats = eye_features.extract(eye_roi)
 
-    eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) # Add Relative_L
+    # Add Cloudiness Feature / Delete Some Features
+    eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
+    
+    
 
-    print(eye_feats)
-    print(body_feats)
+
 if __name__ == "__main__":
-    main()
+    # main()
+    import cv2 as cv
+    from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
+    from features import body_features, eye_features, gill_features
+    from pathlib import Path
+    import csv
+
+    rows = []
+    folder_path = "dataset/full"
+    counter = 0
+    for file in Path(folder_path).iterdir():
+        # if counter == 6:
+        #     break
+        # counter += 1
+        print(f"Processing {file.name}")
+        stem = file.stem
+        img_path = f"{file.name}"
+        spec, loc, num, _ = stem.split("_")
+        fish_image = cv.imread(f"dataset/full/{img_path}")
+
+        print("Segmenting.")
+        # Segment
+        head_roi, body_roi = fish_segmenter.segment(fish_image)
+        eye_roi = eye_segmenter.segment(head_roi)
+
+        print("Feature Extraction..")
+        # Features
+        if body_roi is None or eye_roi is None:
+            print(f"Passing {file.name}")
+            continue
+        body_feats = body_features.extract(body_roi)
+        eye_feats = eye_features.extract(eye_roi)
+
+        # Add Cloudiness Feature / Delete Some Features
+        eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
+
+        print("Appending...")
+        rows.append({
+            "spec": spec,
+            "loc": loc,
+            "num": num,
+            "red_intensity": eye_feats["red_intensity"],
+            "red_coverage": eye_feats["red_coverage"],
+            "eye_cloudiness": eye_feats["eye_cloudiness"],
+            "shine_coverage": body_feats["shine_coverage"],
+            "shine_intensity": body_feats["shine_intensity"],
+            "body_color_b": body_feats["body_color_b"],
+        })
+    output_path = "csvs/features_orig_torch.csv"
+    # get column names from the first row
+    fieldnames = rows[0].keys() if rows else []
+
+    Path("csvs").mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({
+                **row,
+            })
