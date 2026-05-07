@@ -1,6 +1,6 @@
 import numpy as np
 
-from config import MAX_SCORE, MIN_SCORE, HUE_LOWER_1, HUE_LOWER_2, HUE_UPPER_1, HUE_UPPER_2, PURITY_LOWER, PURITY_UPPER, BROWN_LOWER, BROWN_UPPER, COV_LOWER, COV_UPPER, BEST_BRIGHTNESS_LOW_THRESH, BEST_BRIGHTNESS_HIGH_THRESH, BRIGHTNESS_LOWER, BRIGHTNESS_HIGHER
+from config import MAX_SCORE, MIN_SCORE, HUE_LOWER, HUE_UPPER, PURITY_LOWER, PURITY_UPPER, BROWN_LOWER, BROWN_UPPER, COV_LOWER, COV_UPPER, BEST_BRIGHTNESS_LOW_THRESH, BEST_BRIGHTNESS_HIGH_THRESH, BRIGHTNESS_LOWER, BRIGHTNESS_HIGHER
 
 def compute(features):
     valid_pixels = features["valid_pixels"]
@@ -11,10 +11,9 @@ def compute(features):
     # Range_1: 0 (pure red) to 20(brownish). Invert so low hue = high score.
     # Range_2: 180 = 0 (pure red) to 168 (pinkish)
     hm = features["hue_mean"]
-    if hm > 20.0:
-        hue_score = np.clip((hm - HUE_LOWER_2) / (HUE_UPPER_2 - HUE_LOWER_2), MIN_SCORE, MAX_SCORE)
-    else:
-        hue_score = np.clip(MAX_SCORE - (hm - HUE_LOWER_1) / (HUE_UPPER_1 - HUE_LOWER_1), MIN_SCORE, MAX_SCORE)
+    if hm > 90.0:
+        hm = 180.0 - hm
+    hue_score = np.clip(MAX_SCORE - (hm - HUE_LOWER) / (HUE_UPPER - HUE_LOWER), MIN_SCORE, MAX_SCORE)
 
     # Sub-score 2: Red purity (Mean Saturation)
     # Range: 50 (dull stale) to 200 (vibrant fresh)
@@ -48,11 +47,19 @@ def compute(features):
         brightness_score = np.clip(1.0 - (BEST_BRIGHTNESS_HIGH_THRESH - bm) / (BRIGHTNESS_HIGHER - BEST_BRIGHTNESS_HIGH_THRESH), MIN_SCORE, MAX_SCORE)
 
     final_score = (
-        hue_score        * 0.35 +
-        purity_score     * 0.30 +
-        brown_score      * 0.20 +
+        hue_score        * 0.40 +
+        purity_score     * 0.25 +
+        brown_score      * 0.25 +
         uniformity_score * 0.10 +
-        brightness_score * 0.05
+        brightness_score * 0.00
     )
 
     return round(float(final_score), 2)
+    # return {
+    #     "hue_score": hue_score,
+    #     "purity_score": purity_score,
+    #     "brown_score": brown_score,
+    #     "uniformity_score": uniformity_score,
+    #     "brightness_score": brightness_score,
+    #     "final_score": final_score,
+    # }

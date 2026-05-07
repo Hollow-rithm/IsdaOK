@@ -161,12 +161,13 @@ if __name__ == "__main__":
     import csv
     from scoring import gill_scorer, eye_scorer, body_scorer, rule_scorer
     from preprocessing import image_utils
+    # import pandas as pd
 
     rows = []
     folder_path = "dataset/full"
     counter = 0
     for file in Path(folder_path).iterdir():
-        print(file.stem)
+        # print(file.stem)
         # if counter == 6:
         #     break
         # counter += 1
@@ -190,23 +191,24 @@ if __name__ == "__main__":
         gill_image = image_utils.resize_gills(gill_image)
         gill_enhanced = image_utils.apply_clahe(gill_image)
 
-        print("Segmenting.")
+        # print("Segmenting.")
         # Segment
-        gill_result, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_image)
-        head_roi, body_roi = fish_segmenter.segment(fish_image)
+        gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_image)
+        head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_image)
         eye_roi = eye_segmenter.segment(head_roi)
 
-        print("Feature Extraction..")
+        # print("Feature Extraction..")
         # Features
         if body_roi is None or eye_roi is None:
             print(f"Passing {file.name}")
             rows.append({
                 "spec": spec,
                 "loc": loc,
+                "num": num,
                 "rule_quality": "none",
             })
             continue
-        gill_feats = gill_features.extract(gill_result, gill_mask)
+        gill_feats = gill_features.extract(gill_roi, gill_mask)
         body_feats = body_features.extract(body_roi)
         eye_feats = eye_features.extract(eye_roi)
 
@@ -221,11 +223,12 @@ if __name__ == "__main__":
         # Final Scoring
         rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
 
-        print("Appending...")
+        # print("Appending...")
         rows.append({
             "spec": spec,
             "loc": loc,
             "num": num,
+            "aspect_ratio": aspect_ratio,
             "hue_mean": gill_feats["hue_mean"],
             "redness_purity": gill_feats["redness_purity"],
             "brightness_mean": gill_feats["brightness_mean"],
@@ -242,9 +245,17 @@ if __name__ == "__main__":
             "body_score": body_score,
             "rule_score": rule_score,
             "rule_quality": rule_quality,
+            # "hue_score": gill_score["hue_score"],
+            # "purity_score": gill_score["purity_score"],
+            # "brown_score": gill_score["brown_score"],
+            # "uniformity_score": gill_score["uniformity_score"],
+            # "brightness_score": gill_score["brightness_score"],
+            # "final_score": gill_score["final_score"],
         })
+    # df = pd.DataFrame(rows)
+    # print(df.describe())
 
-    output_path = "csvs/features.csv"
+    output_path = "csvs/rule_scoring2.csv"
     # get column names from the first row
     fieldnames = rows[0].keys() if rows else []
 

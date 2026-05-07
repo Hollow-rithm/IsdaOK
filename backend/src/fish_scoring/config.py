@@ -14,25 +14,33 @@ IMG_SIZE = 256
 MAX_SCORE = 1.0
 MIN_SCORE = 0.0
 
-HUE_LOWER_1 = 0.0
-HUE_UPPER_1 = 20.0
-HUE_LOWER_2 = 168.0
-HUE_UPPER_2 = 180.0
+GILL_BOUNDS = {
+    "hue_mean_1": {"min": 0.0, "max": 20.0},
+    "hue_mean_2": {"min": 168.0, "max": 180.0},
+    "purity": {"min": 153.58, "max": 183.94},
+    "brown": {"min": 0.026, "max": 0.326},
+    "cov": {"min": 0.216, "max": 0.314},
+    "best_brightness": {"min": 100.0, "max": 180.0},
+    "brightness": {"min": 60.0, "max": 210.0},
+}
 
-PURITY_LOWER = 80.0
-PURITY_UPPER = 200.0
+HUE_LOWER = 0.0
+HUE_UPPER = 20.0
 
-BROWN_UPPER = 0.80
+PURITY_LOWER = 100.0
+PURITY_UPPER = 190.0
+
+BROWN_UPPER = 0.5
 BROWN_LOWER = 0.0
 
-COV_UPPER = 0.60
-COV_LOWER = 0.20
+COV_UPPER = 0.50
+COV_LOWER = 0.15
 
-BEST_BRIGHTNESS_LOW_THRESH = 100.0
-BEST_BRIGHTNESS_HIGH_THRESH = 180.0
+BEST_BRIGHTNESS_LOW_THRESH = 80.0
+BEST_BRIGHTNESS_HIGH_THRESH = 160.0
 
-BRIGHTNESS_LOWER = 60.0
-BRIGHTNESS_HIGHER = 210.0
+BRIGHTNESS_LOWER = 41.0
+BRIGHTNESS_HIGHER = 200.0
 
 SPECIES_BOUNDS = {
     "tilapia": {

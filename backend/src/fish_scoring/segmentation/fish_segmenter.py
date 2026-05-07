@@ -111,7 +111,9 @@ def segment(img):
     head_roi = fish_only[ey0:ey1, ex0:ex1]
     body_roi = fish_only[by0:by1, bx0:bx1]
 
-    return head_roi, body_roi
+    aspect_ratio = fw / fh
+
+    return head_roi, body_roi, aspect_ratio
 
 
 def is_loaded():
