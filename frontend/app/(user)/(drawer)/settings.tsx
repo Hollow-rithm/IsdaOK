@@ -31,12 +31,12 @@ export default function SettingsPage() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-primary">
             <BackButton onPress={() => router.back()} />
 
             <ScrollView className="px-6">
                 {/* Photo Quality */}
-                <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
                     Photo Quality
                 </Text>
                 <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
@@ -57,7 +57,7 @@ export default function SettingsPage() {
                 </View>
 
                 {/* Save Locally */}
-                <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
                     Storage
                 </Text>
                 <View className="bg-gray-100 rounded-2xl mb-4 overflow-hidden">
@@ -100,7 +100,7 @@ export default function SettingsPage() {
                 )}
 
                 {/* Biometric */}
-                <Text className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
                     Security
                 </Text>
                 <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">

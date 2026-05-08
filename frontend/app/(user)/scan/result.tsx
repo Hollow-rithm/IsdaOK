@@ -4,13 +4,15 @@ import HeaderBar from '@/components/HeaderBar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
-import { useRef, useState } from 'react';
+import { useRef, useEffect } from 'react';
+import { useSettings } from '@/context/settingsContext';
 
 export default function ViewImage () {
     const { result, uri, uri2, uri3 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string; uri3?: string}>();
     const parsedResult = result ? JSON.parse(result) : null;
     const insets = useSafeAreaInsets();
     const resultCardRef = useRef<ViewShot>(null);
+    const { settings } = useSettings();
 
     const images = [
         {uri, label: "Whole Fish"},
@@ -25,11 +27,11 @@ export default function ViewImage () {
     };
     const grade = parsedResult?.quality?.toUpperCase() ?? 'N/A';
 
-    const saveResult = async () => {
+    const saveResult = async (silent?: boolean) => {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Allow access to save to gallery.');
+            if(!silent) Alert.alert('Permission required', 'Allow access to save to gallery.');
         return;
       }
       const capturedUri = await captureRef(resultCardRef, {
@@ -38,11 +40,23 @@ export default function ViewImage () {
       });
 
         await MediaLibrary.saveToLibraryAsync(capturedUri);
-            Alert.alert('Saved!', 'Result saved to your gallery.');
+            if (!silent) Alert.alert('Saved!', 'Result saved to your gallery.');
         } catch (err) {
-            Alert.alert('Error', 'Failed to save result.');
+            if (!silent) Alert.alert('Error', 'Failed to save result.');
         }
     };
+
+    useEffect(() => {
+    if (!settings.saveLocally || !parsedResult || parsedResult.species === 'Unknown') return;
+
+    const timer = setTimeout(() => {
+        if (settings.saveMode === 'result') {
+            saveResult(true);
+        }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+}, []);
 
     if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown') {
         return (
@@ -72,18 +86,19 @@ export default function ViewImage () {
     }
 
     return (
-        <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-8'>
+        <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-4'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
             <HeaderBar onPress={() => router.back()} title='Results' />
 
-            <ViewShot ref={resultCardRef} style={{ width: '90%', marginVertical: 8 }}>
-                <View className="flex-row mb-3 bg-primary" style={{ justifyContent: "center" }}>
+            <ViewShot ref={resultCardRef} style={{ width: '90%', paddingVertical: 5 }}>
+
+                <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4}}>
                     {images.map((img, i) => (
                         <View key={i} style={{
                             width: images.length === 1 ? 250 : images.length === 2 ? 160: 100,
                              marginHorizontal: 2
                             }}>
-                            <Text className="text-xs text-center text-black mb-1">{img.label}</Text>
+                            <Text className="text-s text-center text-black mb-1">{img.label}</Text>
                             <Image
                                 source={{ uri: img.uri }}
                                 style={{ width: '100%', aspectRatio: 1, borderRadius: 8 }}
@@ -93,44 +108,46 @@ export default function ViewImage () {
                     ))}
                     </View>
 
-                    <View className="rounded-xl bg-secondary border-2 border-tertiary px-6 py-4">
+                    <View className="bg-primary">
+                        <View className="rounded-xl bg-secondary border-2 border-tertiary px-6 py-5 mt-2">
 
-                    {/* Species & Grade */}
-                    <View className="flex-row justify-between items-center mb-2">
-                        <Text className="font-bold text-lg text-[#0B1D51]">
-                            {parsedResult?.species ?? 'Unknown Species'}
-                        </Text>
+                            {/* Species & Grade */}
+                            <View className="flex-row justify-between items-center mb-2">
+                                <Text className="font-bold text-lg text-[#0B1D51]">
+                                    {parsedResult?.species ?? 'Unknown Species'}
+                                </Text>
 
-                    </View>
+                            </View>
 
-                    {/* Overall Score */}
-                    <View className="items-center mb-3">
-                        <Text className="text-gray-500 text-sm">Fish Quality</Text>
-                        <Text style={{ color: gradeColor(grade), fontWeight: 'bold', fontSize: 16 }}>
-                            {grade}
-                        </Text>
-                    </View>
+                            {/* Overall Score */}
+                            <View className="items-center mb-3">
+                                <Text className="text-gray-500 text-sm">Fish Quality</Text>
+                                <Text style={{ color: gradeColor(grade), fontWeight: 'bold', fontSize: 16 }}>
+                                    {grade}
+                                </Text>
+                            </View>
 
-                    {/*Scores */}
-                    {[
-                        { label: 'Body', value: parsedResult?.body_score },
-                        { label: 'Gills', value: parsedResult?.gill_score },
-                        { label: 'Eyes', value: parsedResult?.eye_score },
-                        { label: 'Rule Score', value: parsedResult?.rule_score },
-                        { label: 'ML Score', value: parsedResult?.ml_score },
-                    ].map(({ label, value }) => (
-                        <View key={label} className='flex-row justify-between mb-1'>
-                        <Text className='text-gray-600'>{label}</Text>
-                        <Text className='font-semibold'>
-                            {value != null ? value.toFixed(1) : 'N/A'}
-                        </Text>
+                            {/*Scores */}
+                            {[
+                                { label: 'Body', value: parsedResult?.body_score },
+                                { label: 'Gills', value: parsedResult?.gill_score },
+                                { label: 'Eyes', value: parsedResult?.eye_score },
+                                { label: 'Rule Score', value: parsedResult?.rule_score },
+                                { label: 'ML Score', value: parsedResult?.ml_score },
+                            ].map(({ label, value }) => (
+                                <View key={label} className='flex-row justify-between mb-1'>
+                                <Text className='text-gray-600'>{label}</Text>
+                                <Text className='font-semibold'>
+                                    {value != null ? value.toFixed(1) : 'N/A'}
+                                </Text>
+                                </View>
+                            ))}
+
+                            {/* Footer */}
+                            <Text className="text-gray-400 text-xs text-center mt-3">
+                                {new Date().toLocaleDateString('en-PH')} • IsdaOK
+                            </Text>
                         </View>
-                    ))}
-
-                    {/* Footer */}
-                    <Text className="text-gray-400 text-xs text-center mt-3">
-                        {new Date().toLocaleDateString('en-PH')} • IsdaOK
-                    </Text>
                     </View>
             </ViewShot>
 
@@ -143,7 +160,7 @@ export default function ViewImage () {
                     <TouchableOpacity onPress={() => router.push('/scan/capture')} style={styles.button}>
                         <Text>Scan Again</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={saveResult} style={styles.button}>
+                    <TouchableOpacity onPress={() => saveResult(false)} style={styles.button}>
                         <Text>Save Result</Text>
                     </TouchableOpacity>
                     </View>
