@@ -9,7 +9,7 @@ const errorMiddleware = (err, req, res, next) => {
         let message = err.message;
 
         if (err.code === "LIMIT_FILE_SIZE") {
-            message = "File is too large. Maximum size is 5MB.";
+            message = "File is too large. Maximum size is 10MB.";
         }
 
         return res.status(400).json({

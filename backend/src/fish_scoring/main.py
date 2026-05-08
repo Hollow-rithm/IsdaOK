@@ -27,7 +27,8 @@ async def health_check():
 @app.post("/api/fish/analyze")
 async def analyze_fish(
     fish_image: UploadFile = File(...),
-    gill_image: UploadFile = File(None)
+    gill_image: UploadFile = File(None),
+    eye_image: UploadFile = File(None)
 ):
     try:
         fish_bytes = await fish_image.read()
@@ -111,10 +112,15 @@ async def analyze_fish(
         return JSONResponse({
             "has_fish": True,
             "species": species,
-            "features": {
-                "eye": eye_feats,
-                "body": body_feats,
-                "gill": gill_feats
+            # "features": {
+            #     "eye": eye_feats,
+            #     "body": body_feats,
+            #     "gill": gill_feats,
+            # },
+            "scores": {
+                "eye_score": eye_score,
+                "body_score": body_score,
+                "gill_score": gill_score,
             },
             "rule_score": rule_score,
             "rule_quality" : rule_quality,
