@@ -24,7 +24,6 @@ export default function MainDrawer(){
         <Drawer.Screen name="history" options={{title: "History", drawerItemStyle: isGuest ? {display: 'none'} : {} }}/>
         <Drawer.Screen name="settings" options={{ title: "Settings" }}/>
         <Drawer.Screen name="about" options={{ title: "About" }}/>
-        <Drawer.Screen name="help" options={{ title: "Help" }}/>
         <Drawer.Screen name="faq" options={{ title: "Help/FAQ" }}/>
 
         </Drawer>
