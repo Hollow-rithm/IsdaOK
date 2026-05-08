@@ -10,7 +10,6 @@ import Svg, { Defs, Mask, Rect, Circle} from 'react-native-svg';
 import { useSettings } from '@/context/settingsContext';
 import * as MediaLibrary from 'expo-media-library';
 import { getStoredToken } from "@/utils/authContext";
-import { Resend } from 'resend';
 
 export default function Capture(){
     const { settings } = useSettings();
@@ -117,6 +116,7 @@ export default function Capture(){
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
+            aspect: step === 'body' ? [9, 16] : [1,1],
             quality: 0.6,
             allowsMultipleSelection: false,
         })
@@ -221,7 +221,7 @@ export default function Capture(){
         ? 'Capture Fish Body'
         : step === 'gills'
         ? 'Capture Gills (Recommended)'
-        : 'Capture Eyes (Recommended)';
+        : 'Capture Eyes';
 
     return(
         <View className="flex-1">

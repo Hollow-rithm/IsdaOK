@@ -4,7 +4,7 @@
     "slug": "IsdaOK",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icon.png",
     "scheme": "isdaok",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -39,9 +39,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain"
+          "image": "./assets/images/splash.png",
+          "backgroundColor": "#8ccdeb",
+          "resizeMode": "cover"
         }
       ],
       "expo-font",
