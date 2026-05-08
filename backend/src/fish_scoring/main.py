@@ -24,7 +24,7 @@ async def health_check():
         "evaluator_loaded": evaluator._evaluator is not None,
     }
 
-@app.post("api/fish/analyze")
+@app.post("/api/fish/analyze")
 async def analyze_fish(
     fish_image: UploadFile = File(...),
     gill_image: UploadFile = File(None)
@@ -39,7 +39,7 @@ async def analyze_fish(
         gill_img = None
         has_gills = False
 
-        if gill_img:
+        if gill_image:
             gill_bytes = await gill_image.read()
             gill_img = image_utils.decode_image(gill_bytes)
             has_gills = gill_img is not None
@@ -48,15 +48,17 @@ async def analyze_fish(
         
         if gill_img is None:
             return JSONResponse({
-                "has_fish": False,
-            }) # Wala munang none gills
+                "has_fish": True,
+                "has_gills": False,
+                "message": "Gill image missing"
+            }) # wala munang gills ml
         
         gill_img = image_utils.resize_gills(gill_img)
         gill_enhanced = image_utils.apply_clahe(gill_img)
 
         # Segmentation
         gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
-        head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_image)
+        head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
         eye_roi = eye_segmenter.segment(head_roi)
 
         # Feature Extraction
