@@ -26,44 +26,38 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         const result = response.data;
 
         if (userId) {
-            const [scan] = await db.query(
-                "INSERT INTO scans (user_id, fish_image_path, gill_image_path, eye_image_path) VALUES (?, ?, ?, ?)",
-                [userId, fishImage.path, gillImage?.path ?? null, eyeImage?.path ?? null]
-            );
+            // const [scan] = await db.query(
+            //     "INSERT INTO scans (user_id, fish_image_path, gill_image_path, eye_image_path) VALUES (?, ?, ?, ?)",
+            //     [userId, fishImage.path, gillImage?.path ?? null, eyeImage?.path ?? null]
+            // );
 
-            await db.query(
-                `INSERT INTO scan_results
-                (scan_id, species, species_confidence, eye_score, gill_score, body_score, overall_score, quality_grade)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    scan.insertId,
-                    result.species,
-                    result.ml_score,
-                    result.features.eye_score,
-                    result.features.gill_score,
-                    result.features.body_score,
-                    result.final_score,
-                    result.quality.toUpperCase(),
-                    //computeGrade(result.final_score)
-                ]
-            );
+            // await db.query(
+            //     `INSERT INTO scan_results
+            //     (scan_id, species, eye_score, body_score, gill_score, overall_score, quality_grade)
+            //     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            //     [
+            //         scan.insertId,
+            //         result.species,
+            //         result.features.eye_score,
+            //         result.features.body_score,
+            //         result.features.gill_score,
+            //         result.rule_score,
+            //         result.quality_grade,
+            //         //computeGrade(result.final_score)
+            //     ]
+            // );
         }
 
         return {
             has_fish: result.has_fish,
             species: result.species,
-            ml_score: result.ml_score,
-            eye_score: result.features.eye_score,
-            gill_score: result.features.gill_score,
-            body_score: result.features.body_score,
-            final_score: result.final_score,
-            quality: result.quality,
-
-            // species: response.data.species,
-            // features: response.data.features,
-            // rule_score: response.data.rule_score,
-            // ml_score: response.data.ml_score,
-            // quality: response.data.quality,
+            eye_score: result.scores.eye_score,
+            gill_score: result.scores.gill_score,
+            body_score: result.scores.body_score,
+            rule_score: result.rule_score,
+            rule_quality : result.rule_quality,
+            ml_quality: result.ml_quality,
+            final_quality: result.final_quality,
         };
 
 
