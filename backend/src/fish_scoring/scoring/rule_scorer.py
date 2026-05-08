@@ -5,9 +5,9 @@ def compute(gill_score, eye_score, body_score):
         body_score * 0.2
     )
 
-    if rule_score >= 0.7:
+    if rule_score >= 0.72:
         rule_quality = "high"
-    elif rule_score >= 0.4:
+    elif rule_score >= 0.60:
         rule_quality = "mid"
     else:
         rule_quality = "low"
