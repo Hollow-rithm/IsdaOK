@@ -221,7 +221,7 @@ export default function Capture(){
         ? 'Capture Fish Body'
         : step === 'gills'
         ? 'Capture Gills (Recommended)'
-        : 'Capture Eyes (Recommended)';
+        : 'Capture Eyes';
 
     return(
         <View className="flex-1">
