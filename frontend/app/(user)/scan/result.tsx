@@ -22,10 +22,11 @@ export default function ViewImage () {
 
     const gradeColor = (grade: string) => {
         if (grade === 'HIGH') return '#16a34a';
-        if (grade === 'MEDIUM') return '#ca8a04';
-        return '#dc2626';
+        if (grade === 'MID') return '#ca8a04';
+        if (grade === 'LOW') return '#dc2626';
+        return '#6b7280';
     };
-    const grade = parsedResult?.quality?.toUpperCase() ?? 'N/A';
+    const grade = parsedResult?.final_quality?.toUpperCase() ?? 'N/A';
 
     const saveResult = async (silent?: boolean) => {
     try {
@@ -119,10 +120,17 @@ export default function ViewImage () {
 
                             </View>
 
-                            {/* Overall Score */}
+                            {/* Main Fish Score */}
                             <View className="items-center mb-3">
                                 <Text className="text-gray-500 text-sm">Fish Quality</Text>
-                                <Text style={{ color: gradeColor(grade), fontWeight: 'bold', fontSize: 16 }}>
+
+                                <Text
+                                    style={{
+                                        color: gradeColor(grade),
+                                        fontWeight: 'bold',
+                                        fontSize: 24,
+                                    }}
+                                >
                                     {grade}
                                 </Text>
                             </View>
