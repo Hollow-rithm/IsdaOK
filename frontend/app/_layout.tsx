@@ -4,6 +4,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "@/utils/authContext";
 import { useEffect } from "react";
 import * as Linking from "expo-linking";
+import { SettingsProvider } from "@/context/settingsContext";
 
 
 export default function RootLayout() {
@@ -27,9 +28,11 @@ export default function RootLayout() {
 
 	return (
 		<SafeAreaProvider>
-			<AuthProvider>
-				<Slot />
-			</AuthProvider>
+      <AuthProvider>
+        <SettingsProvider>
+          <Slot />
+        </SettingsProvider>
+      </AuthProvider>
 		</SafeAreaProvider>
 	);
 }

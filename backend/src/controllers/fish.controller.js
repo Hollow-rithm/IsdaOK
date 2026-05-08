@@ -1,4 +1,5 @@
 import * as fishService from "../services/fish.service.js";
+import db from "../config/database.js";
 
 export const analyzeFish = async (req, res) => {
     try {
@@ -8,6 +9,7 @@ export const analyzeFish = async (req, res) => {
 
         const fishImage = req.files?.fish_image?.[0];
         const gillImage = req.files?.gill_image?.[0];
+        const eyeImage = req.files?.eye_image?.[0];
 
         if (!fishImage) {
             return res.status(400).json({
@@ -15,8 +17,9 @@ export const analyzeFish = async (req, res) => {
                 message: "Fish image is required.",
             })
         }
-        
-        const result = await fishService.analyzeFish({fishImage, gillImage});
+
+        const userId = req.user?.id ?? null;
+        const result = await fishService.analyzeFish({fishImage, gillImage, eyeImage, userId});
 
         if (!result.has_fish) {
             return res.status(400).json({
@@ -34,6 +37,34 @@ export const analyzeFish = async (req, res) => {
         return res.status(err.status || 500).json({
             status: "error",
             message: err.message || "Failed to analyze fish image.",
+        });
+    }
+};
+
+export const getHistory = async (req, res) => {
+     console.log("User from token:", req.user);
+  try {
+    const result = await fishService.getHistory(req.user.id);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteRecord = async (req, res) => {
+    try {
+        const scanId = parseInt(req.params.id);
+        await fishService.deleteRecord(scanId, req.user.id);
+
+        res.status(200).json({
+            status: "success",
+            message: "Record deleted"
+        });
+
+    } catch (err) {
+        res.status(err.status || 500).json({
+            status: "error",
+            message: err.message,
         });
     }
 };

@@ -1,13 +1,14 @@
 import { Text, TouchableOpacity, View, Image, TextInput, Modal, ScrollView } from "react-native";
-import logo from "@/assets/images/Isda-iconS.png";
+import logo from "@/assets/images/icon.png";
 import gicon from "@/assets/images/g-iconL.png";
 import { Link, router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/utils/authContext";
 import { sanitizeEmail, sanitizePassword, sanitizeUsername } from "@/utils/sanitize";
 import { validateEmail, validatePassword, validateUsername } from "@/utils/validate";
 import { apiFetch } from "@/utils/api";
+import { useGoogleSignIn } from "@/utils/googleAuth";
 
 export default function SignUp() {
 	const [username, setUsername] = useState("");
@@ -16,18 +17,48 @@ export default function SignUp() {
 	const [confPassword, setConfPassword] = useState("");
 	const [agreedToTerms, setAgreedToTerms] = useState(false);
 	const [showTerms, setShowTerms] = useState(false);
-
-	//General Success/Error text
 	const [success, setSuccess] = useState("");
 	const [error, setError] = useState("");
-
-	//Error texts per input
 	const [emailError, setEmailError] = useState<string[]>([]);
 	const [passwordError, setPasswordError] = useState<string[]>([]);
 	const [usernameError, setUsernameError] = useState<string[]>([])
 	const [confPasswordError, setConfPasswordError] = useState<boolean>();
+
 	const { logIn } = useAuth();
-	//const registerURL = process.env.EXPO_PUBLIC_REGISTER as string;
+	const { request, response, promptAsync } = useGoogleSignIn();
+
+	useEffect(() => {
+		if (response?.type === 'success') {
+			const token = response.authentication?.accessToken;
+			if (!token) return;
+
+			fetch('https://www.googleapis.com/userinfo/v2/me', {
+			headers: { Authorization: `Bearer ${token}` }
+			})
+			.then(res => res.json())
+			.then(async (googleUser) => {
+			try {
+				const res = await apiFetch("/api/auth/register/google", {
+					method: "POST",
+					body: JSON.stringify({
+						email: googleUser.email,
+						googleId: googleUser.id,
+						username: googleUser.name,
+					}),
+				});
+				const data = await res.json();
+				if (res.ok && data.status === "success") {
+					await logIn(data.token);
+				} else {
+					setError(data.message || "Google Sign-Up Failed");
+				}
+			} catch (err) {
+				setError("Network Error: " + String(err));
+			}
+			});
+		}
+	}, [response, logIn]);
+
 
 	const registerUser = async () => {
 		setSuccess('');
@@ -86,6 +117,8 @@ export default function SignUp() {
 							onChangeText={setEmail}
 							onBlur={() => setEmailError(validateEmail(sanitizeEmail(email)))}
 							placeholder="JuanDelaCruz@email.com"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -103,6 +136,8 @@ export default function SignUp() {
 							onChangeText={setUsername}
 							onBlur={() => setUsernameError(validateUsername(username))}
 							placeholder="Juan Dela Cruz"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -121,6 +156,8 @@ export default function SignUp() {
 							onChangeText={setPassword}
 							onBlur={() => setPasswordError(validatePassword(sanitizePassword(password)))}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>
@@ -141,6 +178,8 @@ export default function SignUp() {
 								!== (password));
 							}}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>
@@ -258,7 +297,10 @@ export default function SignUp() {
 					</View>
 
 					<View className="flex-row">
-						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3">
+						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3"
+						disabled={!request}
+						onPress={() =>
+						promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
 						</TouchableOpacity>
 					</View>

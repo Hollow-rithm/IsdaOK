@@ -15,7 +15,7 @@ export const auth = (req, res, next) => {
 
     try{
         req.user = jwt.verify(token, process.env.JWT_SECRET);
-        
+
         if(Date.now() - req.user.session_start > MAX_SESSION_DURATION){
             return res.status(401).json({
                 message: "Session expired"
@@ -37,3 +37,17 @@ export const requireRole = (role) => (req, res, next) => {
     }
     next();
 }
+
+export const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return next(); // no token, continue as guest
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+  } catch (err) {
+    // invalid token, continue as guest
+  }
+  next();
+};

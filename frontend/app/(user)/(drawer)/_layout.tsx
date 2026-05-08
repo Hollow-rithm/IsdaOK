@@ -1,6 +1,10 @@
 import { Drawer } from "expo-router/drawer";
+import { useAuth } from "@/utils/authContext";
 
 export default function MainDrawer(){
+    const { logOut, username } = useAuth();
+    const isGuest = username === "Guest";
+
     return (
         <Drawer
         screenOptions={{
@@ -17,10 +21,10 @@ export default function MainDrawer(){
             }
         }}>
         <Drawer.Screen name="home" options={{title: "Home"}} />
+        <Drawer.Screen name="history" options={{title: "History", drawerItemStyle: isGuest ? {display: 'none'} : {} }}/>
         <Drawer.Screen name="settings" options={{ title: "Settings" }}/>
         <Drawer.Screen name="about" options={{ title: "About" }}/>
-        <Drawer.Screen name="help" options={{ title: "Help" }}/>
-        <Drawer.Screen name="faq" options={{ title: "FAQ" }}/>
+        <Drawer.Screen name="faq" options={{ title: "Help/FAQ" }}/>
 
         </Drawer>
     );

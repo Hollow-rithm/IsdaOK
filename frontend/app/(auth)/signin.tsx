@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, View, Image, TextInput, Alert, Modal, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import logo from "@/assets/images/Isda-iconS.png"
+import logo from "@/assets/images/icon.png"
 import gicon from "@/assets/images/g-iconL.png";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -12,6 +12,9 @@ import { validateEmail } from "@/utils/validate";
 import { apiFetch } from "@/utils/api";
 import * as Biometric from "@/utils/biometric";
 import * as SecureStore from "expo-secure-store";
+import { useGoogleSignIn } from "@/utils/googleAuth";
+import { jwtDecode } from "jwt-decode";
+import { JWTPayload } from "@/utils/authContext";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -21,16 +24,49 @@ export default function SignIn() {
 	const [emailError, setEmailError] = useState<string[]>([]);
 	const [biometric, setBiometric] = useState(false);
 	const [guestTerms, setGuestTerms] = useState(false);
-
-	//const loginURL = process.env.EXPO_PUBLIC_LOGIN as string;
 	const { logIn } = useAuth();
+	const { request, response, promptAsync } = useGoogleSignIn();
+
+	useEffect(() => {
+		if (response?.type === 'success'){
+			const token = response.authentication?.accessToken;
+			if (!token) return;
+
+			fetch('https://www.googleapis.com/userinfo/v2/me', {
+				headers: { Authorization: `Bearer ${token}`}
+			})
+			.then(res => res.json())
+			.then(async (googleUser) => {
+				try {
+					const res = await apiFetch("/api/auth/login/google", {
+						method: "POST",
+						body: JSON.stringify({
+							email: googleUser.email,
+							googleId: googleUser.id,
+							name: googleUser.name,
+						}),
+					});
+					const data = await res.json();
+					if (res.ok && data.status === "success"){
+						await logIn(data.token);
+					} else {
+						setError(data.message || "Google Sign-in Failed")
+					}
+				} catch (err) {
+					setError("Network Error: " + String(err));
+				};
+			});
+		}
+	}, [response, logIn]);
 
 	useEffect (() => {
 		const checkBiometrics = async () => {
 			const hasHardware = await LocalAuthentication.hasHardwareAsync();
 			const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-			const hasSetup = await Biometric.hasBiometric();
-			setBiometric(hasHardware && isEnrolled && hasSetup);
+			const email = await Biometric.getBiometricActiveEmail();
+			const hasSetup = email ? await Biometric.hasBiometric(email) : false;
+    		const isEnabled = email ? await Biometric.isBiometricEnabled(email) : false;
+			setBiometric(hasHardware && isEnrolled && hasSetup && isEnabled);
 		};
 		checkBiometrics();
 	}, []);
@@ -52,37 +88,11 @@ export default function SignIn() {
 
 				if (res.ok && data.status === "success") {
 					setSuccess("Login Successful");
-					const hasHardware = await LocalAuthentication.hasHardwareAsync();
-					const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-					const hasBiometric = await Biometric.hasBiometric(email);
-					const biometricEnabled = await Biometric.isBiometricEnabled(email);
-
-					if(hasHardware && isEnrolled && !hasBiometric && !biometricEnabled){
-						Alert.alert(
-          	    "Enable Biometrics",
-          			"Would you like to use Biometrics for future logins?",
-          			[{
-          				  text: "Yes",
-          				  onPress: async () => {
-          				      await Biometric.saveBiometric(data.token, email);
-          				      setBiometric(true);
-									      await logIn(data.token);
-          				  },
-          			},{
-								    text: "Not Now",
-								    style: "cancel",
-								    onPress: async () => {
-									      await logIn(data.token);
-								    },
-							},]);
-					} else if(hasHardware && isEnrolled && !hasBiometric && biometricEnabled) {
+					await SecureStore.setItemAsync("biometric-email", email);
+					const enabled = await Biometric.isBiometricEnabled(email);
+					if(enabled)
 						await Biometric.saveBiometric(data.token, email);
-						setBiometric(true);
-						await logIn(data.token);
-					} else {
-						await SecureStore.setItemAsync("biometric-email", email);
-						await logIn(data.token);
-					}
+					await logIn(data.token);
 				} else {
 					setError(data.message || "Invalid Email or Password");
 				}
@@ -106,6 +116,7 @@ export default function SignIn() {
 					await Biometric.deleteBiometric();
 					setBiometric(false);
 					setError("Biometric expired. Login via Password");
+					setTimeout(() => setError(''), 3000);
 					return;
 				}
 
@@ -120,12 +131,15 @@ export default function SignIn() {
 				const data = await res.json();
 
 				if(res.ok && data.status === "success"){
+					const decoded = jwtDecode<JWTPayload>(data.token);
 					await Biometric.refreshBiometricToken(data.token);
+					await SecureStore.setItemAsync("biometric-email", decoded.email);
 					await logIn(data.token);
 				} else {
 					await Biometric.deleteBiometric();
 					setBiometric(false);
 					setError("Biometric expired. Login via Password");
+					setTimeout(() => setError(''), 3000);
 				}
 			} else {
 				Alert.alert("Error: " + biometricsResult.error);
@@ -154,6 +168,8 @@ export default function SignIn() {
 							onChangeText={setEmail}
 							onBlur={() => setEmailError(validateEmail(sanitizeEmail(email)))}
 							placeholder="JuanDelaCruz@email.com"
+							placeholderTextColor="#9ca3af"
+							style={{color: "black" }}
 							keyboardType="email-address"
 							autoCapitalize="none"
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
@@ -169,6 +185,8 @@ export default function SignIn() {
 							value={password}
 							onChangeText={setPassword}
 							placeholder="***************"
+							placeholderTextColor="gray"
+							style={{color: "black" }}
 							secureTextEntry
 							className="bg-white w-80 rounded-lg border border-gray-500 px-2 py-1" />
 					</View>
@@ -181,6 +199,10 @@ export default function SignIn() {
 							Sign In
 						</Text>
 					</TouchableOpacity>
+
+					<View className="flex-row mt-4">
+						<Text>or</Text>
+					</View>
 
 					<Modal
 						visible={guestTerms}
@@ -223,7 +245,7 @@ export default function SignIn() {
 								className="bg-[#0B1D51] py-3 rounded-xl"
 								onPress={() => {
 								setGuestTerms(false);
-								logIn("guest"); // ← only logs in after agreeing
+								logIn("guest");
 								}}
 							>
 								<Text className="text-white text-center font-semibold">Continue as Guest</Text>
@@ -236,7 +258,7 @@ export default function SignIn() {
 							</TouchableOpacity>
 							</View>
 						</View>
-						</Modal>
+					</Modal>
 
 					<TouchableOpacity className="bg-white py-2 px-4 w-40 rounded shadow mt-4" onPress={() => setGuestTerms(true)}>
 						<Text className="text-[#0B1D51] text-center font-semibold">
@@ -244,12 +266,12 @@ export default function SignIn() {
 						</Text>
 					</TouchableOpacity>
 
-					<View className="flex-row mt-4">
-						<Text>or</Text>
-					</View>
+
 
 					<View className="flex-row">
-						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10">
+						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10"
+						disabled={!request}
+						onPress={() => promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
 						</TouchableOpacity>
 
