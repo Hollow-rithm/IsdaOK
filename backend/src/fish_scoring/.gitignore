@@ -1,0 +1,8 @@
+*.jpg
+*.png
+*.jpeg
+
+/zignore/
+
+__pycache__/
+*.pyc
