@@ -113,12 +113,9 @@ export default function ViewImage () {
                         <View className="rounded-xl bg-secondary border-2 border-tertiary px-6 py-5 mt-2">
 
                             {/* Species & Grade */}
-                            <View className="flex-row justify-between items-center mb-2">
-                                <Text className="font-bold text-lg text-[#0B1D51]">
-                                    {parsedResult?.species ?? 'Unknown Species'}
-                                </Text>
-
-                            </View>
+                            <Text className="font-bold text-lg text-[#0B1D51] text-center uppercase mb-2">
+                                {parsedResult?.species ?? 'Unknown Species'}
+                            </Text>
 
                             {/* Main Fish Score */}
                             <View className="items-center mb-3">
@@ -135,18 +132,21 @@ export default function ViewImage () {
                                 </Text>
                             </View>
 
-                            {/*Scores */}
+                            {/*Scores*/}
                             {[
                                 { label: 'Body', value: parsedResult?.body_score },
                                 { label: 'Gills', value: parsedResult?.gill_score },
                                 { label: 'Eyes', value: parsedResult?.eye_score },
                                 { label: 'Rule Score', value: parsedResult?.rule_score },
-                                { label: 'ML Score', value: parsedResult?.ml_score },
+                                { label: 'ML Quality', value: parsedResult?.ml_quality },
                             ].map(({ label, value }) => (
                                 <View key={label} className='flex-row justify-between mb-1'>
                                 <Text className='text-gray-600'>{label}</Text>
                                 <Text className='font-semibold'>
-                                    {value != null ? value.toFixed(1) : 'N/A'}
+                                    {value != null
+                                        ? typeof value === 'number' ? value.toFixed(1) 
+                                        : String(value).toUpperCase()
+                                        : 'N/A'}
                                 </Text>
                                 </View>
                             ))}

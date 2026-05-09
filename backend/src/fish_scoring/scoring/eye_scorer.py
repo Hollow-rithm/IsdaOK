@@ -1,4 +1,5 @@
 from scoring import normalizer
+import numpy as np
 
 def compute(eye_feats, species):
     ec = eye_feats["eye_cloudiness"]
@@ -19,4 +20,4 @@ def compute(eye_feats, species):
         rc_score * 0.3
     )
 
-    return round(float(eye_score), 2)
+    return round(float(eye_score), 3)

@@ -58,7 +58,7 @@ export default function About() {
           </View>
           <View className="flex-row justify-between mb-1">
             <Text className="text-gray-500">Platform</Text>
-            <Text className="font-semibold text-[#0B1D51]">Android / iOS</Text>
+            <Text className="font-semibold text-[#0B1D51]">Android</Text>
           </View>
           <View className="flex-row justify-between mb-1">
             <Text className="text-gray-500">Contact</Text>

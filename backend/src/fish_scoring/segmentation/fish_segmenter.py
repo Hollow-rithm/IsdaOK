@@ -37,7 +37,7 @@ def _load_segmenter():
     _model.to(_device)
     _model.eval()
 
-    print(f"✓ Segmenter loaded on {_device}")
+    print(f"Segmenter loaded on {_device}..")
 
 def get_fish_region_coords(fx, fy, fw, fh):
     eye_end = fy + int(0.15 * fh)

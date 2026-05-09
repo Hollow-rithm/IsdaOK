@@ -8,7 +8,6 @@ import numpy as np
 BASE_DIR = Path(__file__).resolve().parent.parent
 model = joblib.load(BASE_DIR / "artifacts" / "quality_model.pkl")
 metadata = joblib.load(BASE_DIR / "artifacts" / "quality_model_metadata.pkl")
-print(metadata["features"])
 
 feature_names = metadata["features"]
 
