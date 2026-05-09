@@ -60,7 +60,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 print("\n" + "="*50)
-print("CLASSIFICATION REPORT")
+print("EVALUATION REPORT")
 print("="*50)
 print(classification_report(y_test, y_pred))
 
@@ -68,9 +68,9 @@ print(classification_report(y_test, y_pred))
 cm = confusion_matrix(y_test, y_pred, labels=model.classes_)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
 disp.plot(cmap='Blues')
-plt.title("Species Classification — Confusion Matrix")
+plt.title("Quality Evaluation — Confusion Matrix")
 plt.tight_layout()
-plt.savefig("../artifacts/evaluator_confusion_matrix.png", dpi=150)
+plt.savefig("artifacts/evaluator_confusion_matrix.png", dpi=150)
 plt.close()
 print("Confusion matrix saved.")
 
@@ -95,12 +95,12 @@ plt.figure(figsize=(10, 6))
 sns.barplot(data=feat_df, x='importance', y='feature', palette='viridis')
 plt.title("Feature Importance — Species Classifier")
 plt.tight_layout()
-plt.savefig("../artifacts/evaluator_feature_importance.png", dpi=150)
+plt.savefig("artifacts/evaluator_feature_importance.png", dpi=150)
 plt.close()
 print("Feature importance chart saved.")
 
 # ─── 9. Save Model + Metadata ────────────────────────────────────────────────
-joblib.dump(model, "../artifacts/quality_model.pkl")
+joblib.dump(model, "artifacts/quality_model.pkl")
 
 metadata = {
     "features": FEATURE_NAMES,
@@ -112,7 +112,7 @@ metadata = {
     "train_size": len(X_train),
     "test_size": len(X_test),
 }
-joblib.dump(metadata, "../artifacts/quality_model_metadata.pkl")
+joblib.dump(metadata, "artifacts/quality_model_metadata.pkl")
 
 print("\nModel and metadata saved.")
 print(f"Classes: {model.classes_}")

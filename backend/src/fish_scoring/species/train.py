@@ -70,7 +70,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_
 disp.plot(cmap='Blues')
 plt.title("Species Classification — Confusion Matrix")
 plt.tight_layout()
-plt.savefig("/artifacts/confusion_matrix.png", dpi=150)
+plt.savefig("artifacts/confusion_matrix.png", dpi=150)
 plt.close()
 print("Confusion matrix saved.")
 
@@ -95,12 +95,12 @@ plt.figure(figsize=(10, 6))
 sns.barplot(data=feat_df, x='importance', y='feature', palette='viridis')
 plt.title("Feature Importance — Species Classifier")
 plt.tight_layout()
-plt.savefig("/artifacts/feature_importance.png", dpi=150)
+plt.savefig("artifacts/feature_importance.png", dpi=150)
 plt.close()
 print("Feature importance chart saved.")
 
 # ─── 9. Save Model + Metadata ────────────────────────────────────────────────
-joblib.dump(model, "/artifacts/species_model.pkl")
+joblib.dump(model, "artifacts/species_model.pkl")
 
 metadata = {
     "features": FEATURE_NAMES,
@@ -112,7 +112,7 @@ metadata = {
     "train_size": len(X_train),
     "test_size": len(X_test),
 }
-joblib.dump(metadata, "/artifacts/species_model_metadata.pkl")
+joblib.dump(metadata, "artifacts/species_model_metadata.pkl")
 
 print("\nModel and metadata saved.")
 print(f"Classes: {model.classes_}")
