@@ -38,36 +38,63 @@ async def analyze_fish(
             raise HTTPException(400, "fish_img could not be decoded")
         
         gill_img = None
+        eye_roi = None
         has_gills = False
-
+        has_eyes = False
+        
         if gill_image:
             gill_bytes = await gill_image.read()
             gill_img = image_utils.decode_image(gill_bytes)
+            if gill_img is None:
+                return JSONResponse({
+                    "has_fish": True,
+                    "has_gills": False,
+                    "has_eyes": eye_image is not None,
+                    "message": "Gill image missing"
+                })
             has_gills = gill_img is not None
+            gill_img = image_utils.resize_gills(gill_img)
+            gill_enhanced = image_utils.apply_clahe(gill_img)
+            gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
+            gill_feats = gill_features.extract(gill_roi, gill_mask)
+        else:
+            gill_feats = {
+                "hue_mean": 10.0,
+                "redness_purity": 145.0,
+                "brightness_mean": 100.0,
+                "brown_dominance": 0.25,
+                "color_cov": 0.325,
+                "valid_pixels": 5000,
+            }
+            has_gills = False
 
-        # Preprocess
-        
-        if gill_img is None:
-            return JSONResponse({
-                "has_fish": True,
-                "has_gills": False,
-                "message": "Gill image missing"
-            }) # wala munang gills ml
-        
-        gill_img = image_utils.resize_gills(gill_img)
-        gill_enhanced = image_utils.apply_clahe(gill_img)
+        # Segmentation        
+        if eye_image:
+            _, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
+            eye_bytes = await eye_image.read()
+            eye_roi = image_utils.decode_image(eye_bytes)
+        else:
+            head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
+            eye_roi = eye_segmenter.segment(head_roi)
+        has_eyes = eye_roi is not None
 
-        # Segmentation
-        gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
-        head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
-        eye_roi = eye_segmenter.segment(head_roi)
-
-        # Feature Extraction
-        if body_roi is None or eye_roi is None:
+        if body_roi is None:
             return JSONResponse({
                 "has_fish": False,
+                "has_gills": has_gills,
+                "has_eyes": eye_roi is not None,
+                "message": "Gill image missing"
             })
-        gill_feats = gill_features.extract(gill_roi, gill_mask)
+        has_fish = True
+        if eye_roi is None:
+            return JSONResponse({
+                "has_fish": has_fish,
+                "has_gills": has_gills,
+                "has_eyes": False,
+                "message": "Eye image missing"
+            })
+        
+        # Feature Extraction
         body_feats = body_features.extract(body_roi)
         eye_feats = eye_features.extract(eye_roi)
 
@@ -111,6 +138,8 @@ async def analyze_fish(
 
         return JSONResponse({
             "has_fish": True,
+            "has_gills": has_gills,
+            "has_eyes": has_eyes,
             "species": species,
             # "features": {
             #     "eye": eye_feats,
@@ -118,15 +147,14 @@ async def analyze_fish(
             #     "gill": gill_feats,
             # },
             "scores": {
-                "eye_score": eye_score,
-                "body_score": body_score,
-                "gill_score": gill_score,
+                "eye_score": eye_score * 100,
+                "body_score": body_score * 100,
+                "gill_score": gill_score * 100,
             },
-            "rule_score": rule_score,
+            "rule_score": rule_score * 100,
             "rule_quality" : rule_quality,
             "ml_quality": ml_quality,
             "final_quality": final_quality,
-            "has_gills": has_gills,
         })
     
     except HTTPException:

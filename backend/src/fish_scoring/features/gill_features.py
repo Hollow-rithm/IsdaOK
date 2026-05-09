@@ -5,7 +5,7 @@ def extract(result, mask):
     valid_pixels = cv.countNonZero(mask)
     if valid_pixels < 100:
         return {
-            "hue_mean":        25.0,   # neutral fallback = brownish
+            "hue_mean":        25.0,   # neutral fallback
             "red_purity":      0.0,
             "brown_dominance": 1.0,
             "color_cov":       1.0,

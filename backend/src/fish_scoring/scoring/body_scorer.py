@@ -1,4 +1,5 @@
 from scoring import normalizer
+import numpy
 
 def compute(body_feats, species):
     color = body_feats["body_color_b"]
@@ -12,10 +13,9 @@ def compute(body_feats, species):
     si_score = normalizer.normalize(si, "shine_intensity", species)
 
     shine_score = (sc_score * 0.6) + (si_score * 0.4)
-
     body_score = (
         shine_score * 0.7 +
         color_score * 0.3
     )
 
-    return round(float(body_score), 2)
+    return round(float(body_score), 3)

@@ -12,4 +12,4 @@ def compute(gill_score, eye_score, body_score):
     else:
         rule_quality = "low"
         
-    return round(float(rule_score), 2), rule_quality
+    return round(float(rule_score), 3), rule_quality

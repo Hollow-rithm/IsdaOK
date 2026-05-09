@@ -53,8 +53,7 @@ def compute(features):
         uniformity_score * 0.10 +
         brightness_score * 0.00
     )
-
-    return round(float(final_score), 2)
+    return round(float(final_score), 3)
     # return {
     #     "hue_score": hue_score,
     #     "purity_score": purity_score,
