@@ -2,13 +2,14 @@
   "expo": {
     "name": "IsdaOK",
     "slug": "IsdaOK",
+    "owner": "waine14",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "scheme": "isdaok",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#8ccdeb"
     },
@@ -39,9 +40,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash.png",
+          "image": "./assets/images/splash-icon.png",
           "backgroundColor": "#8ccdeb",
-          "resizeMode": "cover"
+          "resizeMode": "contain",
+          "imageWidth": 200
         }
       ],
       "expo-font",

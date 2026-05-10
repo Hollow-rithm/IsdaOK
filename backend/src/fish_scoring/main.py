@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 import logging
+import numpy as np
 
 from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
@@ -144,11 +145,11 @@ async def analyze_fish(
             "has_gills": has_gills,
             "has_eyes": has_eyes,
             "species": species,
-            # "features": {
-            #     "eye": eye_feats,
-            #     "body": body_feats,
-            #     "gill": gill_feats,
-            # },
+            "features": {
+                "eye": jsonify(eye_feats),
+                "body": jsonify(body_feats),
+                "gill": jsonify(gill_feats),
+            },
             "scores": {
                 "eye_score": eye_score * 100,
                 "body_score": body_score * 100,
@@ -165,3 +166,7 @@ async def analyze_fish(
     except Exception as e:
         logger.error(f"Processing error {e}", exc_info=True)
         raise HTTPException(500, f"Processing failed: {str(e)}")
+
+# For handling features wrapper    
+def jsonify(d):
+    return {k: float(v) if isinstance(v, np.float32) else v for k, v in d.items()}

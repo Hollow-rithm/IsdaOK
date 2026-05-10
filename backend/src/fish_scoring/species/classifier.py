@@ -1,17 +1,30 @@
-import joblib
 import pandas as pd
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-model = joblib.load(BASE_DIR / "artifacts" / "species_model.pkl")
-metadata = joblib.load(BASE_DIR / "artifacts" / "species_model_metadata.pkl")
+_model = None
+_metadata = None
 
-feature_names = metadata["features"]
+def _load_classifier():
+    global _model, _metadata
+
+    if _model is not None:
+        return
+    
+    print("Loading classification model...")
+
+    import joblib
+
+    _model = joblib.load(BASE_DIR / "artifacts" / "species_model.pkl")
+    _metadata = joblib.load(BASE_DIR / "artifacts" / "species_model_metadata.pkl")
+
+    print(f"Classifier model loaded..")
 
 def predict(features):
+    _load_classifier()
     X = pd.DataFrame([features])
-    X = X[metadata["features"]]
-    species = int(model.predict(X)[0])
+    X = X[_metadata["features"]]
+    species = int(_model.predict(X)[0])
     return species
 
 def predict_dataset(dataset_filepath):
@@ -20,7 +33,7 @@ def predict_dataset(dataset_filepath):
 
     features = data.iloc[:, 3:-1]
 
-    prediction = model.predict(features)
+    prediction = _model.predict(features)
 
     new_data["prediction"] = prediction
     new_data.to_csv("species_predictions.csv", index=False)

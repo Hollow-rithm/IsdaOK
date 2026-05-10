@@ -1,20 +1,30 @@
-import joblib
 import pandas as pd
 from pathlib import Path
 
-from sklearn.preprocessing import LabelEncoder
-import numpy as np
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-model = joblib.load(BASE_DIR / "artifacts" / "quality_model.pkl")
-metadata = joblib.load(BASE_DIR / "artifacts" / "quality_model_metadata.pkl")
+_model = None
+_metadata = None
 
-feature_names = metadata["features"]
+def _load_evaluator():
+    global _model, _metadata
+
+    if _model is not None:
+        return
+    
+    print("Loading classification model...")
+
+    import joblib
+
+    _model = joblib.load(BASE_DIR / "artifacts" / "quality_model.pkl")
+    _metadata = joblib.load(BASE_DIR / "artifacts" / "quality_model_metadata.pkl")
+
+    print(f"Evaluator model loaded..")
 
 def predict(features):
+    _load_evaluator()
     X = pd.DataFrame([features])
-    X = X[metadata["features"]]
-    quality = int(model.predict(X)[0])
+    X = X[_metadata["features"]]
+    quality = int(_model.predict(X)[0])
     if quality == 0:
         quality = "high"
     elif quality == 1:
