@@ -3,7 +3,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from 'expo-router';
 import HeaderBar from '@/components/HeaderBar';
-import Hollowrithm from "@/assets/images/Hollow-rithm.png";
 import logo from "@/assets/images/adaptive-icon.png";
 import hlogo from "@/assets/images/bg_n.png";
 
@@ -35,8 +34,6 @@ export default function About() {
             Meet Hollow-rithm!
             <Image source={hlogo} className="" resizeMode="none"/>
           </Text>
-
-          <Image source={Hollowrithm} className='w-full h-32 object-contain rounded-lg'/>
 
           <Text className="text-[#0B1D51] leading-6 pt-2">
             We are a team of passionate and hardworking students who work together to create
