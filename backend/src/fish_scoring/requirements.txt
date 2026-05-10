@@ -17,6 +17,7 @@ matplotlib
 scikit-learn
 
 fastapi
+uvicorn
 
 pandas
 seaborn
