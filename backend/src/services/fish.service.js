@@ -26,26 +26,60 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         const result = response.data;
 
         if (userId) {
-            // const [scan] = await db.query(
-            //     "INSERT INTO scans (user_id, fish_image_path, gill_image_path, eye_image_path) VALUES (?, ?, ?, ?)",
-            //     [userId, fishImage.path, gillImage?.path ?? null, eyeImage?.path ?? null]
-            // );
+            const [scan] = await db.query(
+                `INSERT INTO scans
+                 (user_id, species, eye_score, body_score, gill_score, rule_score, rule_quality, ml_quality, final_quality)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    userId,
+                    result.species,
+                    result.scores.eye_score,
+                    result.scores.body_score,
+                    result.scores.gill_score,
+                    result.rule_score,
+                    result.rule_quality,
+                    result.ml_quality,
+                    result.final_quality
+                ]
+            );
 
-            // await db.query(
-            //     `INSERT INTO scan_results
-            //     (scan_id, species, eye_score, body_score, gill_score, overall_score, quality_grade)
-            //     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            //     [
-            //         scan.insertId,
-            //         result.species,
-            //         result.features.eye_score,
-            //         result.features.body_score,
-            //         result.features.gill_score,
-            //         result.rule_score,
-            //         result.quality_grade,
-            //         //computeGrade(result.final_score)
-            //     ]
-            // );
+            await db.query(
+                `INSERT INTO fish_eye
+                 (scan_id, red_intensity, red_coverage, eye_cloudiness) 
+                 VALUES (?, ?, ?, ?)`,
+                [
+                    scan.insertId,
+                    result.features.eye.red_intensity,
+                    result.features.eye.red_coverage,
+                    result.features.eye.eye_cloudiness
+                ]
+            );
+            
+            await db.query(
+                `INSERT INTO fish_body
+                 (scan_id, shine_coverage, shine_intensity, body_color_b) 
+                 VALUES (?, ?, ?, ?)`,
+                [
+                    scan.insertId,
+                    result.features.body.shine_coverage,
+                    result.features.body.shine_intensity,
+                    result.features.body.body_color_b
+                ]
+            );
+
+            await db.query(
+                `INSERT INTO fish_gills
+                 (scan_id, hue_mean, redness_purity, brightness_mean, brown_dominance, color_cov) 
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    scan.insertId,
+                    result.features.gill.hue_mean,
+                    result.features.gill.redness_purity,
+                    result.features.gill.brightness_mean,
+                    result.features.gill.brown_dominance,
+                    result.features.gill.color_cov
+                ]
+            );
         }
 
         return {
@@ -59,7 +93,6 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
             ml_quality: result.ml_quality,
             final_quality: result.final_quality,
         };
-
 
     } catch (err) {
         if (err.code === "ECONNREFUSED") {
@@ -102,15 +135,14 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
 export const getHistory = async (userId) => {
   const [records] = await db.query(`
     SELECT
-      s.id,
-      s.created_at,
-      sr.species,
-      sr.overall_score,
-      sr.quality_grade
-    FROM scans s
-    JOIN scan_results sr ON s.id = sr.scan_id
-    WHERE s.user_id = ?
-    ORDER BY s.created_at DESC
+      id,
+      created_at,
+      species,
+      rule_score,
+      final_quality
+    FROM scans
+    WHERE user_id = ?
+    ORDER BY created_at DESC
   `, [userId]);
   return records;
 };

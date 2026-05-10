@@ -8,8 +8,8 @@ import trash from "@/assets/images/trash.png";
 type ScanHistory = {
   id: number;
   species: string;
-  overall_score: number;
-  quality_grade: "LOW" | "MEDIUM" | "HIGH";
+  rule_score: number;
+  final_quality: "LOW" | "MID" | "HIGH";
   created_at: string;
 };
 
@@ -43,9 +43,10 @@ export default function History() {
   };
 
   const gradeColor = (grade: string) => {
-    if (grade === "HIGH") return "text-green-600";
-    if (grade === "MEDIUM") return "text-yellow-600";
-    return "text-red-600";
+      if (grade === 'HIGH') return 'text-green-600';
+      if (grade === 'MID') return 'text-yellow-600';
+      if (grade === 'LOW') return 'text-red-600';
+      return 'text-red-600';
   };
 
   const formatDate = (dateStr: string) => {
@@ -130,15 +131,15 @@ export default function History() {
               <View key={scan.id} className="bg-secondary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
-                    {scan.species ?? "Unknown Species"}
+                    {scan.species.toUpperCase() ?? "Unknown Species"}
                   </Text>
-                  <Text className={`font-bold text-sm ${gradeColor(scan.quality_grade)}`}>
-                    {scan.quality_grade}
+                  <Text className={`font-bold text-sm ${gradeColor(scan.final_quality)}`}>
+                    {scan.final_quality}
                   </Text>
                 </View>
                 <View className="flex-row justify-between mt-2">
                   <Text className="text-gray-500 text-sm">
-                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.overall_score}</Text>
+                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.rule_score}</Text>
                   </Text>
                   <Text className="text-gray-400 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
