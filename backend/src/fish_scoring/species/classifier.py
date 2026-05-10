@@ -51,3 +51,6 @@ def num_to_species(num):
     else:
         species = "unknown"
     return species
+
+def is_loaded():
+    return _model is not None

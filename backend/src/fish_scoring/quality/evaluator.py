@@ -34,3 +34,6 @@ def predict(features):
     else:
         quality = "unknown"
     return quality
+
+def is_loaded():
+    return _model is not None
