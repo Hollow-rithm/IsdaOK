@@ -44,7 +44,7 @@ CREATE TABLE `user_tokens`(
 
 CREATE TABLE `scans`(
     `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `user_id` BIGINT NOT NULL,
+    `user_id` BIGINT NULL,
     `species` VARCHAR(100) DEFAULT NULL,
     `body_score` DECIMAL(5, 2) DEFAULT NULL,
     `gill_score` DECIMAL(5, 2) DEFAULT NULL,
