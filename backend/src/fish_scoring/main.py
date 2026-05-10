@@ -133,6 +133,7 @@ async def analyze_fish(
         gill_score = gill_scorer.compute(gill_feats)
         eye_score = eye_scorer.compute(eye_feats, species)
         body_score = body_scorer.compute(body_feats, species)
+        print(f"gill score: {gill_score}\neye score: {eye_score}\nbody score: {body_score}")
 
         # Final Scoring
         rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
