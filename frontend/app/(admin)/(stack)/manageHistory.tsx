@@ -8,8 +8,8 @@ import trash from "@/assets/images/trash.png";
 type ScanHistory = {
   id: number;
   species: string;
-  overall_score: number;
-  quality_grade: "LOW" | "MEDIUM" | "HIGH";
+  rule_score: number;
+  final_quality: "LOW" | "MEDIUM" | "HIGH";
   created_at: string;
 };
 
@@ -129,15 +129,15 @@ export default function ManageHistory() {
               <View key={scan.id} className="bg-primary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
-                    {scan.species ?? "Unknown Species"}
+                    {scan.species.toUpperCase() ?? "Unknown Species"}
                   </Text>
-                  <Text className={`font-bold text-sm ${gradeColor(scan.quality_grade)}`}>
-                    {scan.quality_grade}
+                  <Text className={`font-bold text-sm ${gradeColor(scan.final_quality)}`}>
+                    {scan.final_quality}
                   </Text>
                 </View>
                 <View className="flex-row justify-between mt-2">
                   <Text className="text-gray-600 text-sm">
-                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.overall_score}</Text>
+                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.rule_score}</Text>
                   </Text>
                   <Text className="text-gray-500 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
