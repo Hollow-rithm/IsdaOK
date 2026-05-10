@@ -35,7 +35,7 @@ async def analyze_fish(
         fish_img = image_utils.decode_image(fish_bytes)
 
         if fish_img is None:
-            raise HTTPException(400, "fish_img could not be decoded")
+            raise HTTPException(400, "Fish image could not be decoded")
         
         gill_img = None
         eye_roi = None
@@ -54,6 +54,7 @@ async def analyze_fish(
                 })
             has_gills = gill_img is not None
             gill_img = image_utils.resize_gills(gill_img)
+            image_utils.save("gill_roi", gill_img)
             gill_enhanced = image_utils.apply_clahe(gill_img)
             gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
             gill_feats = gill_features.extract(gill_roi, gill_mask)
@@ -85,6 +86,7 @@ async def analyze_fish(
                 "has_eyes": eye_roi is not None,
                 "message": "Gill image missing"
             })
+        image_utils.save("body_roi", body_roi)
         has_fish = True
         if eye_roi is None:
             return JSONResponse({
@@ -93,6 +95,7 @@ async def analyze_fish(
                 "has_eyes": False,
                 "message": "Eye image missing"
             })
+        image_utils.save("eye_roi", eye_roi)
         
         # Feature Extraction
         body_feats = body_features.extract(body_roi)
