@@ -35,6 +35,11 @@ export default function About() {
             <Image source={hlogo} className="" resizeMode="none"/>
           </Text>
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 6fa1b8f0 (temp)
           <Text className="text-[#0B1D51] leading-6 pt-2">
             We are a team of passionate and hardworking students who work together to create
             innovative projects through teamwork, creativity, and dedication.
