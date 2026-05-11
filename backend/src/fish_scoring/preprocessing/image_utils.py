@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import os
 
 from config import CLAHE_GILLS, CLAHE_HEAD
 
@@ -54,3 +55,44 @@ def get_lab_mean(img):
     
     mean_L = np.mean(L[mask]) * 100.0 / 255.0  
     return round(mean_L, 4)
+
+def save(name, img, dir="images"):
+    os.makedirs(dir, exist_ok=True)
+    if img is None or img.size == 0:
+        return
+    out = img.copy()
+    h, w = out.shape[:2]
+    scale = min(800 / w, 800 / h, 1.0)
+    if scale < 1.0:
+        out = cv.resize(out, (int(w * scale), int(h * scale)))
+    cv.imwrite(f"{dir}/{name}.jpg", out)
+
+def resize_eyes(img):
+    if img is None or img.size == 0:
+        return
+    
+    # Faster grayscale
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) if len(img.shape) == 3 else img
+
+    # Binary mask of foreground
+    _, mask = cv.threshold(gray, 1, 255, cv.THRESH_BINARY)
+
+    # Get bounding box directly
+    x, y, w, h = cv.boundingRect(mask)
+
+    if w == 0 or h == 0:
+        return
+
+    # Crop ROI
+    out = img[y:y+h, x:x+w]
+
+    # Resize only if larger than max size
+    max_dim = 800
+    h, w = out.shape[:2]
+
+    if h > max_dim or w > max_dim:
+        scale = min(max_dim / w, max_dim / h)
+        new_size = (int(w * scale), int(h * scale))
+        out = cv.resize(out, new_size, interpolation=cv.INTER_AREA)
+
+    return out

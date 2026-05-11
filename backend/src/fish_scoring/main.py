@@ -5,10 +5,9 @@ import numpy as np
 
 from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
-from features import eye_features, body_features, gill_features
+from features import eye_features, body_features, gill_features, ml_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
-from species import classifier
-from quality import evaluator
+from predicting import classifier, evaluator
 
 app = FastAPI(
     title = "Fish Surface Quality Assessment",
@@ -79,6 +78,7 @@ async def analyze_fish(
         else:
             head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
             eye_roi = eye_segmenter.segment(head_roi)
+            eye_roi = image_utils.resize_eyes(eye_roi)
         has_eyes = eye_roi is not None
 
         if body_roi is None:
@@ -103,40 +103,15 @@ async def analyze_fish(
         body_feats = body_features.extract(body_roi)
         eye_feats = eye_features.extract(eye_roi)
 
-        # Add Cloudiness Feature / Delete Some Features
-        eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
-
-        # ML Species Prediction
-        base_features = {
-            "hue_mean": gill_feats["hue_mean"],
-            "redness_purity": gill_feats["redness_purity"],
-            "brightness_mean": gill_feats["brightness_mean"],
-            "brown_dominance": gill_feats["brown_dominance"],
-            "color_cov": gill_feats["color_cov"],
-            "red_intensity": eye_feats["red_intensity"],
-            "red_coverage": eye_feats["red_coverage"],
-            "eye_cloudiness": eye_feats["eye_cloudiness"],
-            "shine_coverage": body_feats["shine_coverage"],
-            "shine_intensity": body_feats["shine_intensity"],
-            "body_color_b": body_feats["body_color_b"],
-        }
-        species_features = {
-            **base_features,
-            "aspect_ratio": aspect_ratio,
-        }
-        species = classifier.predict(species_features)
-        quality_features = {
-            **base_features,
-            "species": species
-        }
-        ml_quality = evaluator.predict(quality_features)
+        # # ML Species Prediction
+        species = classifier.predict(ml_features.species_extract(body_feats, eye_feats, gill_feats, aspect_ratio))
+        ml_quality = evaluator.predict(ml_features.quality_extract(body_feats, eye_feats, gill_feats))
         species = classifier.num_to_species(species)
 
         # Scoring
         gill_score = gill_scorer.compute(gill_feats)
         eye_score = eye_scorer.compute(eye_feats, species)
         body_score = body_scorer.compute(body_feats, species)
-        print(f"gill score: {gill_score}\neye score: {eye_score}\nbody score: {body_score}")
 
         # Final Scoring
         rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
