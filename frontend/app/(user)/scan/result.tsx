@@ -57,7 +57,7 @@ export default function ViewImage () {
     }, 1000);
 
     return () => clearTimeout(timer);
-}, []);
+    }, []);
 
     if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown') {
         return (
@@ -163,7 +163,7 @@ export default function ViewImage () {
                 <SafeAreaView edges={['bottom']} className="w-full py-2 pb-2">
                     <View className='flex-row items-center justify-end px-4'>
                     <TouchableOpacity onPress={() => router.push('/home')} style={styles.button}>
-                        <Text>Back to Sea</Text>
+                        <Text>Home</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => router.push('/scan/capture')} style={styles.button}>
                         <Text>Scan Again</Text>
