@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, Alert} from 'react-native'
+import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native'
 import { router, useGlobalSearchParams } from 'expo-router'
 import HeaderBar from '@/components/HeaderBar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +27,27 @@ export default function ViewImage () {
         return '#6b7280';
     };
     const grade = parsedResult?.final_quality?.toUpperCase() ?? 'N/A';
+
+    const getQualityInfo = (grade: string) => {
+        if (grade === 'HIGH') return {
+            message: 'This fish is fresh and safe to eat.',
+            advice: 'Keep refrigerated or stored on ice. For best quality, consume within 1–2 days.'
+        };
+        if (grade === 'MID') return {
+            message: 'This fish is moderately fresh.',
+            advice: 'Store in a refrigerator or on ice and consume as soon as possible. Cook thoroughly before eating.'
+        };
+        if (grade === 'LOW') return {
+            message: 'This fish may no longer be fresh.',
+            advice: 'Avoid storing for extended periods. Consumption is not recommended.'
+        };
+        return {message: 'Quality could not be determined.', advice: 'Recapture Fish' };
+        };
+
+    const toPercent = (value: number | null | undefined) => {
+        if (value == null) return 'N/A';
+        return `${value.toFixed(1)}%`;
+    };
 
     const saveResult = async (silent?: boolean) => {
     try {
@@ -91,8 +112,13 @@ export default function ViewImage () {
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
             <HeaderBar onPress={() => router.back()} title='Results' />
 
-            <ViewShot ref={resultCardRef} style={{ width: '90%', paddingVertical: 5 }}>
+            <ScrollView
+                className='w-full'
+                contentContainerStyle={{ alignItems: 'center', paddingBottom: 16 }}
+                showsVerticalScrollIndicator={false}
+            >
 
+            <ViewShot ref={resultCardRef} style={{ width: '90%', paddingVertical: 5 }}>
                 <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4}}>
                     {images.map((img, i) => (
                         <View key={i} style={{
@@ -134,19 +160,20 @@ export default function ViewImage () {
 
                             {/*Scores*/}
                             {[
-                                { label: 'Body', value: parsedResult?.body_score },
-                                { label: 'Gills', value: parsedResult?.gill_score },
-                                { label: 'Eyes', value: parsedResult?.eye_score },
-                                { label: 'Rule Score', value: parsedResult?.rule_score },
-                                { label: 'ML Quality', value: parsedResult?.ml_quality },
+                                { label: 'Body Rating:', value: parsedResult?.body_score },
+                                { label: 'Gills Rating:', value: parsedResult?.gill_score },
+                                { label: 'Eye Rating:', value: parsedResult?.eye_score },
+                                { label: 'Overall Score:', value: parsedResult?.rule_score },
+                                { label: 'Machine Learning Quality:', value: parsedResult?.ml_quality },
                             ].map(({ label, value }) => (
                                 <View key={label} className='flex-row justify-between mb-1'>
                                 <Text className='text-gray-600'>{label}</Text>
                                 <Text className='font-semibold'>
-                                    {value != null
-                                        ? typeof value === 'number' ? value.toFixed(1) 
-                                        : String(value).toUpperCase()
-                                        : 'N/A'}
+                                    {typeof value === 'number'
+                                    ? toPercent(value)
+                                    : value != null
+                                    ? String(value).toUpperCase()
+                                    : 'N/A'}
                                 </Text>
                                 </View>
                             ))}
@@ -158,6 +185,21 @@ export default function ViewImage () {
                         </View>
                     </View>
             </ViewShot>
+
+            {/* Quality Info Card */}
+            {(() => {
+            const info = getQualityInfo(grade);
+                return (
+                    <View className="w-[90%] rounded-xl bg-secondary border-2 border-tertiary px-5 py-4 mt-3">
+                    <Text className="text-base font-bold text-[#0B1D51] mb-1">
+                        {info.message}
+                    </Text>
+                    {info.advice ? (
+                        <Text className="text-sm text-gray-500">{info.advice}</Text>
+                    ) : null}
+                    </View>
+                );
+            })()}
 
                 {/* Buttons */}
                 <SafeAreaView edges={['bottom']} className="w-full py-2 pb-2">
@@ -173,6 +215,7 @@ export default function ViewImage () {
                     </TouchableOpacity>
                     </View>
                 </SafeAreaView>
+            </ScrollView>
         </SafeAreaView>
   );
 }

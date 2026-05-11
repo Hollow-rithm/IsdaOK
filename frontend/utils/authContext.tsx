@@ -48,7 +48,7 @@ export function AuthProvider({ children }: PropsWithChildren){
         try{
              if (token === "guest"){
                  setIsLoggedIn(true);
-                 setRole("user");
+                 setRole("guest");
                  setUsername("Guest");
 
                  router.replace("/(user)/(drawer)/home");
