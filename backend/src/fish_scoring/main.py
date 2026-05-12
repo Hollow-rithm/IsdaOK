@@ -78,7 +78,7 @@ async def analyze_fish(
         else:
             head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
             eye_roi = eye_segmenter.segment(head_roi)
-            eye_roi = image_utils.resize_eyes(eye_roi)
+        eye_roi = image_utils.resize_eyes(eye_roi)
         has_eyes = eye_roi is not None
 
         if body_roi is None:
