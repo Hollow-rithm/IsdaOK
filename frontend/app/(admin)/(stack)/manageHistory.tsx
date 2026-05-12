@@ -9,7 +9,7 @@ type ScanHistory = {
   id: number;
   species: string;
   rule_score: number;
-  final_quality: "LOW" | "MEDIUM" | "HIGH";
+  final_quality: "LOW" | "MID" | "HIGH";
   created_at: string;
 };
 
@@ -45,7 +45,7 @@ export default function ManageHistory() {
 
   const gradeColor = (grade: string) => {
     if (grade === "HIGH") return "text-green-600";
-    if (grade === "MEDIUM") return "text-yellow-600";
+    if (grade === "MID") return "text-yellow-600";
     return "text-red-600";
   };
 
