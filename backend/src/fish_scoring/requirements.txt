@@ -18,6 +18,7 @@ scikit-learn
 
 fastapi
 uvicorn
+python-multipart
 
 pandas
 seaborn
