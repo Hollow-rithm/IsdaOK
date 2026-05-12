@@ -94,7 +94,7 @@ export default function ManageHistory() {
     <SafeAreaView edges={['top']} className="flex-1 bg-[#FFE3A9]">
 
         <View className="flex-row justify-center items-center">
-            <Text className="text-xl font-semibold text-[#0B1D51]">{username}`&apos;`s Records</Text>
+            <Text className="text-xl font-semibold text-[#0B1D51]">{username}&apos;s Records</Text>
         </View>
 
       {loading ? (
@@ -116,7 +116,7 @@ export default function ManageHistory() {
           {history.length === 0 ? (
             <View className="flex-1 items-center justify-center mt-20">
               <Text className="text-[#0B1D51] text-lg font-semibold">No scans yet!</Text>
-              <Text className="text-gray-500 mt-2">This user hasn`&apos;`t scanned any fish.</Text>
+              <Text className="text-gray-500 mt-2">This user hasn&apos;t scanned any fish.</Text>
             </View>
           ) : (
             <>
