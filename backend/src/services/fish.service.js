@@ -46,7 +46,7 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
             await db.query(
                 `INSERT INTO fish_eye
                  (scan_id, lab_a_mean, red_ratio, lbp_texture_score, canny_edge_density, mean_saturation) 
-                 VALUES (?, ?, ?, ?)`,
+                 VALUES (?, ?, ?, ?, ?, ?)`,
                 [
                     scan.insertId,
                     result.features.eye.lab_a_mean,
