@@ -5,10 +5,9 @@ import numpy as np
 
 from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
-from features import eye_features, body_features, gill_features
+from features import eye_features, body_features, gill_features, ml_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
-from species import classifier
-from quality import evaluator
+from predicting import classifier, evaluator
 
 app = FastAPI(
     title = "Fish Surface Quality Assessment",
@@ -22,7 +21,8 @@ async def health_check():
     return {
         "status": "healthy",
         "segmenter_loaded": fish_segmenter.is_loaded(),
-        "evaluator_loaded": evaluator._evaluator is not None,
+        "classifier_loaded": classifier.is_loaded(),
+        "evaluator_loaded": evaluator.is_loaded(),
     }
 
 @app.post("/api/fish/analyze")
@@ -36,7 +36,7 @@ async def analyze_fish(
         fish_img = image_utils.decode_image(fish_bytes)
 
         if fish_img is None:
-            raise HTTPException(400, "fish_img could not be decoded")
+            raise HTTPException(400, "Fish image could not be decoded")
         
         gill_img = None
         eye_roi = None
@@ -55,6 +55,7 @@ async def analyze_fish(
                 })
             has_gills = gill_img is not None
             gill_img = image_utils.resize_gills(gill_img)
+            image_utils.save("gill_roi", gill_img)
             gill_enhanced = image_utils.apply_clahe(gill_img)
             gill_roi, gill_mask, coverage = gill_segmenter.segment(gill_enhanced, gill_img)
             gill_feats = gill_features.extract(gill_roi, gill_mask)
@@ -77,6 +78,7 @@ async def analyze_fish(
         else:
             head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
             eye_roi = eye_segmenter.segment(head_roi)
+            eye_roi = image_utils.resize_eyes(eye_roi)
         has_eyes = eye_roi is not None
 
         if body_roi is None:
@@ -86,6 +88,7 @@ async def analyze_fish(
                 "has_eyes": eye_roi is not None,
                 "message": "Gill image missing"
             })
+        image_utils.save("body_roi", body_roi)
         has_fish = True
         if eye_roi is None:
             return JSONResponse({
@@ -94,38 +97,15 @@ async def analyze_fish(
                 "has_eyes": False,
                 "message": "Eye image missing"
             })
+        image_utils.save("eye_roi", eye_roi)
         
         # Feature Extraction
         body_feats = body_features.extract(body_roi)
         eye_feats = eye_features.extract(eye_roi)
 
-        # Add Cloudiness Feature / Delete Some Features
-        eye_feats, body_feats = eye_features.enrich(eye_feats, body_feats) 
-
-        # ML Species Prediction
-        base_features = {
-            "hue_mean": gill_feats["hue_mean"],
-            "redness_purity": gill_feats["redness_purity"],
-            "brightness_mean": gill_feats["brightness_mean"],
-            "brown_dominance": gill_feats["brown_dominance"],
-            "color_cov": gill_feats["color_cov"],
-            "red_intensity": eye_feats["red_intensity"],
-            "red_coverage": eye_feats["red_coverage"],
-            "eye_cloudiness": eye_feats["eye_cloudiness"],
-            "shine_coverage": body_feats["shine_coverage"],
-            "shine_intensity": body_feats["shine_intensity"],
-            "body_color_b": body_feats["body_color_b"],
-        }
-        species_features = {
-            **base_features,
-            "aspect_ratio": aspect_ratio,
-        }
-        species = classifier.predict(species_features)
-        quality_features = {
-            **base_features,
-            "species": species
-        }
-        ml_quality = evaluator.predict(quality_features)
+        # # ML Species Prediction
+        species = classifier.predict(ml_features.species_extract(body_feats, eye_feats, gill_feats, aspect_ratio))
+        ml_quality = evaluator.predict(ml_features.quality_extract(body_feats, eye_feats, gill_feats))
         species = classifier.num_to_species(species)
 
         # Scoring

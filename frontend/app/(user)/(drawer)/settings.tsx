@@ -4,9 +4,12 @@ import { useSettings } from '@/context/settingsContext';
 import { router } from 'expo-router';
 import BackButton from '@/components/HeaderBar';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { useAuth } from "@/utils/authContext";
 
 export default function SettingsPage() {
     const { settings, updateSetting, isBiometricEnabled, toggleBiometric } = useSettings();
+   const { username, role } = useAuth();
+    const isGuest = role === 'guest';
 
     const BiometricToggle = async () => {
         if(isBiometricEnabled) {
@@ -100,21 +103,25 @@ export default function SettingsPage() {
                 )}
 
                 {/* Biometric */}
-                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
+                {!isGuest && (
+                <>
+                    <Text className="text-xs font-semibold text-[#0B1D51] uppercase mb-2">
                     Security
-                </Text>
-                <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                    </Text>
+                    <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
                     <View className="flex-row items-center justify-between px-4 py-4">
                         <View className="flex-1 mr-4">
-                            <Text className="text-base font-medium">Biometric Login</Text>
-                            <Text className="text-sm text-gray-400">Use fingerprint to log in</Text>
+                        <Text className="text-base font-medium">Biometric Login</Text>
+                        <Text className="text-sm text-gray-400">Use fingerprint to log in</Text>
                         </View>
                         <Switch
-                            value={isBiometricEnabled}
-                            onValueChange={BiometricToggle}
+                        value={isBiometricEnabled}
+                        onValueChange={BiometricToggle}
                         />
                     </View>
-                </View>
+                    </View>
+                </>
+                )}
             </ScrollView>
         </SafeAreaView>
     );
