@@ -1,9 +1,11 @@
 import cv2 as cv
 import numpy as np
+import logging
 
 from config import K5
-
 from preprocessing import image_utils
+
+logger = logging.getLogger(__name__)
 
 def _get_edges(head_roi):
     blurred = cv.GaussianBlur(head_roi, (5,5), 0)
@@ -117,5 +119,5 @@ def segment(head_roi):
         return eye_box_circular
 
     else:
-        print("no eye detected")
+        print("No eye detected")
         return None

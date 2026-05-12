@@ -1,15 +1,10 @@
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from 'expo-router';
-import HeaderBar from '@/components/HeaderBar';
-
 
 export default function Faq() {
   return (
     <SafeAreaView className="flex-1 bg-primary">
-      <HeaderBar onPress={() => router.back()} title="About" />
-
       <ScrollView className="flex-1 px-4 pt-2">
 
         {/* About Section */}
@@ -34,10 +29,9 @@ export default function Faq() {
             IsdaOK analyzes fish images using image processing and machine learning techniques to evaluate visible surface
             indicators such as the eyes, gills, and body condition.
           </Text>
-
         </View>
 
-        <View className="bg-secondary rounded-xl p-5 mb-8 border-2 border-tertiary">
+        <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
           <Text className="text-l font-bold text-[#0B1D51] mb-3">
             Question 2: Which type of fish images should I upload?
           </Text>
@@ -48,7 +42,7 @@ export default function Faq() {
           </Text>
         </View>
 
-        <View className="bg-secondary rounded-xl p-5 mb-8 border-2 border-tertiary">
+        <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
           <Text className="text-l font-bold text-[#0B1D51] mb-3">
             Question 3: What does the Fish Quality result mean?
           </Text>

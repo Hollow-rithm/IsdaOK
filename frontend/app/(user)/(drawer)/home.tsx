@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, View, Image} from "react-native";
 import logo from "@/assets/images/icon.png";
 import { router } from "expo-router";
 import { useAuth } from "@/utils/authContext";
+import { Alert } from "react-native";
 
 export default function Home() {
   const { logOut, username } = useAuth();
@@ -31,11 +32,25 @@ export default function Home() {
         </TouchableOpacity>
         )}
 
-        <TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4"
-            onPress={() => {
-                logOut();
-            }}>
-        <Text className="text-center font-semibold text-[#0B1D51] ">{isGuest ? "Sign In" : "Sign Out"}</Text>
+        <TouchableOpacity
+          className="bg-red-500 py-2 px-4 w-40 border border-red-700 rounded mt-4"
+          onPress={() => {
+            if (isGuest) {
+              logOut();
+            } else {
+              Alert.alert(
+                "Sign Out",
+                "Are you sure you want to sign out?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Sign Out", style: "destructive", onPress: () => logOut() },
+                ]
+              );
+            }
+          }}>
+          <Text className="text-center font-semibold text-white">
+            {isGuest ? "Sign In" : "Sign Out"}
+          </Text>
         </TouchableOpacity>
 
       </View>
