@@ -10,10 +10,16 @@ jest.mock("fs");
 const mlResponse = {
   has_fish: true,
   species: "Tilapia",
-  ml_score: 0.85,
-  features: { eye_score: 0.70, gill_score: 0.65, body_score: 0.72 },
-  final_score: 0.79,
-  quality: "HIGH",
+  scores: { eye_score: 0.70, gill_score: 0.65, body_score: 0.72 },
+  rule_score: 0.79,
+  rule_quality: "HIGH",
+  ml_quality: "HIGH",
+  final_quality: "HIGH",
+  features: {
+    eye: { red_intensity: 0.1, red_coverage: 0.2, eye_cloudiness: 0.3 },
+    body: { shine_coverage: 0.4, shine_intensity: 0.5, body_color_b: 0.6 },
+    gill: { hue_mean: 0.1, redness_purity: 0.2, brightness_mean: 0.3, brown_dominance: 0.4, color_cov: 0.5 },
+  }
 };
 
 describe("fishService.analyzeFish()", () => {
@@ -38,14 +44,16 @@ describe("fishService.analyzeFish()", () => {
     expect(db.query).not.toHaveBeenCalled(); // not saved to DB if guest
     expect(result.has_fish).toBe(true);
     expect(result.species).toBe("Tilapia");
-    expect(result.final_score).toBe(0.79);
+    expect(result.rule_score).toBe(0.79);
   });
 
   test("Saves scan and its results to the database (user)", async () => {
     axios.post.mockResolvedValue({ data: mlResponse });
     db.query
       .mockResolvedValueOnce([{ insertId: 1 }]) // INSERT scans
-      .mockResolvedValueOnce([{}]); // INSERT scan_results
+      .mockResolvedValueOnce([{}])
+      .mockResolvedValueOnce([{}])
+      .mockResolvedValueOnce([{}]);
 
     await fishServiceDirect.analyzeFish({
       fishImage: { path: "/tmp/fish.jpg" },
@@ -54,7 +62,7 @@ describe("fishService.analyzeFish()", () => {
       userId: 1,
     });
 
-    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(db.query).toHaveBeenCalledTimes(4);
     const dbCall = db.query.mock.calls[0];
     expect(dbCall[0]).toMatch(/INSERT INTO scans/i);
     expect(dbCall[1][0]).toBe(1); // userId
@@ -132,10 +140,10 @@ describe("fishService.getHistory()", () => {
     db.query.mockResolvedValueOnce([[{
       id: 1,
       species: "Tilapia",
-      overall_score: 0.79,
-      quality_grade: "HIGH"
-    }]]);
-
+      rule_score: 0.79,
+      final_quality: "HIGH"
+    }], []]);
+    
     const result = await fishServiceDirect.getHistory(1);
 
     expect(db.query).toHaveBeenCalledWith(expect.any(String), [1]);
@@ -143,7 +151,7 @@ describe("fishService.getHistory()", () => {
   });
 
   test("Shows nothing if the user has no scan history", async () => {
-    db.query.mockResolvedValueOnce([[]]); 
+    db.query.mockResolvedValueOnce([[], []]); 
 
     const result = await fishServiceDirect.getHistory(1);
 
@@ -158,8 +166,8 @@ describe("fishService.deleteRecord()", () => {
 
   test("Successfully deletes record", async () => {
     db.query
-      .mockResolvedValueOnce([[{ id: 1 }]]) // SELECT
-      .mockResolvedValueOnce([{}]); // DELETE
+      .mockResolvedValueOnce([[{ id: 1 }], []]) // SELECT
+      .mockResolvedValueOnce([[], []]); // DELETE
 
     const result = await fishServiceDirect.deleteRecord(5, 1);
 
@@ -169,7 +177,7 @@ describe("fishService.deleteRecord()", () => {
   });
   
   test("Deletion fails if record is not found", async () => {
-    db.query.mockResolvedValueOnce([[]]);
+    db.query.mockResolvedValueOnce([[], []]);
 
     await expect(fishServiceDirect.deleteRecord(999, 1)).rejects.toMatchObject({ message: "Record not found", status: 404 });
   });

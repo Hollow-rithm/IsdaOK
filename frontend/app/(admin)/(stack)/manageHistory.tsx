@@ -8,8 +8,8 @@ import trash from "@/assets/images/trash.png";
 type ScanHistory = {
   id: number;
   species: string;
-  overall_score: number;
-  quality_grade: "LOW" | "MEDIUM" | "HIGH";
+  rule_score: number;
+  final_quality: "LOW" | "MEDIUM" | "HIGH";
   created_at: string;
 };
 
@@ -94,7 +94,7 @@ export default function ManageHistory() {
     <SafeAreaView edges={['top']} className="flex-1 bg-[#FFE3A9]">
 
         <View className="flex-row justify-center items-center">
-            <Text className="text-xl font-semibold text-[#0B1D51]">{username}`&apos;`s Records</Text>
+            <Text className="text-xl font-semibold text-[#0B1D51]">{username}&apos;s Records</Text>
         </View>
 
       {loading ? (
@@ -116,7 +116,7 @@ export default function ManageHistory() {
           {history.length === 0 ? (
             <View className="flex-1 items-center justify-center mt-20">
               <Text className="text-[#0B1D51] text-lg font-semibold">No scans yet!</Text>
-              <Text className="text-gray-500 mt-2">This user hasn`&apos;`t scanned any fish.</Text>
+              <Text className="text-gray-500 mt-2">This user hasn&apos;t scanned any fish.</Text>
             </View>
           ) : (
             <>
@@ -129,15 +129,15 @@ export default function ManageHistory() {
               <View key={scan.id} className="bg-primary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
-                    {scan.species ?? "Unknown Species"}
+                    {scan.species.toUpperCase() ?? "Unknown Species"}
                   </Text>
-                  <Text className={`font-bold text-sm ${gradeColor(scan.quality_grade)}`}>
-                    {scan.quality_grade}
+                  <Text className={`font-bold text-sm ${gradeColor(scan.final_quality)}`}>
+                    {scan.final_quality}
                   </Text>
                 </View>
                 <View className="flex-row justify-between mt-2">
                   <Text className="text-gray-600 text-sm">
-                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.overall_score}</Text>
+                    Overall Score: <Text className="font-semibold text-[#0B1D51]">{scan.rule_score}</Text>
                   </Text>
                   <Text className="text-gray-500 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>

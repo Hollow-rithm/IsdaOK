@@ -3,7 +3,7 @@ import * as fishService from "../src/services/fish.service.js";
 
 jest.mock("../src/services/fish.service.js");
 
-process.env.ML_SERVICE_URL = "http://localhost:8000/process_fish";
+process.env.ML_SERVICE_URL = "http://localhost:8000/api/fish/analyze";
 
 const mockRes = () => {
   const res = {};
@@ -19,12 +19,16 @@ const mockEyeFile  = { path: "/tmp/eye-123.jpg",  originalname: "eye.jpg"  };
 const mockAnalysisResult = {
   has_fish: true,
   species: "Tilapia",
-  ml_score: 0.85,
-  eye_score: 0.70,
-  gill_score: 0.65,
-  body_score: 0.72,
-  final_score: 0.79,
-  quality: "HIGH",
+  scores: { eye_score: 0.70, gill_score: 0.65, body_score: 0.72 },
+  rule_score: 0.79,
+  rule_quality: "HIGH",
+  ml_quality: "HIGH",
+  final_quality: "HIGH",
+  features: {
+    eye: { red_intensity: 0.1, red_coverage: 0.2, eye_cloudiness: 0.3 },
+    body: { shine_coverage: 0.4, shine_intensity: 0.5, body_color_b: 0.6 },
+    gill: { hue_mean: 0.1, redness_purity: 0.2, brightness_mean: 0.3, brown_dominance: 0.4, color_cov: 0.5 },
+  }
 };
 
 describe("fishController.analyzeFish()", () => {
