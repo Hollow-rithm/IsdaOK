@@ -78,7 +78,7 @@ async def analyze_fish(
         else:
             head_roi, body_roi, aspect_ratio = fish_segmenter.segment(fish_img)
             eye_roi = eye_segmenter.segment(head_roi)
-        eye_roi = image_utils.resize_eyes(eye_roi)
+            eye_roi = image_utils.resize_eyes(eye_roi)
         has_eyes = eye_roi is not None
 
         if body_roi is None:
@@ -117,6 +117,26 @@ async def analyze_fish(
         rule_score, rule_quality = rule_scorer.compute(gill_score, eye_score, body_score)
         final_quality = final_scorer.compute(rule_score, rule_quality, ml_quality)
 
+        print({
+            "has_fish": True,
+            "has_gills": has_gills,
+            "has_eyes": has_eyes,
+            "species": species,
+            "features": {
+                "eye": jsonify(eye_feats),
+                "body": jsonify(body_feats),
+                "gill": jsonify(gill_feats),
+            },
+            "scores": {
+                "eye_score": eye_score * 100,
+                "body_score": body_score * 100,
+                "gill_score": gill_score * 100,
+            },
+            "rule_score": rule_score * 100,
+            "rule_quality" : rule_quality,
+            "ml_quality": ml_quality,
+            "final_quality": final_quality,
+        })
         return JSONResponse({
             "has_fish": True,
             "has_gills": has_gills,
