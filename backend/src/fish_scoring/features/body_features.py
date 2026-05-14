@@ -14,7 +14,7 @@ def extract(body_roi):
     
     # 2. ADAPTIVE PEAK DETECTION (Otsu #1)
     # This finds the core of the highlights
-    otsu_val, seeds = cv.threshold(tophat, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    _, seeds = cv.threshold(tophat, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
     # 3. STRICT SATURATION GATE (Otsu #2)
     # Instead of a hard number like 100, we let Otsu find the "colorless" 

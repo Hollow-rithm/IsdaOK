@@ -7,7 +7,6 @@ def quality_extract(body_feats, eye_feats, gill_feats):
         "lbp_texture_score": eye_feats["lbp_texture_score"],
         "canny_edge_density": eye_feats["canny_edge_density"],
         "mean_saturation": eye_feats["mean_saturation"],
-        "lab_a_mean": eye_feats["lab_a_mean"],
         "hue_mean": gill_feats["hue_mean"],
         "redness_purity": gill_feats["redness_purity"],
         "brown_dominance": gill_feats["brown_dominance"],
