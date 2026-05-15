@@ -1,0 +1,3 @@
+stage,latency_ms,memory_MB
+Health Check,34.326599998166785,95.09375
+Full Inference,15370.18309999985,684.8046875

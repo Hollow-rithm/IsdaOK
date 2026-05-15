@@ -4,7 +4,7 @@ from preprocessing import image_utils
 from segmentation import fish_segmenter, gill_segmenter
 from features import eye_features, body_features, gill_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
-from species import classifier
+from predicting import classifier
 from quality import evaluator
 
 def analyze(fish_img, gill_img, eye_roi):
