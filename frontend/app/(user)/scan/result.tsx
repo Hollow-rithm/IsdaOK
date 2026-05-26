@@ -86,9 +86,9 @@ export default function ViewImage () {
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
                     No Fish Detected
                 </Text>
-                <Text className='text-gray-500 text-center mb-8'>
-                    We could not identify the fish in your image. Please make sure the fish is clearly visible and try again.{'\n'}
-                    Note: Current Version of the App only handles Milkfish, Tilapia, and Carp.
+                <Text className='text-gray-800 text-center mb-8'>
+                    IsdaOK could not identify the fish in your image. Please make sure the fish is clearly visible and try again.{'\n'}{'\n'}
+                    Note: Current Version of IsdaOK only handles Milkfish, Tilapia, and Carp.
                 </Text>
                 <View className='flex-row'>
                     <TouchableOpacity
@@ -123,7 +123,7 @@ export default function ViewImage () {
                 <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4}}>
                     {images.map((img, i) => (
                         <View key={i} style={{
-                            width: images.length === 1 ? 250 : images.length === 2 ? 160: 100,
+                            width: images.length === 1 ? 160 : images.length === 2 ? 160: 100,
                              marginHorizontal: 2
                             }}>
                             <Text className="text-s text-center text-black mb-1">{img.label}</Text>
@@ -168,7 +168,7 @@ export default function ViewImage () {
                                 { label: 'Machine Learning Quality:', value: parsedResult?.ml_quality },
                             ].map(({ label, value }) => (
                                 <View key={label} className='flex-row justify-between mb-1'>
-                                <Text className='text-gray-600'>{label}</Text>
+                                <Text className='text-gray-800'>{label}</Text>
                                 <Text className='font-semibold'>
                                     {typeof value === 'number'
                                     ? toPercent(value)
@@ -180,7 +180,7 @@ export default function ViewImage () {
                             ))}
 
                             {/* Footer */}
-                            <Text className="text-gray-400 text-xs text-center mt-3">
+                            <Text className="text-gray-600 text-xs text-center mt-3">
                                 {new Date().toLocaleDateString('en-PH')} • IsdaOK
                             </Text>
                         </View>
