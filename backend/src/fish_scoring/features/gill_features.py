@@ -39,7 +39,7 @@ def extract(result, mask):
 
     # Brown dominance (brown ratio of image)
     brown_mask = (h_vals >= 10) & (h_vals <= 30) & (s_vals < 160)
-    brown_dominance = np.sum(brown_mask) / valid_pixels
+    brown_dominance = float(np.sum(brown_mask) / valid_pixels)
 
     # Saturation coefficient of variance (variance of saturation)
     s_mean = float(np.mean(s_vals))

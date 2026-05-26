@@ -11,7 +11,7 @@ def _load_evaluator():
     if _model is not None:
         return
     
-    print("Loading classification model...")
+    print("Loading evaluation model...")
 
     import joblib
 

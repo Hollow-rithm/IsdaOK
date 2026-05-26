@@ -44,3 +44,6 @@ ios/
 # Build output
 dist/
 build/
+
+*.jpg
+*.xlsx

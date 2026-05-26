@@ -14,14 +14,13 @@ IMG_SIZE = 256
 MAX_SCORE = 1.0
 MIN_SCORE = 0.0
 
-GILL_BOUNDS = {
-    "hue_mean_1": {"min": 0.0, "max": 20.0},
-    "hue_mean_2": {"min": 168.0, "max": 180.0},
-    "purity": {"min": 153.58, "max": 183.94},
-    "brown": {"min": 0.026, "max": 0.326},
-    "cov": {"min": 0.216, "max": 0.314},
-    "best_brightness": {"min": 100.0, "max": 180.0},
-    "brightness": {"min": 60.0, "max": 210.0},
+DEFAULT_GILL_FEATS = {
+    "hue_mean": 10.0,
+    "redness_purity": 145.0,
+    "brightness_mean": 100.0,
+    "brown_dominance": 0.25,
+    "color_cov": 0.325,
+    "valid_pixels": 5000,
 }
 
 HUE_LOWER = 0.0
