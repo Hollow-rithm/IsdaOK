@@ -30,16 +30,16 @@ export default function ViewImage () {
 
     const getQualityInfo = (grade: string) => {
         if (grade === 'HIGH') return {
-            message: 'This fish is fresh and safe to eat.',
-            advice: 'Keep refrigerated or stored on ice. For best quality, consume within 1–2 days.'
+            message: 'Great Quality Fish!',
+            advice: 'Recommended for immediate use or proper cold storage to maintain quality.'
         };
         if (grade === 'MID') return {
-            message: 'This fish is moderately fresh.',
-            advice: 'Store in a refrigerator or on ice and consume as soon as possible. Cook thoroughly before eating.'
+            message: 'Moderate Quality Fish.',
+            advice: 'Consume soon and keep properly refrigerated to help maintain quality.'
         };
         if (grade === 'LOW') return {
-            message: 'This fish may no longer be fresh.',
-            advice: 'Avoid storing for extended periods. Consumption is not recommended.'
+            message: 'Fish Quality Deteriorating',
+            advice: 'Careful inspection is advised before use or consumption.'
         };
         return {message: 'Quality could not be determined.', advice: 'Recapture Fish' };
         };
@@ -84,10 +84,11 @@ export default function ViewImage () {
         return (
             <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
-                    Unknown Species
+                    No Fish Detected
                 </Text>
                 <Text className='text-gray-500 text-center mb-8'>
-                    We could not identify the fish in your image. Please make sure the fish is clearly visible and try again.
+                    We could not identify the fish in your image. Please make sure the fish is clearly visible and try again.{'\n'}
+                    Note: Current Version of the App only handles Milkfish, Tilapia, and Carp.
                 </Text>
                 <View className='flex-row'>
                     <TouchableOpacity
