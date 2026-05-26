@@ -3,8 +3,6 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import logging
 import numpy as np
-import time
-import tracemalloc
 
 from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
@@ -65,8 +63,6 @@ async def analyze_fish(
     gill_image: UploadFile = File(None),
     eye_image: UploadFile = File(None)
 ):
-    start = time.time()
-    tracemalloc.start()
     try:
         result = await _run_pipeline(fish_image, gill_image, eye_image)
     except HTTPException:
@@ -75,11 +71,7 @@ async def analyze_fish(
         logger.error(f"Processing error {e}", exc_info=True)
         raise HTTPException(500, f"Processing failed: {str(e)}")
     finally:
-        current_mb, peak_mb = (v / 1024 / 1024 for v in tracemalloc.get_traced_memory())
-        elapsed = time.time() - start
-        logger.info(f"Pipeline: {elapsed:.2f} | mem current: {current_mb:.2f}MB | peak: {peak_mb:.2f}MB")
-        tracemalloc.stop()
-    return result
+        return result
 
 
 async def _run_pipeline(
