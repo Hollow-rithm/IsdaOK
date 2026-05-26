@@ -70,8 +70,7 @@ async def analyze_fish(
     except Exception as e:
         logger.error(f"Processing error {e}", exc_info=True)
         raise HTTPException(500, f"Processing failed: {str(e)}")
-    finally:
-        return result
+    return result
 
 
 async def _run_pipeline(
@@ -83,7 +82,7 @@ async def _run_pipeline(
 
     fish_img = _decode_or_raise(await fish_image.read(), "Fish image could not be decoded.")
 
-    has_gills, gill_feats = await _process_gill(gill_image)
+    has_gills, gill_feats, gill_img = await _process_gill(gill_image)
     eye_provided = eye_image is not None
 
     # Segment Fish Body and optional Eye      
@@ -111,6 +110,12 @@ async def _run_pipeline(
         )
     image_utils.save("eye_roi", eye_roi)
     
+    previews = {
+        "body": image_utils.encode_preview(body_roi),
+        "gill": image_utils.encode_preview(gill_img),
+        "eye": image_utils.encode_preview(eye_roi),
+    }
+
     # Feature Extraction
     body_feats = body_features.extract(body_roi)
     eye_feats = eye_features.extract(eye_roi)
@@ -170,6 +175,7 @@ async def _run_pipeline(
         "rule_quality" : rule_quality,
         "ml_quality": ml_quality,
         "final_quality": final_quality,
+        "previews": previews,
     })
 
 def _decode_or_raise(image_bytes, error_message):
@@ -188,10 +194,10 @@ async def _process_gill(gill_image: UploadFile | None):
         logger.warning("Gill image could not be decoded; using defaults.")
         return None, False, DEFAULT_GILL_FEATS, None
  
-    gill_img     = image_utils.resize_gills(gill_img)
+    gill_img = image_utils.resize_gills(gill_img)
     image_utils.save("gill_roi", gill_img)
     gill_enhanced = image_utils.apply_clahe(gill_img)
     gill_roi, gill_mask, _ = gill_segmenter.segment(gill_enhanced, gill_img)
     gill_feats   = gill_features.extract(gill_roi, gill_mask)
  
-    return True, gill_feats
+    return True, gill_feats, gill_roi
