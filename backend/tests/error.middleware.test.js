@@ -44,7 +44,7 @@ describe("errorMiddleware()", () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "error",
-        message: "File is too large. Maximum size is 5MB.",
+        message: "File is too large. Maximum size is 10MB.",
         code: "LIMIT_FILE_SIZE",
       })
     );

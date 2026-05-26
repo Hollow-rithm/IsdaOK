@@ -3,15 +3,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from 'expo-router';
 import HeaderBar from '@/components/HeaderBar';
-import Hollowrithm from "@/assets/images/Hollow-rithm.png";
 import logo from "@/assets/images/adaptive-icon.png";
 import hlogo from "@/assets/images/bg_n.png";
+import hollowteam from "@/assets/images/hollowrithm-team.png";
 
 export default function About() {
   return (
     <SafeAreaView className="flex-1 bg-primary">
-      <HeaderBar onPress={() => router.back()} title="About" />
-
       <ScrollView className="flex-1 px-4 pt-2">
 
         {/* About Section */}
@@ -33,11 +31,9 @@ export default function About() {
         <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
           <Text className="text-2xl font-bold text-[#0B1D51] mb-4">
             Meet Hollow-rithm!
-            <Image source={hlogo} className="" resizeMode="none"/>
+            <Image source={hlogo} resizeMode="none"/>
           </Text>
-
-          <Image source={Hollowrithm} className='w-full h-32 object-contain rounded-lg'/>
-
+          <Image source={hollowteam} style={{ width: 300, height: 200 }} className="-mt-4" resizeMode="center"/>
           <Text className="text-[#0B1D51] leading-6 pt-2">
             We are a team of passionate and hardworking students who work together to create
             innovative projects through teamwork, creativity, and dedication.

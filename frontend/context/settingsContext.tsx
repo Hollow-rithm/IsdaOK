@@ -24,7 +24,7 @@ const SettingsContext = createContext<{
     updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
     isBiometricEnabled: boolean;
     toggleBiometric: () => Promise<void>;
-}>({ 
+}>({
     settings: defaults,
     updateSetting: () => {},
     isBiometricEnabled: false,

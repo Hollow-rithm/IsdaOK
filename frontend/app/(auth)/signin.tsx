@@ -1,11 +1,11 @@
-import { Text, TouchableOpacity, View, Image, TextInput, Alert, Modal, ScrollView } from "react-native";
+import { Text, TouchableOpacity, View, Image, TextInput, Alert, Modal, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import logo from "@/assets/images/icon.png"
 import gicon from "@/assets/images/g-iconL.png";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/utils/authContext";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useAuth, JWTPayload } from "@/utils/authContext";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as LocalAuthentication from 'expo-local-authentication';
 import { sanitizeEmail } from "@/utils/sanitize";
 import { validateEmail } from "@/utils/validate";
@@ -14,7 +14,6 @@ import * as Biometric from "@/utils/biometric";
 import * as SecureStore from "expo-secure-store";
 import { useGoogleSignIn } from "@/utils/googleAuth";
 import { jwtDecode } from "jwt-decode";
-import { JWTPayload } from "@/utils/authContext";
 
 export default function SignIn() {
 	const [email, setEmail] = useState("");
@@ -26,6 +25,7 @@ export default function SignIn() {
 	const [guestTerms, setGuestTerms] = useState(false);
 	const { logIn } = useAuth();
 	const { request, response, promptAsync } = useGoogleSignIn();
+	const insets = useSafeAreaInsets();
 
 	useEffect(() => {
 		if (response?.type === 'success'){
@@ -211,7 +211,7 @@ export default function SignIn() {
 						onRequestClose={() => setGuestTerms(false)}
 						>
 						<View className="flex-1 justify-end bg-black/50">
-							<View className="bg-white rounded-t-2xl px-6 pt-6 pb-10" style={{ maxHeight: '80%' }}>
+							<View className="bg-white rounded-t-2xl px-6 pt-6" style={{ maxHeight: '80%', paddingBottom: insets.bottom + 16 }}>
 							<Text className="text-xl font-semibold text-[#0B1D51] mb-4">Guest Access</Text>
 							<ScrollView className="mb-4">
 								<Text className="text-[#0B1D51] text-sm leading-6">
@@ -269,11 +269,11 @@ export default function SignIn() {
 
 
 					<View className="flex-row">
-						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10"
+						{/* <TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3 mr-10"
 						disabled={!request}
 						onPress={() => promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
-						</TouchableOpacity>
+						</TouchableOpacity> */}
 
 						<TouchableOpacity onPress={biometricsAuth} className="flex-row items-center justify-center rounded-lg py-3"
 						disabled={!biometric} style={{ opacity: biometric ? 1 : 0.2 }}>

@@ -59,9 +59,11 @@ CREATE TABLE `scans`(
 CREATE TABLE `fish_eye`(
     `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `scan_id` BIGINT NULL,
-    `red_intensity` DECIMAL(5, 2) DEFAULT NULL,
-    `red_coverage` DECIMAL(5, 2) DEFAULT NULL,
-    `eye_cloudiness` DECIMAL(5, 2) DEFAULT NULL,
+    `lab_a_mean` DECIMAL(5, 2) DEFAULT NULL,
+    `red_ratio` DECIMAL(5, 2) DEFAULT NULL,
+    `lbp_texture_score` DECIMAL(5, 2) DEFAULT NULL,
+    `canny_edge_density` DECIMAL(5, 2) DEFAULT NULL,
+    `mean_saturation` DECIMAL(5, 2) DEFAULT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP()
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

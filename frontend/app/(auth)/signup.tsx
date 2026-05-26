@@ -3,7 +3,7 @@ import logo from "@/assets/images/icon.png";
 import gicon from "@/assets/images/g-iconL.png";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/utils/authContext";
 import { sanitizeEmail, sanitizePassword, sanitizeUsername } from "@/utils/sanitize";
 import { validateEmail, validatePassword, validateUsername } from "@/utils/validate";
@@ -23,6 +23,7 @@ export default function SignUp() {
 	const [passwordError, setPasswordError] = useState<string[]>([]);
 	const [usernameError, setUsernameError] = useState<string[]>([])
 	const [confPasswordError, setConfPasswordError] = useState<boolean>();
+	const insets = useSafeAreaInsets();
 
 	const { logIn } = useAuth();
 	const { request, response, promptAsync } = useGoogleSignIn();
@@ -193,7 +194,7 @@ export default function SignUp() {
 						onRequestClose={() => setShowTerms(false)}
 					>
 						<View className="flex-1 justify-end bg-black/50">
-							<View className="bg-white rounded-t-2xl px-6 pt-6 pb-10" style={{maxHeight: '80%'}}>
+							<View className="bg-white rounded-t-2xl px-6 pt-6" style={{maxHeight: '80%', paddingBottom: insets.bottom + 16 }}>
 								<Text className="text-xl font-semibold text-[#0B1D51] mb-4">Terms and Conditions</Text>
 								<ScrollView className="mb-4">
 									<Text className="text-[#0B1D51] text-sm leading-6">
@@ -292,18 +293,18 @@ export default function SignUp() {
 						</Text>
 					</TouchableOpacity>
 
-					<View className="flex-row mt-4">
+					{/* <View className="flex-row mt-4">
 						<Text>or</Text>
-					</View>
+					</View> */}
 
-					<View className="flex-row">
+					{/* <View className="flex-row">
 						<TouchableOpacity className="flex-row items-center justify-center rounded-lg py-3"
 						disabled={!request}
 						onPress={() =>
 						promptAsync({ showInRecents: true })}>
 							<Image source={gicon} style={{ width: 46, height: 46 }} resizeMode="contain" />
 						</TouchableOpacity>
-					</View>
+					</View> */}
 
 					<Text className="text-[#0B1D51] text-center mt-4">
 						{"Already have an account?"}{' '}
