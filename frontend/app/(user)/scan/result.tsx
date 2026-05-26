@@ -80,7 +80,7 @@ export default function ViewImage () {
     return () => clearTimeout(timer);
     }, []);
 
-    if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown') {
+    if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown' || !parsedResult.has_fish ) { //|| !parsedResult.has_gills || parsedResult.has_eyes
         return (
             <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>

@@ -169,7 +169,7 @@ export default function Capture(){
             const controller = new AbortController();
             const timeout = setTimeout(() => {
                 controller.abort();
-            }, 15000);
+            }, 30000);
 
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/fish/analyze`,
                 {
