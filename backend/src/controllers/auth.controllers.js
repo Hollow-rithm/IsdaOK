@@ -52,7 +52,7 @@ export const login = async (req, res) => {
 			session_start: Date.now()
 		},
 			process.env.JWT_SECRET,
-			{ expiresIn: '1d' }
+			{ expiresIn: '3d' }
 		);
 
 		res.status(200).json({
@@ -128,7 +128,7 @@ export const verifyToken = async (req, res) => {
 			session_start: req.user.session_start
 		},
 			process.env.JWT_SECRET,
-			{ expiresIn: '1d' }
+			{ expiresIn: '3d' }
 		);
 
 		res.status(200).json({
