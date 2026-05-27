@@ -138,8 +138,6 @@ export default function Capture(){
 
     const upload = async (fishUri: string, gillUri?: string, eyeUri?: string) => {
         setUploading(true);
-        // console.log("TYPE OF URI:", typeof uri);
-        // console.log("URI VALUE:", uri);
         const form_data = new FormData();
 
         // Required fish image
@@ -168,14 +166,21 @@ export default function Capture(){
 
         try {
             const token = await getStoredToken();
+            const controller = new AbortController();
+            const timeout = setTimeout(() => {
+                controller.abort();
+            }, 30000);
+
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/fish/analyze`,
                 {
                     method: "POST",
                     body: form_data,
                     headers: {
                         ...(token ? { Authorization: `Bearer ${token}` } : {})
-                    }
+                    },
+                    signal: controller.signal,
                 });
+            clearTimeout(timeout);
 
             console.log("Fish URI: ", fishUri);
             console.log("Gills URI: ", gillUri);
@@ -198,9 +203,13 @@ export default function Capture(){
                     uri3: eyeUri ?? "",
                 },
             });
-        } catch (error) {
-            console.error("Upload error: ", error);
-            Alert.alert("Error", "Failed to process image");
+        } catch (error:any) {
+            if (error?.name === 'AbortError'){
+                Alert.alert("Request Timed Out", "The server is taking too long to respond. This may be due to a slow connection. Please try again.");
+            } else {
+                console.error("Upload error: ", error);
+                Alert.alert("Error", "Failed to process image");
+            }
         }
         setUploading(false);
     }

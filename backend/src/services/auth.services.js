@@ -188,6 +188,16 @@ export const getUserID = async (id) => {
 	return records[0];
 };
 
+export const deleteAccount = async (id) => {
+	const [result] = await db.query("DELETE FROM users WHERE id = ?", [id]);
+
+	if (result.affectedRows === 0) {
+		throw new Error("User not found");
+	}
+
+	return { status: "success", message: "Account deleted successfully" };
+};
+
 export const googleLogin = async ({ email, googleId, name }) => {
   const [records] = await db.query(
     "SELECT id, username, email, role FROM users WHERE email = ? OR google_id = ?",

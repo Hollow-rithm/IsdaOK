@@ -144,6 +144,20 @@ export const verifyToken = async (req, res) => {
 	}
 };
 
+export const deleteAccount = async (req, res) => {
+	console.log("DELETE /delete-account hit, user id:", req.user?.id);
+	try {
+		const result = await authService.deleteAccount(req.user.id);
+		res.status(200).json(result);
+	} catch (err) {
+		console.error("deleteAccount error:", err.message);
+		res.status(err.status ?? 400).json({
+			status: "error",
+			message: err.message,
+		});
+	}
+};
+
 export const googleLogin = async (req, res) => {
   const { email, googleId, name } = req.body;
   try {

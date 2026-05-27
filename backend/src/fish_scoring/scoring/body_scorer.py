@@ -13,6 +13,7 @@ def compute(body_feats, species):
     si_score = normalizer.normalize(si, "shine_intensity", species)
 
     shine_score = (sc_score * 0.6) + (si_score * 0.4)
+
     body_score = (
         shine_score * 0.7 +
         color_score * 0.3
