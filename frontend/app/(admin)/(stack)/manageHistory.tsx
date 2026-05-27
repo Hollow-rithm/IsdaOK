@@ -2,14 +2,20 @@ import { Text, View, ScrollView, TouchableOpacity, Image, Alert } from "react-na
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { useGlobalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { apiFetch } from "@/utils/api";
 import trash from "@/assets/images/trash.png";
+import info from "@/assets/images/info.png";
 
 type ScanHistory = {
   id: number;
   species: string;
+  body_score: number;
+  gill_score: number;
+  eye_score: number;
   rule_score: number;
-  final_quality: "LOW" | "MEDIUM" | "HIGH";
+  ml_quality: "LOW" | "MID" | "HIGH";
+  final_quality: "LOW" | "MID" | "HIGH";
   created_at: string;
 };
 
@@ -45,7 +51,7 @@ export default function ManageHistory() {
 
   const gradeColor = (grade: string) => {
     if (grade === "HIGH") return "text-green-600";
-    if (grade === "MEDIUM") return "text-yellow-600";
+    if (grade === "MID") return "text-yellow-600";
     return "text-red-600";
   };
 
@@ -57,6 +63,24 @@ export default function ManageHistory() {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit"
+    });
+  };
+
+  const viewScan = (scan: ScanHistory) => {
+    router.push({
+      pathname: "/(admin)/(stack)/viewDetails",
+      params: {
+        scanId: String(scan.id),
+        species: scan.species,
+        body_score: String(scan.body_score),
+        gill_score: String(scan.gill_score),
+        eye_score: String(scan.eye_score),
+        rule_score: String(scan.rule_score),
+        ml_quality: scan.ml_quality,
+        final_quality: scan.final_quality,
+        created_at: scan.created_at,
+        username: username ?? "",
+      },
     });
   };
 
@@ -91,7 +115,7 @@ export default function ManageHistory() {
       }
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-[#FFE3A9]">
+    <SafeAreaView edges={['top']} className="flex-1 bg-secondary">
 
         <View className="flex-row justify-center items-center">
             <Text className="text-xl font-semibold text-[#0B1D51]">{username}&apos;s Records</Text>
@@ -142,6 +166,12 @@ export default function ManageHistory() {
                   <Text className="text-gray-500 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
                 <View className="flex-row justify-end mt-1">
+                  <TouchableOpacity className="mr-4"
+                      onPress={() => {
+                          viewScan(scan);
+                      }}>
+                      <Image source={info} style={{ width: 25, height: 25 }} resizeMode="contain" />
+                  </TouchableOpacity>
                   <TouchableOpacity
                       onPress={() => {
                           deleteRecord(scan.id);

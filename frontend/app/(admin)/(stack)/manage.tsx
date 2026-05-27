@@ -96,7 +96,7 @@ export default function ManageUsers() {
     }
 
   return (
-      <SafeAreaView className="flex-1 bg-[#FFE3A9]">
+      <SafeAreaView className="flex-1 bg-secondary">
 
         <View className="w-full max-w-md rounded-xl items-center px-6 py-4">
 
