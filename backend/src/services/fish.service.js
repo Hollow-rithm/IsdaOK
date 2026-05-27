@@ -86,6 +86,8 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
 
         return {
             has_fish: result.has_fish,
+            has_gills: result.has_gills,
+            has_eyes: result.has_eyes,
             species: result.species,
             eye_score: result.scores.eye_score,
             gill_score: result.scores.gill_score,
@@ -94,6 +96,7 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
             rule_quality : result.rule_quality,
             ml_quality: result.ml_quality,
             final_quality: result.final_quality,
+            segmented: result.preview ?? null
         };
 
     } catch (err) {

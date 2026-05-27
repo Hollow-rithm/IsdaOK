@@ -6,17 +6,20 @@ import { useAuth, getStoredToken } from '@/utils/authContext';
 
 type PhotoQuality = '720p' | '1080p';
 type SaveMode = 'none' | 'result' | 'all';
+type ImageViewMode = 'Raw' | 'Segmented';
 
 export type Settings = {
   photoQuality: PhotoQuality;
   saveLocally: boolean;
   saveMode: SaveMode;
+  imageViewMode: ImageViewMode;
 };
 
 const defaults: Settings = {
   photoQuality: '720p',
   saveLocally: false,
   saveMode: 'result',
+  imageViewMode: 'Segmented',
 }
 
 const SettingsContext = createContext<{

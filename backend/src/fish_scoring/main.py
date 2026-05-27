@@ -186,7 +186,7 @@ def _decode_or_raise(image_bytes, error_message):
 
 async def _process_gill(gill_image: UploadFile | None):
     if gill_image is None:
-        return False, DEFAULT_GILL_FEATS
+        return False, DEFAULT_GILL_FEATS, None
  
     gill_img = image_utils.decode_image(await gill_image.read())
  

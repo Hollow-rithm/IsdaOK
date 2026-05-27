@@ -14,11 +14,45 @@ export default function ViewImage () {
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
 
-    const images = [
-        {uri, label: "Whole Fish"},
-        uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
-        uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
-    ]. filter(Boolean) as { uri: string; label:string}[];
+    const getRawImages = () => {
+        return [
+            {uri, label: "Whole Fish"},
+            uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
+            uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
+        ].filter(Boolean) as { uri: string; label: string }[];
+    };
+
+    const getSegmentedImages = () => {
+        const segmented = parsedResult?.segmented;
+        if (!segmented) return [];
+
+        const images: { uri: string; label: string }[] = [];
+        
+        if (segmented.body) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.body}`,
+                label: "Whole Fish"
+            });
+        }
+        if (segmented.gill) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.gill}`,
+                label: "Gills"
+            });
+        }
+        if (segmented.eye) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.eye}`,
+                label: "Eyes"
+            });
+        }
+
+        return images;
+    };
+
+    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented 
+        ? getSegmentedImages() 
+        : getRawImages();
 
     const gradeColor = (grade: string) => {
         if (grade === 'HIGH') return '#16a34a';
@@ -232,5 +266,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 3
+    },
+    toggleButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: '#0B1D51',
+        backgroundColor: 'transparent',
+    },
+    toggleButtonActive: {
+        backgroundColor: '#0B1D51',
+    },
+    toggleButtonText: {
+        color: '#0B1D51',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    toggleButtonTextActive: {
+        color: '#ffffff',
     }
 });
