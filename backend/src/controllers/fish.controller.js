@@ -51,6 +51,18 @@ export const getHistory = async (req, res) => {
   }
 };
 
+export const getScan = async (req, res) => {
+    try {
+        const scanId = parseInt(req.params.id);
+        const scan = await fishService.getScan(scanId, req.user.id);
+        res.status(200).json(scan);
+    } catch(err) {
+        res.status(err.status || 500).json({
+            message: err.message
+        });
+    }
+};
+
 export const deleteRecord = async (req, res) => {
     try {
         const scanId = parseInt(req.params.id);

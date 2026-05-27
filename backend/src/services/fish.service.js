@@ -140,13 +140,43 @@ export const getHistory = async (userId) => {
       id,
       created_at,
       species,
+      body_score,
+      gill_score,
+      eye_score,
       rule_score,
+      ml_quality,
       final_quality
     FROM scans
     WHERE user_id = ?
     ORDER BY created_at DESC
   `, [userId]);
+
   return records;
+};
+
+export const getScan = async (scanId, userId) => {
+  const [[scan]] = await db.query(`
+    SELECT
+      id,
+      created_at,
+      species,
+      body_score,
+      gill_score,
+      eye_score,
+      rule_score,
+      ml_quality,
+      final_quality
+    FROM scans
+    WHERE id = ? AND user_id = ?
+  `, [scanId, userId]);
+
+  if(!scan){
+    const error = new Error("Record not found");
+    error.status = 404;
+    throw error;
+  }
+  
+  return scan;
 };
 
 export const deleteRecord = async (scanId, userId) => {
