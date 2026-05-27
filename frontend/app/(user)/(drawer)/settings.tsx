@@ -87,6 +87,27 @@ export default function SettingsPage() {
                     ))}
                 </View>
 
+                {/* Results View Mode */}
+                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
+                    Results View Mode
+                </Text>
+                <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                    {(['Raw', 'Segmented'] as const).map((q, i, arr) => (
+                        <TouchableOpacity
+                            key={q}
+                            onPress={() => updateSetting('imageViewMode', q)}
+                            className={`flex-row items-center justify-between px-4 py-4 ${
+                                i < arr.length - 1 ? 'border-b border-gray-200' : ''
+                            }`}
+                        >
+                            <Text className="text-base">{q}</Text>
+                            {settings.imageViewMode === q && (
+                                <Text className="text-blue-500 font-semibold">✓</Text>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
                 {/* Save Locally */}
                 <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
                     Storage

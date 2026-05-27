@@ -4,7 +4,7 @@ import HeaderBar from '@/components/HeaderBar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { useSettings } from '@/context/settingsContext';
 
 export default function ViewImage () {
@@ -13,7 +13,6 @@ export default function ViewImage () {
     const insets = useSafeAreaInsets();
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
-    const [viewMode, setViewMode] = useState<'raw' | 'segmented'>(settings.imageViewMode);
 
     const getRawImages = () => {
         return [
@@ -51,7 +50,7 @@ export default function ViewImage () {
         return images;
     };
 
-    const images = viewMode === 'segmented' && parsedResult?.segmented 
+    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented 
         ? getSegmentedImages() 
         : getRawImages();
 
@@ -147,40 +146,6 @@ export default function ViewImage () {
         <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-4'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
             <HeaderBar onPress={() => router.back()} title='Results' />
-
-            {/* View Mode Toggle */}
-            {parsedResult?.segmented && (
-                <View className='w-full px-4 py-2 flex-row justify-center gap-2'>
-                    <TouchableOpacity
-                        onPress={() => setViewMode('raw')}
-                        style={[
-                            styles.toggleButton,
-                            viewMode === 'raw' && styles.toggleButtonActive
-                        ]}
-                    >
-                        <Text style={[
-                            styles.toggleButtonText,
-                            viewMode === 'raw' && styles.toggleButtonTextActive
-                        ]}>
-                            Raw
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => setViewMode('segmented')}
-                        style={[
-                            styles.toggleButton,
-                            viewMode === 'segmented' && styles.toggleButtonActive
-                        ]}
-                    >
-                        <Text style={[
-                            styles.toggleButtonText,
-                            viewMode === 'segmented' && styles.toggleButtonTextActive
-                        ]}>
-                            Segmented
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )}
 
             <ScrollView
                 className='w-full'
