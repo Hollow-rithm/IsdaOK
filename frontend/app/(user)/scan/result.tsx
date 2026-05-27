@@ -4,7 +4,7 @@ import HeaderBar from '@/components/HeaderBar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useSettings } from '@/context/settingsContext';
 
 export default function ViewImage () {
@@ -13,12 +13,47 @@ export default function ViewImage () {
     const insets = useSafeAreaInsets();
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
+    const [viewMode, setViewMode] = useState<'raw' | 'segmented'>(settings.imageViewMode);
 
-    const images = [
-        {uri, label: "Whole Fish"},
-        uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
-        uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
-    ]. filter(Boolean) as { uri: string; label:string}[];
+    const getRawImages = () => {
+        return [
+            {uri, label: "Whole Fish"},
+            uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
+            uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
+        ].filter(Boolean) as { uri: string; label: string }[];
+    };
+
+    const getSegmentedImages = () => {
+        const segmented = parsedResult?.segmented;
+        if (!segmented) return [];
+
+        const images: { uri: string; label: string }[] = [];
+        
+        if (segmented.body) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.body}`,
+                label: "Whole Fish"
+            });
+        }
+        if (segmented.gill) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.gill}`,
+                label: "Gills"
+            });
+        }
+        if (segmented.eye) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.eye}`,
+                label: "Eyes"
+            });
+        }
+
+        return images;
+    };
+
+    const images = viewMode === 'segmented' && parsedResult?.segmented 
+        ? getSegmentedImages() 
+        : getRawImages();
 
     const gradeColor = (grade: string) => {
         if (grade === 'HIGH') return '#16a34a';
@@ -112,6 +147,40 @@ export default function ViewImage () {
         <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-4'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
             <HeaderBar onPress={() => router.back()} title='Results' />
+
+            {/* View Mode Toggle */}
+            {parsedResult?.segmented && (
+                <View className='w-full px-4 py-2 flex-row justify-center gap-2'>
+                    <TouchableOpacity
+                        onPress={() => setViewMode('raw')}
+                        style={[
+                            styles.toggleButton,
+                            viewMode === 'raw' && styles.toggleButtonActive
+                        ]}
+                    >
+                        <Text style={[
+                            styles.toggleButtonText,
+                            viewMode === 'raw' && styles.toggleButtonTextActive
+                        ]}>
+                            Raw
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setViewMode('segmented')}
+                        style={[
+                            styles.toggleButton,
+                            viewMode === 'segmented' && styles.toggleButtonActive
+                        ]}
+                    >
+                        <Text style={[
+                            styles.toggleButtonText,
+                            viewMode === 'segmented' && styles.toggleButtonTextActive
+                        ]}>
+                            Segmented
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             <ScrollView
                 className='w-full'
@@ -232,5 +301,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 3
+    },
+    toggleButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: '#0B1D51',
+        backgroundColor: 'transparent',
+    },
+    toggleButtonActive: {
+        backgroundColor: '#0B1D51',
+    },
+    toggleButtonText: {
+        color: '#0B1D51',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    toggleButtonTextActive: {
+        color: '#ffffff',
     }
 });
