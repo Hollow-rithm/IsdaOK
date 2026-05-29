@@ -13,7 +13,7 @@ from sklearn.metrics import (
 )
 from sklearn.utils.class_weight import compute_class_weight
 
-SAVE_DIR = "artifacts"
+SAVE_DIR = "artifacts1"
 
 label_map = {
     0: "High",
@@ -22,7 +22,7 @@ label_map = {
 }
 
 # ─── 1. Load Data ────────────────────────────────────────────────────────────
-data = pd.read_csv("feature_training/quality_data.csv")
+data = pd.read_csv("ml_training/quality_data1.csv")
 
 X = data.iloc[:, :-1]
 y = data.iloc[:, -1]

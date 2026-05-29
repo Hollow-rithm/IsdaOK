@@ -5,7 +5,6 @@ import { router } from 'expo-router';
 import HeaderBar from '@/components/HeaderBar';
 import logo from "@/assets/images/adaptive-icon.png";
 import hlogo from "@/assets/images/bg_n.png";
-import hollowteam from "@/assets/images/hollowrithm-team.png";
 
 export default function About() {
   return (
@@ -33,7 +32,7 @@ export default function About() {
             Meet Hollow-rithm!
             <Image source={hlogo} resizeMode="none"/>
           </Text>
-          <Image source={hollowteam} style={{ width: 300, height: 200 }} className="-mt-4" resizeMode="center"/>
+          {/* <Image source={hollowteam} style={{ width: 300, height: 200 }} className="-mt-4" resizeMode="center"/> */}
           <Text className="text-[#0B1D51] leading-6 pt-2">
             We are a team of passionate and hardworking students who work together to create
             innovative projects through teamwork, creativity, and dedication.

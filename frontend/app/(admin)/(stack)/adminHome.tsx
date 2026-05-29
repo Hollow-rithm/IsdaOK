@@ -7,7 +7,7 @@ import { useAuth } from "@/utils/authContext";
 export default function AdminHome() {
 	const { logOut } = useAuth();
 	return (
-		<SafeAreaView className="flex-1 space-y-4 items-center justify-center bg-[#FFE3A9] px-4">
+		<SafeAreaView className="flex-1 space-y-4 items-center justify-center bg-secondary px-4">
 			<View className="space-y-6 items-center">
 
 				<Image source={logo} className="w-32 h-32" resizeMode="contain" />

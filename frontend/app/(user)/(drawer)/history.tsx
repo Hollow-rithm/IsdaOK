@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { apiFetch } from "@/utils/api";
 import trash from "@/assets/images/trash.png";
+import info from "@/assets/images/info.png";
 
 type ScanHistory = {
   id: number;
   species: string;
+  body_score: number;
+  gill_score: number;
+  eye_score: number;
   rule_score: number;
+  ml_quality: "LOW" | "MID" | "HIGH";
   final_quality: "LOW" | "MID" | "HIGH";
   created_at: string;
 };
@@ -57,6 +62,23 @@ export default function History() {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit"
+    });
+  };
+
+  const viewScan = (scan: ScanHistory) => {
+    router.push({
+      pathname: "/scan/historyDetails",
+      params: {
+        scanId: String(scan.id),
+        species: scan.species,
+        body_score: String(scan.body_score),
+        gill_score: String(scan.gill_score),
+        eye_score: String(scan.eye_score),
+        rule_score: String(scan.rule_score),
+        ml_quality: scan.ml_quality,
+        final_quality: scan.final_quality,
+        created_at: scan.created_at,
+      },
     });
   };
 
@@ -144,6 +166,12 @@ export default function History() {
                   <Text className="text-gray-400 text-xs">{formatDate(scan.created_at)}</Text>
                 </View>
                 <View className="flex-row justify-end mt-1">
+                  <TouchableOpacity className="mr-4"
+                      onPress={() => {
+                          viewScan(scan);
+                      }}>
+                      <Image source={info} style={{ width: 25, height: 25 }} resizeMode="contain" />
+                  </TouchableOpacity>
                   <TouchableOpacity
                       onPress={() => {
                           deleteRecord(scan.id);

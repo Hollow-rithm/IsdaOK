@@ -14,11 +14,45 @@ export default function ViewImage () {
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
 
-    const images = [
-        {uri, label: "Whole Fish"},
-        uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
-        uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
-    ]. filter(Boolean) as { uri: string; label:string}[];
+    const getRawImages = () => {
+        return [
+            {uri, label: "Whole Fish"},
+            uri2 && uri2 !== '' && uri2 !== 'skipped' ? {uri: uri2, label: "Gills"} : null,
+            uri3 && uri3 !== '' ? { uri: uri3, label: "Eyes"}: null,
+        ].filter(Boolean) as { uri: string; label: string }[];
+    };
+
+    const getSegmentedImages = () => {
+        const segmented = parsedResult?.segmented;
+        if (!segmented) return [];
+
+        const images: { uri: string; label: string }[] = [];
+        
+        if (segmented.body) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.body}`,
+                label: "Whole Fish"
+            });
+        }
+        if (segmented.gill) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.gill}`,
+                label: "Gills"
+            });
+        }
+        if (segmented.eye) {
+            images.push({
+                uri: `data:image/jpeg;base64,${segmented.eye}`,
+                label: "Eyes"
+            });
+        }
+
+        return images;
+    };
+
+    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented 
+        ? getSegmentedImages() 
+        : getRawImages();
 
     const gradeColor = (grade: string) => {
         if (grade === 'HIGH') return '#16a34a';
@@ -30,16 +64,16 @@ export default function ViewImage () {
 
     const getQualityInfo = (grade: string) => {
         if (grade === 'HIGH') return {
-            message: 'This fish is fresh and safe to eat.',
-            advice: 'Keep refrigerated or stored on ice. For best quality, consume within 1–2 days.'
+            message: 'Great Quality Fish!',
+            advice: 'Recommended for immediate use or proper cold storage to maintain quality.'
         };
         if (grade === 'MID') return {
-            message: 'This fish is moderately fresh.',
-            advice: 'Store in a refrigerator or on ice and consume as soon as possible. Cook thoroughly before eating.'
+            message: 'Moderate Quality Fish.',
+            advice: 'Consume soon and keep properly refrigerated to help maintain quality.'
         };
         if (grade === 'LOW') return {
-            message: 'This fish may no longer be fresh.',
-            advice: 'Avoid storing for extended periods. Consumption is not recommended.'
+            message: 'Fish Quality Deteriorating',
+            advice: 'Careful inspection is advised before use or consumption.'
         };
         return {message: 'Quality could not be determined.', advice: 'Recapture Fish' };
         };
@@ -80,14 +114,15 @@ export default function ViewImage () {
     return () => clearTimeout(timer);
     }, []);
 
-    if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown') {
+    if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown' || !parsedResult.has_fish || !parsedResult.has_gills || parsedResult.has_eyes) {
         return (
             <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
-                    Unknown Species
+                    No Fish Detected
                 </Text>
-                <Text className='text-gray-500 text-center mb-8'>
-                    We could not identify the fish in your image. Please make sure the fish is clearly visible and try again.
+                <Text className='text-gray-800 text-center mb-8'>
+                    IsdaOK could not identify the fish in your image. Please make sure the fish is clearly visible and try again.{'\n'}{'\n'}
+                    Note: Current Version of IsdaOK only handles Milkfish, Tilapia, and Carp.
                 </Text>
                 <View className='flex-row'>
                     <TouchableOpacity
@@ -122,7 +157,7 @@ export default function ViewImage () {
                 <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4}}>
                     {images.map((img, i) => (
                         <View key={i} style={{
-                            width: images.length === 1 ? 250 : images.length === 2 ? 160: 100,
+                            width: images.length === 1 ? 160 : images.length === 2 ? 160: 100,
                              marginHorizontal: 2
                             }}>
                             <Text className="text-s text-center text-black mb-1">{img.label}</Text>
@@ -167,7 +202,7 @@ export default function ViewImage () {
                                 { label: 'Machine Learning Quality:', value: parsedResult?.ml_quality },
                             ].map(({ label, value }) => (
                                 <View key={label} className='flex-row justify-between mb-1'>
-                                <Text className='text-gray-600'>{label}</Text>
+                                <Text className='text-gray-800'>{label}</Text>
                                 <Text className='font-semibold'>
                                     {typeof value === 'number'
                                     ? toPercent(value)
@@ -179,7 +214,7 @@ export default function ViewImage () {
                             ))}
 
                             {/* Footer */}
-                            <Text className="text-gray-400 text-xs text-center mt-3">
+                            <Text className="text-gray-600 text-xs text-center mt-3">
                                 {new Date().toLocaleDateString('en-PH')} • IsdaOK
                             </Text>
                         </View>
@@ -231,5 +266,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 3
+    },
+    toggleButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: '#0B1D51',
+        backgroundColor: 'transparent',
+    },
+    toggleButtonActive: {
+        backgroundColor: '#0B1D51',
+    },
+    toggleButtonText: {
+        color: '#0B1D51',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    toggleButtonTextActive: {
+        color: '#ffffff',
     }
 });

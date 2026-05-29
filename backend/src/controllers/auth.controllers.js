@@ -52,7 +52,7 @@ export const login = async (req, res) => {
 			session_start: Date.now()
 		},
 			process.env.JWT_SECRET,
-			{ expiresIn: '1d' }
+			{ expiresIn: '3d' }
 		);
 
 		res.status(200).json({
@@ -128,7 +128,7 @@ export const verifyToken = async (req, res) => {
 			session_start: req.user.session_start
 		},
 			process.env.JWT_SECRET,
-			{ expiresIn: '1d' }
+			{ expiresIn: '3d' }
 		);
 
 		res.status(200).json({
@@ -137,6 +137,20 @@ export const verifyToken = async (req, res) => {
 			token: newToken,
 		});
 	} catch (err) {
+		res.status(err.status ?? 400).json({
+			status: "error",
+			message: err.message,
+		});
+	}
+};
+
+export const deleteAccount = async (req, res) => {
+	console.log("DELETE /delete-account hit, user id:", req.user?.id);
+	try {
+		const result = await authService.deleteAccount(req.user.id);
+		res.status(200).json(result);
+	} catch (err) {
+		console.error("deleteAccount error:", err.message);
 		res.status(err.status ?? 400).json({
 			status: "error",
 			message: err.message,

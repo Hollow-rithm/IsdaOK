@@ -5,6 +5,7 @@ export default function HomeLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="capture" />
       <Stack.Screen name="result" />
+      <Stack.Screen name="historyDetails" />
     </Stack>
   );
 }

@@ -5,11 +5,39 @@ import { router } from 'expo-router';
 import BackButton from '@/components/HeaderBar';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useAuth } from "@/utils/authContext";
+import { apiFetch } from "@/utils/api";
 
 export default function SettingsPage() {
     const { settings, updateSetting, isBiometricEnabled, toggleBiometric } = useSettings();
-   const { username, role } = useAuth();
+    const { username, role, logOut } = useAuth();
     const isGuest = role === 'guest';
+
+    const handleDeleteAccount = () => {
+        Alert.alert(
+            "Delete Account",
+            "This will permanently delete your account and all associated data. This action cannot be undone.",
+            [
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            const res = await apiFetch(`/api/auth/delete-account`, { method: "DELETE" });
+                            const data = await res.json();
+                            if (res.ok) {
+                                await logOut();
+                            } else {
+                                Alert.alert("Error", data.message || "Failed to delete account");
+                            }
+                        } catch (err) {
+                            Alert.alert("Error", "Network error. Please try again.");
+                        }
+                    },
+                },
+                { text: "Cancel", style: "cancel" },
+            ]
+        );
+    };
 
     const BiometricToggle = async () => {
         if(isBiometricEnabled) {
@@ -53,6 +81,27 @@ export default function SettingsPage() {
                         >
                             <Text className="text-base">{q}</Text>
                             {settings.photoQuality === q && (
+                                <Text className="text-blue-500 font-semibold">✓</Text>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                {/* Results View Mode */}
+                <Text className="text-xs font-semibold text-#0B1D51 uppercase mb-2">
+                    Results View Mode
+                </Text>
+                <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                    {(['Raw', 'Segmented'] as const).map((q, i, arr) => (
+                        <TouchableOpacity
+                            key={q}
+                            onPress={() => updateSetting('imageViewMode', q)}
+                            className={`flex-row items-center justify-between px-4 py-4 ${
+                                i < arr.length - 1 ? 'border-b border-gray-200' : ''
+                            }`}
+                        >
+                            <Text className="text-base">{q}</Text>
+                            {settings.imageViewMode === q && (
                                 <Text className="text-blue-500 font-semibold">✓</Text>
                             )}
                         </TouchableOpacity>
@@ -109,16 +158,31 @@ export default function SettingsPage() {
                     Security
                     </Text>
                     <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
-                    <View className="flex-row items-center justify-between px-4 py-4">
-                        <View className="flex-1 mr-4">
-                        <Text className="text-base font-medium">Biometric Login</Text>
-                        <Text className="text-sm text-gray-400">Use fingerprint to log in</Text>
+                        <View className="flex-row items-center justify-between px-4 py-4">
+                            <View className="flex-1 mr-4">
+                            <Text className="text-base font-medium">Biometric Login</Text>
+                            <Text className="text-sm text-gray-400">Use fingerprint to log in</Text>
+                            </View>
+                            <Switch
+                            value={isBiometricEnabled}
+                            onValueChange={BiometricToggle}
+                            />
                         </View>
-                        <Switch
-                        value={isBiometricEnabled}
-                        onValueChange={BiometricToggle}
-                        />
                     </View>
+
+                     <Text className="text-xs font-semibold text-[#0B1D51] uppercase mb-2">
+                        Account
+                    </Text>
+                    <View className="bg-gray-100 rounded-2xl mb-6 overflow-hidden">
+                        <TouchableOpacity
+                            onPress={handleDeleteAccount}
+                            className="flex-row items-center justify-between px-4 py-4"
+                        >
+                            <View className="flex-1 mr-4">
+                                <Text className="text-base font-medium text-red-500">Delete Account</Text>
+                                <Text className="text-sm text-gray-400">Permanently remove your account and data</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </>
                 )}

@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import os
+import base64
 
 from config import CLAHE_GILLS, CLAHE_HEAD
 
@@ -66,6 +67,22 @@ def save(name, img, dir="images"):
     if scale < 1.0:
         out = cv.resize(out, (int(w * scale), int(h * scale)))
     cv.imwrite(f"{dir}/{name}.jpg", out)
+
+def encode_preview(img, max_size=400, quality=65):
+    if img is None or img.size == 0:
+        return None
+    
+    h, w = img.shape[:2]
+    scale = min(max_size / w, max_size / h, 1.0)
+    if scale < 1.0:
+        img = cv.resize(img, (int(w * scale), int(h * scale)))
+
+    sucess, buffer = cv.imencode('.jpg', img, [cv.IMWRITE_JPEG_QUALITY, quality])
+    if not sucess:
+        return None
+    
+    return base64.b64encode(buffer).decode("utf-8")
+
 
 def resize_eyes(img):
     if img is None or img.size == 0:
