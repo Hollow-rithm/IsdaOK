@@ -100,13 +100,13 @@ export default function HistoryDetails() {
         <SafeAreaView edges={["top"]} className="flex-1 bg-primary items-center justify-start pt-4">
             <SafeAreaView className="flex-1 bg-primary w-full max-h-0" />
             <HeaderBar onPress={() => router.back()} title="Fish Details" />
-            
+
             <ScrollView
                 className="w-full"
                 contentContainerStyle={{ alignItems: "center", paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
             >
-          
+
             <ViewShot ref={resultCardRef} style={{ width: "90%", paddingVertical: 5, marginTop: 80 }}>
                 <View className="bg-primary">
                     <View className="rounded-xl bg-secondary border-2 border-tertiary px-6 py-5 mt-2">
