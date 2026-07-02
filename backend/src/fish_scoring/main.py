@@ -40,12 +40,15 @@ def _to_serializable(d):
     return {k: float(v) if isinstance(v, np.float32) else v for k, v in d.items()}
 
 def _build_incomplete_response(*, has_fish, has_gills, has_eyes, message):
-    return JSONResponse({
+    return JSONResponse(
+        status_code=400,
+        content={
         "has_fish": has_fish,
         "has_gills": has_gills,
         "has_eyes": has_eyes,
         "message": message,
-    })
+        }
+    )
 
 
 @app.get("/health")
@@ -156,7 +159,9 @@ async def _run_pipeline(
         "final_quality": final_quality,
     })
 
-    return JSONResponse({
+    return JSONResponse(
+        status_code=200,
+        content={
         "has_fish": True,
         "has_gills": has_gills,
         "has_eyes": has_eyes,
