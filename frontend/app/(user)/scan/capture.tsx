@@ -186,13 +186,10 @@ export default function Capture(){
                 });
             clearTimeout(timeout);
 
-
-            
             const result = await response.json();
             console.log("JSON Response: ", result);
 
-            if (result.success === false) {
-                setUploading(false);
+            if (!result.data.has_fish || result.data.status) {
                 router.push({
                     pathname: "/scan/error",
                     params: {
@@ -202,10 +199,7 @@ export default function Capture(){
                 return;
             }
 
-            await saveImageIfNeeded(fishUri, true);
-            if (gillUri && gillUri !== 'skipped') await saveImageIfNeeded(gillUri, true);
-            if (eyeUri) await saveImageIfNeeded(eyeUri, true);
-            if (result.data?.resultImageURI) await saveImageIfNeeded(result.data.resultImageURI, false);
+            await saveImageIfNeeded(result.data.resultImageURI, false);
 
             router.push({
                 pathname: "/scan/result",
