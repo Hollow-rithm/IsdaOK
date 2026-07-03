@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import logging
 import numpy as np
 
-from preprocessing import image_utils
+from preprocessing import image_utils, error_validator
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
 from features import eye_features, body_features, gill_features, ml_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
@@ -16,16 +16,15 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup logic
     print("Loading models...")
     fish_segmenter._load_segmenter()
     classifier._load_classifier()
     evaluator._load_evaluator()
+    error_validator._load_validator()
     print("Ready!")
 
     yield  # Application runs here
 
-    # Optional shutdown logic
     print("Shutting down...")
 
 app = FastAPI(
@@ -40,12 +39,16 @@ def _to_serializable(d):
     return {k: float(v) if isinstance(v, np.float32) else v for k, v in d.items()}
 
 def _build_incomplete_response(*, has_fish, has_gills, has_eyes, message):
-    return JSONResponse({
-        "has_fish": has_fish,
-        "has_gills": has_gills,
-        "has_eyes": has_eyes,
-        "message": message,
-    })
+    return JSONResponse(
+        status_code=200,
+        content={
+            "success": False,
+            "has_fish": has_fish,
+            "has_gills": has_gills,
+            "has_eyes": has_eyes,
+            "message": message,
+        }
+    )
 
 
 @app.get("/health")
@@ -80,8 +83,23 @@ async def _run_pipeline(
 ):   
     #Decode Images
 
+    print("Reading image")
     fish_img = _decode_or_raise(await fish_image.read(), "Fish image could not be decoded.")
+    # Image Error Handling
+    print("Validating image")
+    error_validation_result = error_validator.validate_image(fish_img)
+    if (error_validation_result is not None):
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": False,
+                "status": error_validation_result["status"],
+                "message" : error_validation_result["message"],
+                "confidence": error_validation_result["confidence"],
+            }
+        )
 
+    print("Processing image")
     has_gills, gill_feats, gill_img = await _process_gill(gill_image)
     eye_provided = eye_image is not None
 
@@ -106,7 +124,7 @@ async def _run_pipeline(
     if eye_roi is None:
         return _build_incomplete_response(
             has_fish=True, has_gills=has_gills, has_eyes=False,
-            message="Fish body could not be segmented.",
+            message="Fish eye could not be segmented.",
         )
     image_utils.save("eye_roi", eye_roi)
     
@@ -156,7 +174,10 @@ async def _run_pipeline(
         "final_quality": final_quality,
     })
 
-    return JSONResponse({
+    return JSONResponse(
+        status_code=200,
+        content={
+        "success": True,
         "has_fish": True,
         "has_gills": has_gills,
         "has_eyes": has_eyes,
