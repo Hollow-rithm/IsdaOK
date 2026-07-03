@@ -17,7 +17,7 @@ export default function Error () {
             title = "Multiple Fish Detected";
             message = "IsdaOK detected multiple fish in your image. Please make sure only one fish is visible and try again.";
             break;
-        case "OUT_OF_SCOPE_SPECIES":
+        case "OUT_OF_SCOPE":
             title = "Out of Scope Species";
             message = "IsdaOK detected a fish species that is not currently supported. Please make sure the fish is Milkfish, Tilapia, or Carp and try again.";
             break;
