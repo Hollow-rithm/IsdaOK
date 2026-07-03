@@ -1,35 +1,11 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native'
-import { router, useGlobalSearchParams } from 'expo-router'
-import HeaderBar from '@/components/HeaderBar';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { ScoreBar, gradeColor, gradeBg, getQualityInfo } from '@/constants/resultconstants';
+import { router, useGlobalSearchParams } from 'expo-router';
 import { SafeAreaView} from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import { useRef, useEffect } from 'react';
 import { useSettings } from '@/context/settingsContext';
-
-const ScoreBar = ({ label, value }: { label: string; value: number | null | undefined }) => {
-    const score = value ?? 0;
-    const barColor = score >= 75 ? '#16a34a' : score >= 50 ? '#ca8a04' : '#dc2626';
-
-    return (
-        <View className="mb-3">
-            <View className="flex-row justify-between mb-1">
-                <Text className="text-sm text-gray-600">{label}</Text>
-                <Text className="text-sm font-semibold text-[#0B1D51]">
-                    {value != null ? value.toFixed(1) : 'N/A'}
-                </Text>
-            </View>
-            <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <View style={{
-                    width: `${Math.min(score, 100)}%`,
-                    height: '100%',
-                    backgroundColor: barColor,  
-                    borderRadius: 999
-                }} />
-            </View>
-        </View>
-    );
-};
 
 export default function ViewImage () {
     const { result, uri, uri2, uri3 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string; uri3?: string}>();
@@ -74,42 +50,7 @@ export default function ViewImage () {
         ? getSegmentedImages()
         : getRawImages();
 
-    const gradeColor = (grade: string) => {
-        if (grade === 'HIGH') return '#16a34a';
-        if (grade === 'MID') return '#ca8a04';
-        if (grade === 'LOW') return '#dc2626';
-        return '#6b7280';
-    };
-
-    const gradeBg = (grade: string) => {
-        if (grade === 'HIGH') return '#dcfce7';
-        if (grade === 'MID') return '#fef9c3';
-        if (grade === 'LOW') return '#fee2e2';
-        return '#f3f4f6';
-    };
-
     const grade = parsedResult?.final_quality?.toUpperCase() ?? 'N/A';
-
-    const getQualityInfo = (grade: string) => {
-        if (grade === 'HIGH') return {
-            message: 'Great Quality Fish!',
-            advice: 'Recommended for immediate use or proper cold storage to maintain quality.'
-        };
-        if (grade === 'MID') return {
-            message: 'Moderate Quality Fish.',
-            advice: 'Consume soon and keep properly refrigerated to help maintain quality.'
-        };
-        if (grade === 'LOW') return {
-            message: 'Fish Quality Deteriorating',
-            advice: 'Careful inspection is advised before use or consumption.'
-        };
-        return {message: 'Quality could not be determined.', advice: 'Recapture Fish' };
-        };
-
-    const toPercent = (value: number | null | undefined) => {
-        if (value == null) return 'N/A';
-        return `${value.toFixed(1)}%`;
-    };
 
     const saveResult = async (silent?: boolean) => {
     try {
@@ -140,7 +81,7 @@ export default function ViewImage () {
     }, 1000);
 
     return () => clearTimeout(timer);
-    }, []);
+    }, [settings, parsedResult]);
 
     const skippedGills = !uri2 || uri2 === '' || uri2 === 'skipped';
     const skippedEyes = !uri3 || uri3 === '' || uri3 === 'skipped';
@@ -214,7 +155,7 @@ export default function ViewImage () {
         missingEyes ? 'Eyes' : null,
     ].filter(Boolean).join(' and ');
 
-    
+
     return (
             <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
@@ -236,14 +177,13 @@ export default function ViewImage () {
                 </View>
             </SafeAreaView>
         );
-    }
+    };
 
     const qualityInfo = getQualityInfo(grade);
 
     return (
         <SafeAreaView edges={['top', 'bottom']} className='flex-1 bg-primary items-center'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
-            <HeaderBar onPress={() => router.back()} title='Results' />
 
             <ScrollView
                 className='w-full'
@@ -292,16 +232,7 @@ export default function ViewImage () {
                                 </View>
                             </View>
 
-                            <View className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mt-2">
-                                <View style={{
-                                    width: `${Math.min(parsedResult?.rule_score ?? 0, 100)}%`,
-                                    height: '100%',
-                                    backgroundColor: gradeColor(grade),
-                                    borderRadius: 999
-                                }} />
-                            </View>
-
-                            <Text className='text-black'>{parsedResult?.rule_score.toFixed(1)} / 100 {'\n'}</Text> 
+                            <ScoreBar label="Overall Score" value={parsedResult?.rule_score} />
 
                             <View style={{
                                 backgroundColor: gradeBg(grade),
@@ -312,9 +243,16 @@ export default function ViewImage () {
                                 <Text style={{ color: gradeColor(grade), fontWeight: 'bold', fontSize: 15, marginBottom: 2 }}>
                                    {qualityInfo.message}
                                 </Text>
-                                <Text style={{ color: gradeColor(grade), fontSize: 12, opacity: 0.8 }}>
-                                    {qualityInfo.advice}
-                                </Text>
+                                {qualityInfo.advices.map((tip, i) => (
+                                    <View key={i} style={{ flexDirection: 'row', marginTop: i === 0 ? 0 : 4 }}>
+                                        <Text style={{ color: gradeColor(grade), fontSize: 12, opacity: 0.8, marginRight: 4 }}>
+                                            •
+                                        </Text>
+                                        <Text style={{ color: gradeColor(grade), fontSize: 12, opacity: 0.8, flex: 1 }}>
+                                            {tip}
+                                        </Text>
+                                    </View>
+                                ))}
                             </View>
 
                             <Text className="text-xs font-semibold text-black uppercase mb-3">Detailed Scores</Text>
@@ -335,7 +273,6 @@ export default function ViewImage () {
             </ScrollView>
 
             {/* Buttons */}
-                
                     <View className='flex-row items-center justify-end px-4'>
                     <TouchableOpacity onPress={() => router.push('/home')} style={styles.button}>
                         <Text>Home</Text>
@@ -347,10 +284,9 @@ export default function ViewImage () {
                         <Text>Save Result</Text>
                     </TouchableOpacity>
                     </View>
-               
         </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
     button: {
