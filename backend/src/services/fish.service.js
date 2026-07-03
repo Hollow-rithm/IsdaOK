@@ -24,6 +24,10 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         });
 
         const result = response.data;
+        
+        if (!result.success){
+            return result;
+        }
 
         if (userId) {
             const [scan] = await db.query(
@@ -84,20 +88,21 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
             );
         }
 
-        return {
-            has_fish: result.has_fish,
-            has_gills: result.has_gills,
-            has_eyes: result.has_eyes,
-            species: result.species,
-            eye_score: result.scores.eye_score,
-            gill_score: result.scores.gill_score,
-            body_score: result.scores.body_score,
-            rule_score: result.rule_score,
-            rule_quality : result.rule_quality,
-            ml_quality: result.ml_quality,
-            final_quality: result.final_quality,
-            segmented: result.preview ?? null
-        };
+        // return {
+        //     has_fish: result.has_fish,
+        //     has_gills: result.has_gills,
+        //     has_eyes: result.has_eyes,
+        //     species: result.species,
+        //     eye_score: result.scores.eye_score,
+        //     gill_score: result.scores.gill_score,
+        //     body_score: result.scores.body_score,
+        //     rule_score: result.rule_score,
+        //     rule_quality : result.rule_quality,
+        //     ml_quality: result.ml_quality,
+        //     final_quality: result.final_quality,
+        //     segmented: result.preview ?? null
+        // };
+        return result;
 
     } catch (err) {
         if (err.code === "ECONNREFUSED") {
@@ -113,8 +118,9 @@ export const analyzeFish = async ({ fishImage, gillImage, eyeImage, userId }) =>
         }
 
         if (err.response) {
-            const error = new Error(err.response.data.detail || "ML service returned an error.");
+            const error = new Error(err.response.data.message || err.response.data.detail || "ML service returned an error.");
             error.status = err.response.status;
+            error.data = err.response.data;
             throw error;
         }
 

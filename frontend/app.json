@@ -64,7 +64,8 @@
         {
           "photosPermission": "Allow IsdaOK to access your photos.",
           "savePhotosPermission": "Allow IsdaOK to save photos",
-          "isAccessMediaLocationEnabled": true
+          "isAccessMediaLocationEnabled": true,
+          "granularPermissions": ["photo"]
         }
       ]
     ],

@@ -3,6 +3,7 @@ import db from "../config/database.js";
 
 export const analyzeFish = async (req, res) => {
     try {
+        console.log("Reading image in controller");
         console.log("HEADERS:", req.headers);
         console.log("FILE:", req.files);
         console.log("BODY:", req.body);
@@ -21,15 +22,19 @@ export const analyzeFish = async (req, res) => {
         const userId = req.user?.id ?? null;
         const result = await fishService.analyzeFish({fishImage, gillImage, eyeImage, userId});
 
-        if (!result.has_fish) {
-            return res.status(400).json({
-                status: "error",
-                message: "No fish detected in image.",
+        // if (!result.has_fish) {
+        //     return res.status(200).json({
+        //         status: "error",
+        //         message: "No fish detected in image.",
+        //     })
+        // }
+        if (!result.success) {
+            return res.status(200).json({
+                status: result.status || "error",
+                message: result.message || "Failed to analyze fish image.",
             })
         }
         return res.status(200).json({
-            status: "success",
-            message: "Fish image analyzed successfully",
             data: result,
         });
 
