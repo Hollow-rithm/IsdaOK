@@ -35,6 +35,10 @@ export default function Error () {
             title = "Eyes not Detected";
             message = "IsdaOK could not identify any fish eyes in your image. Please make sure that the fish's eye is clearly visible and try again.";
             break;
+        case "MISSING_BODY":
+            title = "Body not Detected";
+            message = "IsdaOK could not identify the fish body in your image. Please make sure that the entire fish is clearly visible and try again.";
+            break;
         case "WRONG_ORIENTATION":
             title = "Wrong Orientation";
             message = "IsdaOK detected a fish in your image, but it is not oriented correctly. Please make sure the fish is oriented horizontally and try again.";

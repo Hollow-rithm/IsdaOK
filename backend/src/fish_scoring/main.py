@@ -115,16 +115,24 @@ async def _run_pipeline(
     has_eyes = eye_roi is not None
 
     if body_roi is None:
-        return _build_incomplete_response(
-            has_fish=False, has_gills=has_gills, has_eyes=has_eyes,
-            message="Fish body could not be segmented.",
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": False,
+                "status": "MISSING_BODY",
+                "message" : "Fish body could not be segmented.",
+            }
         )
     image_utils.save("body_roi", body_roi)
 
     if eye_roi is None:
-        return _build_incomplete_response(
-            has_fish=True, has_gills=has_gills, has_eyes=False,
-            message="Fish eye could not be segmented.",
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": False,
+                "status": "MISSING_EYE",
+                "message" : "Fish eye could not be segmented.",
+            }
         )
     image_utils.save("eye_roi", eye_roi)
     
