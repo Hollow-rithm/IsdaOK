@@ -189,22 +189,22 @@ export default function Capture(){
             const result = await response.json();
             console.log("JSON Response: ", result);
 
-            if (!result.data.has_fish || result.data.status) {
+            if (result.status === false) {
                 router.push({
                     pathname: "/scan/error",
                     params: {
-                        result: JSON.stringify(result.data),
+                        result: JSON.stringify(result),
                     }
                 });
                 return;
             }
 
-            await saveImageIfNeeded(result.data.resultImageURI, false);
+            await saveImageIfNeeded(result.resultImageURI, false);
 
             router.push({
                 pathname: "/scan/result",
                 params: {
-                    result: JSON.stringify(result.data),
+                    result: JSON.stringify(result),
                     uri: fishUri,
                     uri2: gillUri ?? "",
                     uri3: eyeUri ?? "",
