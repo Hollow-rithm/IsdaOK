@@ -164,6 +164,10 @@ export default function Capture(){
             } as any);
         }
 
+        console.log("Fish URI: ", fishUri);
+        console.log("Gills URI: ", gillUri);
+        console.log("Eye URI: ", eyeUri);
+
         try {
             const token = await getStoredToken();
             const controller = new AbortController();
@@ -182,22 +186,28 @@ export default function Capture(){
                 });
             clearTimeout(timeout);
 
-            console.log("Fish URI: ", fishUri);
-            console.log("Gills URI: ", gillUri);
-            console.log("Eye URI: ", eyeUri);
-
             const result = await response.json();
             console.log("JSON Response: ", result);
+
+            if (result.success === false) {
+                router.push({
+                    pathname: "/scan/error",
+                    params: {
+                        result: JSON.stringify(result),
+                    }
+                });
+                return;
+            }
 
             await saveImageIfNeeded(fishUri, true);
             if (gillUri && gillUri !== 'skipped') await saveImageIfNeeded(gillUri, true);
             if (eyeUri) await saveImageIfNeeded(eyeUri, true);
-            if (result.data?.resultImageURI) await saveImageIfNeeded(result.data.resultImageURI, false);
+            // await saveImageIfNeeded(result.resultImageURI, false);
 
             router.push({
                 pathname: "/scan/result",
                 params: {
-                    result: JSON.stringify(result.data),
+                    result: JSON.stringify(result),
                     uri: fishUri,
                     uri2: gillUri ?? "",
                     uri3: eyeUri ?? "",

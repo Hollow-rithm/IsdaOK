@@ -1,7 +1,7 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native'
-import { router, useGlobalSearchParams } from 'expo-router'
-import HeaderBar from '@/components/HeaderBar';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { ScoreBar, gradeColor, gradeBg, getQualityInfo } from '@/constants/resultconstants';
+import { router, useGlobalSearchParams } from 'expo-router';
+import { SafeAreaView} from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import { useRef, useEffect } from 'react';
@@ -10,7 +10,6 @@ import { useSettings } from '@/context/settingsContext';
 export default function ViewImage () {
     const { result, uri, uri2, uri3 } = useGlobalSearchParams<{ result: string; uri: string; uri2?: string; uri3?: string}>();
     const parsedResult = result ? JSON.parse(result) : null;
-    const insets = useSafeAreaInsets();
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
 
@@ -25,9 +24,7 @@ export default function ViewImage () {
     const getSegmentedImages = () => {
         const segmented = parsedResult?.segmented;
         if (!segmented) return [];
-
         const images: { uri: string; label: string }[] = [];
-        
         if (segmented.body) {
             images.push({
                 uri: `data:image/jpeg;base64,${segmented.body}`,
@@ -46,54 +43,26 @@ export default function ViewImage () {
                 label: "Eyes"
             });
         }
-
         return images;
     };
 
-    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented 
-        ? getSegmentedImages() 
+    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented
+        ? getSegmentedImages()
         : getRawImages();
 
-    const gradeColor = (grade: string) => {
-        if (grade === 'HIGH') return '#16a34a';
-        if (grade === 'MID') return '#ca8a04';
-        if (grade === 'LOW') return '#dc2626';
-        return '#6b7280';
-    };
     const grade = parsedResult?.final_quality?.toUpperCase() ?? 'N/A';
-
-    const getQualityInfo = (grade: string) => {
-        if (grade === 'HIGH') return {
-            message: 'Great Quality Fish!',
-            advice: 'Recommended for immediate use or proper cold storage to maintain quality.'
-        };
-        if (grade === 'MID') return {
-            message: 'Moderate Quality Fish.',
-            advice: 'Consume soon and keep properly refrigerated to help maintain quality.'
-        };
-        if (grade === 'LOW') return {
-            message: 'Fish Quality Deteriorating',
-            advice: 'Careful inspection is advised before use or consumption.'
-        };
-        return {message: 'Quality could not be determined.', advice: 'Recapture Fish' };
-        };
-
-    const toPercent = (value: number | null | undefined) => {
-        if (value == null) return 'N/A';
-        return `${value.toFixed(1)}%`;
-    };
 
     const saveResult = async (silent?: boolean) => {
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
             if(!silent) Alert.alert('Permission required', 'Allow access to save to gallery.');
-        return;
-      }
-      const capturedUri = await captureRef(resultCardRef, {
-        format: 'jpg',
-        quality: 0.95,
-      });
+            return;
+        }
+        const capturedUri = await captureRef(resultCardRef, {
+            format: 'jpg',
+            quality: 0.95,
+        });
 
         await MediaLibrary.saveToLibraryAsync(capturedUri);
             if (!silent) Alert.alert('Saved!', 'Result saved to your gallery.');
@@ -112,13 +81,47 @@ export default function ViewImage () {
     }, 1000);
 
     return () => clearTimeout(timer);
-    }, []);
+    }, [settings, parsedResult]);
 
-    if (!parsedResult || !parsedResult.species || parsedResult.species === 'Unknown' || !parsedResult.has_fish || !parsedResult.has_gills || parsedResult.has_eyes) {
+    const skippedGills = !uri2 || uri2 === '' || uri2 === 'skipped';
+    const skippedEyes = !uri3 || uri3 === '' || uri3 === 'skipped';
+
+    //Error no Fish Detected
+    if (!parsedResult || !parsedResult.has_fish ) {
         return (
             <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
                 <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
                     No Fish Detected
+                </Text>
+                <Text className='text-gray-800 text-center mb-8'>
+                    A fish is detected, but IsdaOK could not identify it as a supported species.
+                    {'\n'}{'\n'}
+                    Current Version of IsdaOK only supports Milkfish, Tilapia, and Carp
+                </Text>
+                <View className='flex-row'>
+                    <TouchableOpacity
+                        onPress={() => router.push('/scan/capture')}
+                        style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}
+                    >
+                        <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => router.push('/home')}
+                        style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}
+                    >
+                        <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    //Error Out of Scope Fish
+    if ( !parsedResult.species || parsedResult.species === 'Unknown') {
+        return (
+            <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
+                <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
+                    Unsupported Fish Species
                 </Text>
                 <Text className='text-gray-800 text-center mb-8'>
                     IsdaOK could not identify the fish in your image. Please make sure the fish is clearly visible and try again.{'\n'}{'\n'}
@@ -142,10 +145,45 @@ export default function ViewImage () {
         );
     }
 
+    //Error Missing Eyes/Gills
+    const missingGills = !skippedGills && !parsedResult.has_gills;
+    const missingEyes = !skippedEyes && !parsedResult.has_eyes;
+
+    if (missingGills || missingEyes) {
+    const missingParts = [
+        missingGills ? 'Gills' : null,
+        missingEyes ? 'Eyes' : null,
+    ].filter(Boolean).join(' and ');
+
+
     return (
-        <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-start pt-4'>
+            <SafeAreaView edges={['top']} className='flex-1 bg-primary items-center justify-center px-6'>
+                <Text className='text-2xl font-bold text-[#0B1D51] text-center mb-2'>
+                    {missingParts} Not Detected
+                </Text>
+                <Text className='text-gray-800 text-center mb-8'>
+                    IsdaOK could not detect the {missingParts.toLowerCase()} in your image.
+                    Please make sure the {missingParts.toLowerCase()} {missingGills && missingEyes ? 'are' : 'is'} clearly visible and try again.
+                </Text>
+                <View className='flex-row'>
+                    <TouchableOpacity onPress={() => router.push('/scan/capture')}
+                        style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}>
+                        <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => router.push('/home')}
+                        style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}>
+                        <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    };
+
+    const qualityInfo = getQualityInfo(grade);
+
+    return (
+        <SafeAreaView edges={['top', 'bottom']} className='flex-1 bg-primary items-center'>
             <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
-            <HeaderBar onPress={() => router.back()} title='Results' />
 
             <ScrollView
                 className='w-full'
@@ -173,45 +211,56 @@ export default function ViewImage () {
                     <View className="bg-primary">
                         <View className="rounded-xl bg-secondary border-2 border-tertiary px-6 py-5 mt-2">
 
-                            {/* Species & Grade */}
-                            <Text className="font-bold text-lg text-[#0B1D51] text-center uppercase mb-2">
-                                {parsedResult?.species ?? 'Unknown Species'}
-                            </Text>
-
-                            {/* Main Fish Score */}
-                            <View className="items-center mb-3">
-                                <Text className="text-gray-500 text-sm">Fish Quality</Text>
-
-                                <Text
-                                    style={{
+                            {/* Species + Grade Badge */}
+                            <View className="flex-row justify-between items-center mb-4">
+                                <Text className="text-xl font-bold text-[#0B1D51] uppercase">
+                                    {parsedResult.species}
+                                </Text>
+                                <View style={{
+                                    backgroundColor: gradeBg(grade),
+                                    borderRadius: 999,
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 4,
+                                }}>
+                                    <Text style={{
                                         color: gradeColor(grade),
                                         fontWeight: 'bold',
-                                        fontSize: 24,
-                                    }}
-                                >
-                                    {grade}
-                                </Text>
+                                        fontSize: 14,
+                                    }}>
+                                        {grade}
+                                    </Text>
+                                </View>
                             </View>
 
-                            {/*Scores*/}
-                            {[
-                                { label: 'Body Rating:', value: parsedResult?.body_score },
-                                { label: 'Gills Rating:', value: parsedResult?.gill_score },
-                                { label: 'Eye Rating:', value: parsedResult?.eye_score },
-                                { label: 'Overall Score:', value: parsedResult?.rule_score },
-                                { label: 'Machine Learning Quality:', value: parsedResult?.ml_quality },
-                            ].map(({ label, value }) => (
-                                <View key={label} className='flex-row justify-between mb-1'>
-                                <Text className='text-gray-800'>{label}</Text>
-                                <Text className='font-semibold'>
-                                    {typeof value === 'number'
-                                    ? toPercent(value)
-                                    : value != null
-                                    ? String(value).toUpperCase()
-                                    : 'N/A'}
+                            <ScoreBar label="Overall Score" value={parsedResult?.rule_score} />
+
+                            <View style={{
+                                backgroundColor: gradeBg(grade),
+                                borderRadius: 12,
+                                padding: 12,
+                                marginBottom: 16,
+                            }}>
+                                <Text style={{ color: gradeColor(grade), fontWeight: 'bold', fontSize: 15, marginBottom: 2 }}>
+                                   {qualityInfo.message}
                                 </Text>
-                                </View>
-                            ))}
+                                {qualityInfo.advices.map((tip, i) => (
+                                    <View key={i} style={{ flexDirection: 'row', marginTop: i === 0 ? 0 : 4 }}>
+                                        <Text style={{ color: gradeColor(grade), fontSize: 12, opacity: 0.8, marginRight: 4 }}>
+                                            •
+                                        </Text>
+                                        <Text style={{ color: gradeColor(grade), fontSize: 12, opacity: 0.8, flex: 1 }}>
+                                            {tip}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+
+                            <Text className="text-xs font-semibold text-black uppercase mb-3">Detailed Scores</Text>
+
+                            {/*Scores*/}
+                            {!skippedGills && <ScoreBar label="Gills" value={parsedResult?.gill_score} />}
+                            <ScoreBar label="Eyes" value={parsedResult?.eye_score} />
+                            <ScoreBar label="Body" value={parsedResult?.body_score} />
 
                             {/* Footer */}
                             <Text className="text-gray-600 text-xs text-center mt-3">
@@ -221,23 +270,9 @@ export default function ViewImage () {
                     </View>
             </ViewShot>
 
-            {/* Quality Info Card */}
-            {(() => {
-            const info = getQualityInfo(grade);
-                return (
-                    <View className="w-[90%] rounded-xl bg-secondary border-2 border-tertiary px-5 py-4 mt-3">
-                    <Text className="text-base font-bold text-[#0B1D51] mb-1">
-                        {info.message}
-                    </Text>
-                    {info.advice ? (
-                        <Text className="text-sm text-gray-500">{info.advice}</Text>
-                    ) : null}
-                    </View>
-                );
-            })()}
+            </ScrollView>
 
-                {/* Buttons */}
-                <SafeAreaView edges={['bottom']} className="w-full py-2 pb-2">
+            {/* Buttons */}
                     <View className='flex-row items-center justify-end px-4'>
                     <TouchableOpacity onPress={() => router.push('/home')} style={styles.button}>
                         <Text>Home</Text>
@@ -249,11 +284,9 @@ export default function ViewImage () {
                         <Text>Save Result</Text>
                     </TouchableOpacity>
                     </View>
-                </SafeAreaView>
-            </ScrollView>
         </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
     button: {

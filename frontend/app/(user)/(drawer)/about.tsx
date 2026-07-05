@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import HeaderBar from '@/components/HeaderBar';
 import logo from "@/assets/images/adaptive-icon.png";
 import hlogo from "@/assets/images/bg_n.png";
+import grouppic from "@/assets/images/hollowrithmpic.png";
 
 export default function About() {
   return (
@@ -15,8 +16,6 @@ export default function About() {
         <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
           <Text className="text-2xl font-bold text-[#0B1D51] mb-3">
             About &quot;Isda-OK&quot;
-
-          <Image source={logo} className="w-32 h-32" resizeMode="none"/>
 
           </Text>
           <Text className="text-[#0B1D51] leading-6">
@@ -30,9 +29,8 @@ export default function About() {
         <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
           <Text className="text-2xl font-bold text-[#0B1D51] mb-4">
             Meet Hollow-rithm!
-            <Image source={hlogo} resizeMode="none"/>
           </Text>
-          {/* <Image source={hollowteam} style={{ width: 300, height: 200 }} className="-mt-4" resizeMode="center"/> */}
+          <Image source={grouppic} style={{ width: 300, height: 200 }} className="-mt-4" resizeMode="center"/>
           <Text className="text-[#0B1D51] leading-6 pt-2">
             We are a team of passionate and hardworking students who work together to create
             innovative projects through teamwork, creativity, and dedication.

@@ -6,6 +6,7 @@ export default function HomeLayout() {
       <Stack.Screen name="capture" />
       <Stack.Screen name="result" />
       <Stack.Screen name="historyDetails" />
+      <Stack.Screen name="error" />
     </Stack>
   );
 }
