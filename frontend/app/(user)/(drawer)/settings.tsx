@@ -63,7 +63,6 @@ export default function SettingsPage() {
 
     return (
         <SafeAreaView className="flex-1 bg-primary">
-            <BackButton onPress={() => router.back()} />
 
             <ScrollView className="px-6">
                 {/* Photo Quality */}

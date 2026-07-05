@@ -1,14 +1,20 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity,} from 'react-native'
 import { router, useGlobalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Error () {
     const { result } = useGlobalSearchParams<{ result: string }>();
-    const parsedResult = result ? JSON.parse(result) : null;
-    let title: String;
-    let message: String;
+    let parsedResult: { status?: string } | null = null;
+    try {
+        parsedResult = result ? JSON.parse(result) : null;
+    } catch {
+        parsedResult = null;
+    }
 
-    switch (parsedResult.status){
+    let title: string;
+    let message: string;
+
+    switch (parsedResult?.status){
         case "NO_FISH":
             title = "No Fish Detected";
             message = "IsdaOK could not identify the fish in your image. Please make sure the fish is clearly visible and try again.\n\nNote: Current Version of IsdaOK only handles Milkfish, Tilapia, and Carp.";
@@ -24,6 +30,14 @@ export default function Error () {
         case "PARTIAL_FISH":
             title = "Partial Fish Detected";
             message = "IsdaOK detected a fish in your image, but it is not fully visible. Please make sure the entire fish is visible and try again.";
+            break;
+        case "MISSING_EYE":
+            title = "Eyes not Detected";
+            message = "IsdaOK could not identify any fish eyes in your image. Please make sure that the fish's eye is clearly visible and try again.";
+            break;
+        case "MISSING_BODY":
+            title = "Body not Detected";
+            message = "IsdaOK could not identify the fish body in your image. Please make sure that the entire fish is clearly visible and try again.";
             break;
         case "WRONG_ORIENTATION":
             title = "Wrong Orientation";
