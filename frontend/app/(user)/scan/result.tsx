@@ -1,10 +1,10 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { ScoreBar, gradeColor, gradeBg, getQualityInfo } from '@/constants/resultconstants';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Alert, ScrollView, Modal } from 'react-native';
+import { ScoreBar, gradeColor, gradeBg, getQualityInfo, ScoringInfoModal } from '@/constants/resultconstants';
 import { router, useGlobalSearchParams } from 'expo-router';
 import { SafeAreaView} from 'react-native-safe-area-context';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useSettings } from '@/context/settingsContext';
 
 export default function ViewImage () {
@@ -12,6 +12,7 @@ export default function ViewImage () {
     const parsedResult = result ? JSON.parse(result) : null;
     const resultCardRef = useRef<ViewShot>(null);
     const { settings } = useSettings();
+    const [infoVisible, setInfoVisible] = useState(false);
 
     const getRawImages = () => {
         return [
@@ -179,7 +180,8 @@ export default function ViewImage () {
         );
     };
 
-    const qualityInfo = getQualityInfo(grade);
+
+    const qualityInfo = getQualityInfo(grade, parsedResult?.rule_score);
 
     return (
         <SafeAreaView edges={['top', 'bottom']} className='flex-1 bg-primary items-center'>
@@ -187,12 +189,12 @@ export default function ViewImage () {
 
             <ScrollView
                 className='w-full'
-                contentContainerStyle={{ alignItems: 'center', paddingBottom: 16 }}
+                contentContainerStyle={{ alignItems: 'center', paddingBottom: 14 }}
                 showsVerticalScrollIndicator={false}
             >
 
             <ViewShot ref={resultCardRef} style={{ width: '90%', paddingVertical: 5 }}>
-                <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4}}>
+                <View className="flex-row bg-primary" style={{ justifyContent: "center", gap: 4,}}>
                     {images.map((img, i) => (
                         <View key={i} style={{
                             width: images.length === 1 ? 160 : images.length === 2 ? 160: 100,
@@ -201,8 +203,8 @@ export default function ViewImage () {
                             <Text className="text-s text-center text-black mb-1">{img.label}</Text>
                             <Image
                                 source={{ uri: img.uri }}
-                                style={{ width: '100%', aspectRatio: 1, borderRadius: 8 }}
-                                resizeMode="cover"
+                                style={{ width: '100%', aspectRatio: 1, borderRadius: 8}}
+                                resizeMode="contain"
                             />
                         </View>
                     ))}
@@ -255,12 +257,30 @@ export default function ViewImage () {
                                 ))}
                             </View>
 
-                            <Text className="text-xs font-semibold text-black uppercase mb-3">Detailed Scores</Text>
+                            <View className='flex-row justify-between mb-2'>
+                                <Text className="text-s font-semibold text-black uppercase mb-3">Detailed Scores</Text>
+
+                                <TouchableOpacity
+                                    onPress={() => setInfoVisible(true)}
+                                    style={{
+                                        width: 18,
+                                        height: 18,
+                                        borderRadius: 12,
+                                        backgroundColor: '#e5e7eb',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <Text style={{ color: '#374151', fontSize: 13, fontWeight: 'bold' }}>i</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                             <ScoringInfoModal visible={infoVisible} onClose={() => setInfoVisible(false)} />
 
                             {/*Scores*/}
-                            {!skippedGills && <ScoreBar label="Gills" value={parsedResult?.gill_score} />}
-                            <ScoreBar label="Eyes" value={parsedResult?.eye_score} />
-                            <ScoreBar label="Body" value={parsedResult?.body_score} />
+                            {!skippedGills && <ScoreBar label="① Gills" value={parsedResult?.scores?.gill_score} />}
+                            <ScoreBar label="② Eyes" value={parsedResult?.scores?.eye_score} />
+                            <ScoreBar label="③ Body" value={parsedResult?.scores?.body_score} />
 
                             {/* Footer */}
                             <Text className="text-gray-600 text-xs text-center mt-3">
@@ -287,6 +307,8 @@ export default function ViewImage () {
         </SafeAreaView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
     button: {

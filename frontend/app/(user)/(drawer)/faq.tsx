@@ -52,6 +52,18 @@ export default function Faq() {
           </Text>
         </View>
 
+        <View className="bg-secondary rounded-xl p-5 mb-4 border-2 border-tertiary">
+          <Text className="text-l font-bold text-[#0B1D51] mb-3">
+            Question 4: How is the Fish Quality calculated?
+          </Text>
+          <Text className="text-[#0B1D51] leading-6">
+            The Overall Fish Score is calculated based on the scores of the regions of interest such as the gills, eyes, body.
+            The gills make up 50% of the quality, followed by the eyes with 30%, and finally the body with only 20%.
+            The metrics for IsdaOK was determined through scientific studies and supported by Fisheries Experts in the
+            Bureau of Fisheries and Aquatic Resources.
+          </Text>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
