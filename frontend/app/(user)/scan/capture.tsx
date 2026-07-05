@@ -189,7 +189,7 @@ export default function Capture(){
             const result = await response.json();
             console.log("JSON Response: ", result);
 
-            if (result.status === false) {
+            if (result.success === false) {
                 router.push({
                     pathname: "/scan/error",
                     params: {
@@ -199,7 +199,10 @@ export default function Capture(){
                 return;
             }
 
-            await saveImageIfNeeded(result.resultImageURI, false);
+            await saveImageIfNeeded(fishUri, true);
+            if (gillUri && gillUri !== 'skipped') await saveImageIfNeeded(gillUri, true);
+            if (eyeUri) await saveImageIfNeeded(eyeUri, true);
+            // await saveImageIfNeeded(result.resultImageURI, false);
 
             router.push({
                 pathname: "/scan/result",
