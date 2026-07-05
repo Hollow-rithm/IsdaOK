@@ -1,8 +1,15 @@
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+type ScoringInfoModalProps = {
+    visible: boolean;
+    onClose: () => void;
+};
 
 export const ScoreBar = ({ label, value }: { label: string; value: number | null | undefined }) => {
     const score = value ?? 0;
-    const barColor = score >= 75 ? '#16a34a' : score >= 50 ? '#ca8a04' : '#dc2626';
+    const clampedScore = Math.max(0, Math.min(score, 100));
+    const barColor = clampedScore >= 72 ? '#16a34a' : clampedScore >= 60 ? '#ca8a04' : '#dc2626';
 
     return (
         <View className="mb-3">
@@ -14,8 +21,8 @@ export const ScoreBar = ({ label, value }: { label: string; value: number | null
             </View>
             <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                 <View style={{
-                    width: `${Math.min(score, 100)}%`,
-                    height: '100%',
+                    width: `${clampedScore}%`,
+                    height: 8,
                     backgroundColor: barColor,
                     borderRadius: 999
                 }} />
@@ -38,38 +45,109 @@ export const gradeBg = (grade: string) => {
         return '#f3f4f6';
     };
 
-const LOW_QUALITY_SALVAGE_THRESHOLD = 30; // below this, food use is discouraged entirely
+const LOW_QUALITY_SALVAGE_THRESHOLD = 20; // below this, food use is discouraged entirely
 
 export const getQualityInfo = (grade: string, score?: number | null) => {
-    if (grade === 'HIGH') return {
-        message: 'Great Quality Fish!',
+    const normalizedGrade = grade?.toUpperCase();
+
+    if (normalizedGrade === 'HIGH') return {
+        message: 'Great Surface Quality!',
         advices: [
             'Recommended for immediate use or proper cold storage to maintain quality.',
         ],
     };
 
-    if (grade === 'MID') return {
-        message: 'Moderate Quality Fish.',
+    if (normalizedGrade === 'MID') return {
+        message: 'Moderate Surface Quality.',
         advices: [
             'Consume soon and keep properly refrigerated to help maintain quality.',
             'Cook thoroughly before eating to reduce spoilage risk.',
         ],
     };
 
-    if (grade === 'LOW') {
+    if (normalizedGrade === 'LOW') {
         const advices = [
             'Careful inspection is advised before use or consumption.',
             'If off odor, sliminess, or discoloration is present, do not consume.',
         ];
         // Very low scores: steer away from consumption entirely
         if (score != null && score < LOW_QUALITY_SALVAGE_THRESHOLD) {
-            advices.push('Quality is too low for consumption — consider repurposing as fertilizer or animal feed instead.');
+            advices.push('Consider repurposing as fertilizer or animal feed instead.');
         }
-        return { message: 'Fish Quality Deteriorating', advices };
+        return { message: 'Surface Quality Deteriorating', advices };
     }
 
     return {
         message: 'Quality could not be determined.',
         advices: ['Recapture Fish'],
     };
+};
+
+export const ScoringInfoModal = ({ visible, onClose }: ScoringInfoModalProps) => {
+    const insets = useSafeAreaInsets();
+
+    return (
+        <Modal
+            visible={visible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={onClose}
+        >
+            <View style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'flex-end',
+            }}>
+                <View style={{
+                    backgroundColor: 'white',
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                    paddingTop: 20,
+                    paddingHorizontal: 20,
+                    paddingBottom: insets.bottom + 16,
+                    maxHeight: '80%',
+                }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0B1D51' }}>
+                            How Our Metrics Work
+                        </Text>
+                        <TouchableOpacity onPress={onClose}>
+                            <Text style={{ fontSize: 20, color: '#6b7280' }}>✕</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <ScrollView>
+                        <Text style={{ fontSize: 13, color: '#374151', marginBottom: 12 }}>
+                            Each fish is scored using three visual indicators, combined into an overall surface quality score.{'\n\n'}
+                            Each indicator is ranked according to IsdaOK metrics supported by the Fisheries Experts in BFAR and existing studies.
+                        </Text>
+
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>① Gills</Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+                            The Gills is weighted at 50% as it contributes mostly on the quality of the fish.
+                            Bright red or pink gills score higher. Brown, grey, or white gills lower the score.
+                        </Text>
+
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>② Eyes</Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+                            The Eyes is weighted at 30%.
+                            Clear eyes score higher. Cloudy, bloody, or discolored eyes indicate age.
+                        </Text>
+
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>③ Body</Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+                            The body is weighted at 20% as it offers only a miniscule information about the fish quality.
+                            Shiny scales, undamaged skin scores higher. Slimy, discoloration, damaged skin lowers the score.
+                        </Text>
+
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>Overall Score & Grade</Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+                            The three scores are calculated into one overall score, then grouped into HIGH, MID, or LOW quality.
+                        </Text>
+
+                    </ScrollView>
+                </View>
+            </View>
+        </Modal>
+    );
 };
