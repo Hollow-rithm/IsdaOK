@@ -8,7 +8,7 @@ _device = None
 _torch = None
 _smp = None
 
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../artifacts/error_model.pth'))
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../artifacts/error_model2.pth'))
 
 # Must match the folder names used during training
 class_names = [
@@ -42,8 +42,13 @@ def _load_validator():
 
     _torch = torch
     _device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    _model = models.resnet18(weights=None)
-    _model.fc = nn.Linear(_model.fc.in_features, 6)
+    # FOR error_model.pth
+    # _model = models.resnet18(weights=None)
+    # _model.fc = nn.Linear(_model.fc.in_features, 6)
+    
+    # FOR error_model2.pth
+    _model = models.efficientnet_b0(weights=None)
+    _model.classifier[1] = nn.Linear(_model.classifier[1].in_features, 6)
 
     checkpoint = torch.load(MODEL_PATH, map_location=_device)
     _model.load_state_dict(checkpoint)
