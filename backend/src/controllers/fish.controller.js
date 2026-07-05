@@ -29,14 +29,9 @@ export const analyzeFish = async (req, res) => {
         //     })
         // }
         if (!result.success) {
-            return res.status(200).json({
-                status: result.status || "error",
-                message: result.message || "Failed to analyze fish image.",
-            })
+            return res.status(200).json(result)
         }
-        return res.status(200).json({
-            data: result,
-        });
+        return res.status(200).json(result);
 
     } catch (err) {
         return res.status(err.status || 500).json({
