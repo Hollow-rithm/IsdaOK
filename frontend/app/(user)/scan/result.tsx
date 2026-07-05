@@ -22,7 +22,7 @@ export default function ViewImage () {
     };
 
     const getSegmentedImages = () => {
-        const segmented = parsedResult?.segmented;
+        const segmented = parsedResult?.previews;
         if (!segmented) return [];
         const images: { uri: string; label: string }[] = [];
         if (segmented.body) {
@@ -43,10 +43,11 @@ export default function ViewImage () {
                 label: "Eyes"
             });
         }
+        console.log("Segmented Images: ", images);
         return images;
     };
 
-    const images = settings.imageViewMode === 'Segmented' && parsedResult?.segmented
+    const images = settings.imageViewMode === 'Segmented' && parsedResult?.previews
         ? getSegmentedImages()
         : getRawImages();
 
