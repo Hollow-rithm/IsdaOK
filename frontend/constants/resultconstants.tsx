@@ -136,7 +136,7 @@ export const ScoringInfoModal = ({ visible, onClose }: ScoringInfoModalProps) =>
 
                         <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>③ Body</Text>
                         <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
-                            The body is weighted at 20% as it offers only a miniscule information about the fish quality.
+                            The Body is weighted at 20% as it offers only a miniscule information about the fish quality.
                             Shiny scales, undamaged skin scores higher. Slimy, discoloration, damaged skin lowers the score.
                         </Text>
 

@@ -41,7 +41,7 @@ export default function Error () {
             break;
         case "WRONG_ORIENTATION":
             title = "Wrong Orientation";
-            message = "IsdaOK detected a fish in your image, but it is not oriented correctly. Please make sure the fish is oriented horizontally and try again.";
+            message = "IsdaOK detected a fish in your image, but it is not oriented correctly. Please make sure the fish is oriented vertically and try again.";
             break;
         default:
             title = "Error";
