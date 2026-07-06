@@ -102,13 +102,13 @@ export default function ViewImage () {
                 </Text>
                 <View className='flex-row'>
                     <TouchableOpacity
-                        onPress={() => router.push('/scan/capture')}
+                        onPress={() => router.replace('/scan/capture')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}
                     >
                         <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => router.push('/home')}
+                        onPress={() => router.replace('/home')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}
                     >
                         <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
@@ -131,13 +131,13 @@ export default function ViewImage () {
                 </Text>
                 <View className='flex-row'>
                     <TouchableOpacity
-                        onPress={() => router.push('/scan/capture')}
+                        onPress={() => router.replace('/scan/capture')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}
                     >
                         <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => router.push('/home')}
+                        onPress={() => router.replace('/home')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}
                     >
                         <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
@@ -168,11 +168,11 @@ export default function ViewImage () {
                     Please make sure the {missingParts.toLowerCase()} {missingGills && missingEyes ? 'are' : 'is'} clearly visible and try again.
                 </Text>
                 <View className='flex-row'>
-                    <TouchableOpacity onPress={() => router.push('/scan/capture')}
+                    <TouchableOpacity onPress={() => router.replace('/scan/capture')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}>
                         <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('/home')}
+                    <TouchableOpacity onPress={() => router.replace('/home')}
                         style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}>
                         <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
                     </TouchableOpacity>
@@ -295,10 +295,10 @@ export default function ViewImage () {
 
             {/* Buttons */}
                     <View className='flex-row items-center justify-end px-4'>
-                    <TouchableOpacity onPress={() => router.push('/home')} style={styles.button}>
+                    <TouchableOpacity onPress={() => router.replace('/home')} style={styles.button}>
                         <Text>Home</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.push('/scan/capture')} style={styles.button}>
+                    <TouchableOpacity onPress={() => router.replace('/scan/capture')} style={styles.button}>
                         <Text>Scan Again</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => saveResult(false)} style={styles.button}>

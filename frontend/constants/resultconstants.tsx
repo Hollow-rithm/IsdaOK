@@ -16,7 +16,7 @@ export const ScoreBar = ({ label, value }: { label: string; value: number | null
             <View className="flex-row justify-between mb-1">
                 <Text className="text-m text-gray-600">{label}</Text>
                 <Text className="text-sm font-semibold text-[#0B1D51]">
-                    {value != null ? value.toFixed(1) : 'N/A'}
+                    {value != null ? `${value.toFixed(1)}%` : 'N/A'}
                 </Text>
             </View>
             <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
