@@ -186,11 +186,10 @@ export default function ViewImage () {
 
     return (
         <SafeAreaView edges={['top', 'bottom']} className='flex-1 bg-primary items-center'>
-            <SafeAreaView className='flex-1 bg-primary w-full max-h-0' />
-
             <ScrollView
                 className='w-full'
-                contentContainerStyle={{ alignItems: 'center', paddingBottom: 14 }}
+                style={{ flexGrow: 0}}
+                contentContainerStyle={{ alignItems: 'center', paddingBottom: 8, paddingTop: 12 }}
                 showsVerticalScrollIndicator={false}
             >
 
@@ -283,6 +282,25 @@ export default function ViewImage () {
                             <ScoreBar label="② Eyes" value={parsedResult?.scores?.eye_score} />
                             <ScoreBar label="③ Body" value={parsedResult?.scores?.body_score} />
 
+                            <View className="flex-row justify-between items-center mb-3">
+                                <Text className="text-m text-gray-600">Machine Learning Quality</Text>
+                                <View style={{
+                                    backgroundColor: gradeBg(grade),
+                                    borderRadius: 999,
+                                    paddingVertical: 3,
+                                    minWidth: 35,
+                                    alignItems: "center"
+                                }}>
+                                    <Text style={{
+                                        color: gradeColor(grade),
+                                        fontWeight: 'bold',
+                                        fontSize: 10,
+                                    }}>
+                                        {parsedResult?.ml_quality?.toUpperCase() ?? 'N/A'}
+                                    </Text>
+                                </View>
+                            </View>
+
                             {/* Footer */}
                             <Text className="text-gray-600 text-xs text-center mt-3">
                                 {new Date().toLocaleDateString('en-PH')} • IsdaOK
@@ -294,8 +312,8 @@ export default function ViewImage () {
             </ScrollView>
 
             {/* Buttons */}
-                    <View className='flex-row items-center justify-end px-4'>
-                    <TouchableOpacity onPress={() => router.replace('/home')} style={styles.button}>
+                    <View className='flex-row items-center justify-end px-4' style={{ marginTop: 12 }}>
+                    <TouchableOpacity onPress={() => router.push('/home')} style={styles.button}>
                         <Text>Home</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => router.replace('/scan/capture')} style={styles.button}>
