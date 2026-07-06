@@ -140,9 +140,17 @@ export const ScoringInfoModal = ({ visible, onClose }: ScoringInfoModalProps) =>
                             Shiny scales, undamaged skin scores higher. Slimy, discoloration, damaged skin lowers the score.
                         </Text>
 
+                        <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>Machine Learning Quality</Text>
+                        <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
+                            The Machine Learning Quality independently evaluates the same photo and give its own quality assessment.
+                            This acts as a second opinion, when both agree, you can be more confident with the given result.
+                        </Text>
+
                         <Text style={{ fontSize: 14, fontWeight: '600', color: '#0B1D51', marginBottom: 4 }}>Overall Score & Grade</Text>
                         <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 10 }}>
-                            The three scores are calculated into one overall score, then grouped into HIGH, MID, or LOW quality.
+                            The three scores are calculated into one overall score, then grouped into HIGH, MID, or LOW quality. {'\n'}
+                            The general score breakdown follows this format: {'\n'}
+                            Overall Score = (Gills x 50%) + (Eyes x 30) + (Body x 20%)
                         </Text>
 
                     </ScrollView>
