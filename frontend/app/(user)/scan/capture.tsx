@@ -116,7 +116,7 @@ export default function Capture(){
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
-            aspect: step === 'body' ? [9, 16] : [1,1],
+            ...(step !== 'body' && { aspect: [1,1] } ),
             quality: 0.6,
             allowsMultipleSelection: false,
         })
