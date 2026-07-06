@@ -59,13 +59,13 @@ export default function Error () {
             </Text>
             <View className='flex-row'>
                 <TouchableOpacity
-                    onPress={() => router.push('/scan/capture')}
+                    onPress={() => router.replace('/scan/capture')}
                     style={[styles.button, { flex: 0, paddingHorizontal: 24 }]}
                 >
                     <Text className='text-[#0B1D51] font-semibold'>Try Again</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => router.push('/home')}
+                    onPress={() => router.replace('/home')}
                     style={[styles.button, { flex: 0, paddingHorizontal: 24, marginLeft: 8 }]}
                 >
                     <Text className='text-[#0B1D51] font-semibold'>Go Home</Text>
