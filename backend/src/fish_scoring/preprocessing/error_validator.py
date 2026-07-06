@@ -8,7 +8,7 @@ _device = None
 _torch = None
 _smp = None
 
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../artifacts/error_model.pth'))
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../artifacts/error_model3.pth'))
 
 # Must match the folder names used during training
 class_names = [
