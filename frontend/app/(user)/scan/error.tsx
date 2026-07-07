@@ -28,8 +28,9 @@ export default function Error () {
             message = "IsdaOK detected a fish species that is not currently supported. Please make sure the fish is Milkfish, Tilapia, or Carp and try again.";
             break;
         case "PARTIAL_FISH":
+        case "CUT_FISH":
             title = "Partial Fish Detected";
-            message = "IsdaOK detected a fish in your image, but it is not fully visible. Please make sure the entire fish is visible and try again.";
+            message = "IsdaOK detected a fish in your image, but it is partially cut off. Please make sure the entire fish is unprocessed and clearly visible.\n\nNote: Current Version of IsdaOK only handles unprocessed fish sold in wet markets.";
             break;
         case "MISSING_EYE":
             title = "Eyes not Detected";
