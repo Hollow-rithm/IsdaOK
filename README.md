@@ -61,6 +61,30 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
+## Environment configuration
+
+Create 2 `.env` files in the frontend and backend directories. These will contain the settings needed to connect the app with the APIs.
+
+### Frontend environment variables
+
+|      Variable       |                   Description                   |
+| :-----------------: | :---------------------------------------------: |
+|                     |                                                 |
+| EXPO_PUBLIC_API_URL | Express backend's base URL, including the port. |
+
+### Backend environment variables
+
+|   Variable   |                                                                            Description                                                                            |
+| :----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|    `PORT`    |                                                  Port used by the Express server. Defaults to `3000` if omitted.                                                  |
+|  `BASE_URL`  | Backend origin used to build email-verification and password-reset links. Use an address reachable from the device opening those links, without a trailing slash. |
+|  `DB_HOST`   |                                                                  IP address of the MySQL server.                                                                  |
+|  `DB_PORT`   |                                                                        MySQL server port.                                                                         |
+|  `DB_USER`   |                                                 MySQL account with permission to access the application database.                                                 |
+|  `DB_PASS`   |                                                                  Password for the MySQL account.                                                                  |
+|  `DB_NAME`   |                                       Application database name (Use `isdaok` when following the supplied database setup).                                        |
+| `JWT_SECRET` |                        A randomly generated secret used to sign and verify authentication, email-verification, and password-reset tokens.                         |
+
 ## Usage
 
 Open 3 terminals for the frontend, backend and python servers.
@@ -104,49 +128,12 @@ These instructions use XAMPP’s MySQL service. You can use another MySQL-compat
 
 Alternatively, select the **Import** tab in phpMyAdmin and upload `db-setup.sql`.
 
-## Environment configuration
+## Developers
 
-Create 2 `.env` files in the frontend and backend directories. These will contain the settings needed to connect the app with the APIs.
+<div align="center">
+  <img src="frontend/assets/images/bg_m.png" alt="Company logo" width="180">
 
-```
-IsdaOK/
-```
+  <h3>IsdaOK Development Team</h3>
 
----
-
-## EYES
-
-    eye_clarity
-    edge_density
-    eyes_redness
-
-OVERALL_EYES
-
-## GILLS
-
-    gills_hue
-    gills_saturation
-    gills_value
-
-OVERALL_GILLS
-
-## BODY
-
-    shine_coverage
-    shine_average
-    body_hue
-    body_saturation
-    body_value
-    ? body damage
-
-OVERALL_BODY
-
-## TAIL
-
-    ? tail damage
-
-OVERALL_TAIL
-
-## ML
-
-OVERALL_SCORE
+  <img src="frontend/assets/images/hollowrithmpic.png" alt="Photo of the IsdaOK development team" width="700">
+</div>
