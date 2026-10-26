@@ -131,9 +131,11 @@ Alternatively, select the **Import** tab in phpMyAdmin and upload `db-setup.sql`
 ## Developers
 
 <div align="center">
-  <img src="frontend/assets/images/bg_n.png" alt="Company logo" width="90">
-
-  <h3>IsdaOK Development Team</h3>
-
-  <img src="frontend/assets/images/hollowrithmpic.png" alt="Photo of the IsdaOK development team" width="700">
+    <p align="center">
+        <img src="frontend/assets/images/bg_n.png" alt="Company logo" width="90">
+    </p>
+    <h3>IsdaOK Development Team</h3>
+    <p align="center">
+        <img src="frontend/assets/images/hollowrithmpic.png" alt="Photo of the IsdaOK development team" width="700">
+    </p>
 </div>
