@@ -1,8 +1,8 @@
 # IsdaOK
 
-A surface quality assessment mobile application, made with React Natice/Expo for the frontend, Express and MySQL for the backend, and Python libraries for image-processing and ML/DL layer.
+A surface quality assessment mobile application, made with **React Natice/Expo** for the frontend, **Express** and **MySQL** for the backend, and **Python** libraries for image-processing and ML/DL layer.
 
-The project aim to assess visible quality indicators of a fish with **classical image processing** algorithms. Implemented with a ResNet-34 model which will remove the image's back and a Random forest model that will calculate the quality level of the fish.
+The project aim to assess visible quality indicators of a fish with **classical image processing** algorithms. Implemented with a **ResNet-34** model which will remove the image's back and a **Random Forest** model that will calculate the quality level of the fish.
 
 ## Installation:
 
@@ -67,10 +67,10 @@ Create 2 `.env` files in the frontend and backend directories. These will contai
 
 ### Frontend environment variables
 
-|      Variable       |                   Description                   |
-| :-----------------: | :---------------------------------------------: |
-|                     |                                                 |
-| EXPO_PUBLIC_API_URL | Express backend's base URL, including the port. |
+|       Variable        |                   Description                   |
+| :-------------------: | :---------------------------------------------: |
+|                       |                                                 |
+| `EXPO_PUBLIC_API_URL` | Express backend's base URL, including the port. |
 
 ### Backend environment variables
 
@@ -131,7 +131,7 @@ Alternatively, select the **Import** tab in phpMyAdmin and upload `db-setup.sql`
 ## Developers
 
 <div align="center">
-  <img src="frontend/assets/images/bg_m.png" alt="Company logo" width="180">
+  <img src="frontend/assets/images/bg_n.png" alt="Company logo" width="90">
 
   <h3>IsdaOK Development Team</h3>
 
