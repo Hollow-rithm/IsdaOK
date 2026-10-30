@@ -50,7 +50,6 @@ def _build_incomplete_response(*, has_fish, has_gills, has_eyes, message):
         }
     )
 
-
 @app.get("/health")
 async def health_check():
     return {
