@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 import logging
 import numpy as np
 
-from preprocessing import image_utils, error_validator
+from image_capture_gate import error_validator
+from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
 from features import eye_features, body_features, gill_features, ml_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
