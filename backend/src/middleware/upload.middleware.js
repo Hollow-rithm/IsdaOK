@@ -21,8 +21,8 @@ const storage = multer.diskStorage({
     }
 })
 
-const allowed_mime = ["image/jpeg", "image/jpg", "image/pjpeg", "image/png"];
-const allowed_extensions = [".jpeg", ".jpg", ".png"];
+const allowed_mime = ["image/jpeg", "image/jpg", "image/pjpeg", "image/png", "image/jfif"];
+const allowed_extensions = [".jpeg", ".jpg", ".png", ".jfif"];
 
 //File extensions filter
 const fileFilter = (req, file, cb) => {

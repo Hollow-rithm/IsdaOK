@@ -101,7 +101,7 @@ npm run dev
 2. On the 2nd terminal, activate the Python layer with there commands.
 
 ```
-cd IsdaOk/backend/src/python
+cd IsdaOk/backend/src/fish_scoring
 python -m uvicorn app:app --reload --port 8000
 ```
 
