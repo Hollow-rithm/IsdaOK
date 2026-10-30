@@ -38,18 +38,6 @@ app = FastAPI(
 def _to_serializable(d):
     return {k: float(v) if isinstance(v, np.float32) else v for k, v in d.items()}
 
-def _build_incomplete_response(*, has_fish, has_gills, has_eyes, message):
-    return JSONResponse(
-        status_code=200,
-        content={
-            "success": False,
-            "has_fish": has_fish,
-            "has_gills": has_gills,
-            "has_eyes": has_eyes,
-            "message": message,
-        }
-    )
-
 @app.get("/health")
 async def health_check():
     return {
@@ -81,7 +69,6 @@ async def _run_pipeline(
     eye_image: UploadFile | None,
 ):   
     #Decode Images
-
     print("Reading image")
     fish_img = _decode_or_raise(await fish_image.read(), "Fish image could not be decoded.")
     # Image Error Handling
