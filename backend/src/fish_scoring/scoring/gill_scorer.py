@@ -5,7 +5,7 @@ from config import MAX_SCORE, MIN_SCORE, HUE_LOWER, HUE_UPPER, PURITY_LOWER, PUR
 def compute(features):
     valid_pixels = features["valid_pixels"]
     if valid_pixels < 100:
-        return 0.0, {}
+        return 0.0
 
     # Sub-score 1: Hue mean (lower = redder = fresher)
     # Range_1: 0 (pure red) to 20(brownish). Invert so low hue = high score.

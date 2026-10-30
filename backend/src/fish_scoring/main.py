@@ -207,7 +207,7 @@ async def _process_gill(gill_image: UploadFile | None):
  
     if gill_img is None:
         logger.warning("Gill image could not be decoded; using defaults.")
-        return None, False, DEFAULT_GILL_FEATS, None
+        return False, DEFAULT_GILL_FEATS, None
  
     gill_img = image_utils.resize_gills(gill_img)
     image_utils.save("gill_roi", gill_img)

@@ -6,7 +6,7 @@ def extract(result, mask):
     if valid_pixels < 100:
         return {
             "hue_mean":        25.0,   # neutral fallback
-            "red_purity":      0.0,
+            "redness_purity":      0.0,
             "brown_dominance": 1.0,
             "color_cov":       1.0,
             "brightness_mean": 0.0,
@@ -33,9 +33,9 @@ def extract(result, mask):
     # Red purity (mean saturation of red pixels)
     red_mask = (h_vals <= 8) | (h_vals >= 168)
     if red_mask.any():
-        red_purity = s_vals[red_mask].mean()
+        redness_purity = s_vals[red_mask].mean()
     else:
-        red_purity = 0.0
+        redness_purity = 0.0
 
     # Brown dominance (brown ratio of image)
     brown_mask = (h_vals >= 10) & (h_vals <= 30) & (s_vals < 160)
@@ -50,7 +50,7 @@ def extract(result, mask):
 
     return {
         "hue_mean":        round(hue_mean, 2),
-        "redness_purity":   round(red_purity, 2),
+        "redness_purity":   round(redness_purity, 2),
         "brightness_mean": round(brightness_mean, 2),
         "brown_dominance": round(brown_dominance, 4),
         "color_cov":       round(color_cov, 4),
