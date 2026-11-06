@@ -11,3 +11,6 @@ artifacts1/
 csvs/
 eye_proto/
 benchmarks/
+
+fish_scoring.zip
+*.csv
