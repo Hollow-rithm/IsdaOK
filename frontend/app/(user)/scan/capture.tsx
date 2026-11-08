@@ -187,7 +187,10 @@ export default function Capture(){
             clearTimeout(timeout);
 
             const result = await response.json();
-            console.log("JSON Response: ", result);
+            console.log("JSON Response: ", {
+                ...result,
+                previews: result.previews ? "[omitted]" : result.previews,
+            });
 
             if (result.success === false) {
                 router.push({

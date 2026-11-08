@@ -44,7 +44,6 @@ export default function ViewImage () {
                 label: "Eyes"
             });
         }
-        console.log("Segmented Images: ", images);
         return images;
     };
 
@@ -147,13 +146,12 @@ export default function ViewImage () {
         );
     }
 
-    //Error Missing Eyes/Gills
-    const missingGills = !skippedGills && !parsedResult.has_gills;
+    // Eyes are required for a valid result, while missing gills are shown as a warning.
+    const missingGills = parsedResult.has_gills === false;
     const missingEyes = !skippedEyes && !parsedResult.has_eyes;
 
-    if (missingGills || missingEyes) {
+    if (missingEyes) {
     const missingParts = [
-        missingGills ? 'Gills' : null,
         missingEyes ? 'Eyes' : null,
     ].filter(Boolean).join(' and ');
 
@@ -235,6 +233,22 @@ export default function ViewImage () {
                             </View>
 
                             <ScoreBar label="Overall Score" value={parsedResult?.rule_score} />
+
+                            {missingGills && (
+                                <View style={{
+                                    backgroundColor: gradeBg('LOW'),
+                                    borderRadius: 12,
+                                    padding: 12,
+                                    marginBottom: 16,
+                                }}>
+                                    <Text style={{ color: gradeColor('LOW'), fontWeight: 'bold', fontSize: 15, marginBottom: 2 }}>
+                                        Gills Not Detected
+                                    </Text>
+                                    <Text style={{ color: gradeColor('LOW'), fontSize: 12, opacity: 0.8 }}>
+                                        The overall result may be inaccurate.
+                                    </Text>
+                                </View>
+                            )}
 
                             <View style={{
                                 backgroundColor: gradeBg(grade),
