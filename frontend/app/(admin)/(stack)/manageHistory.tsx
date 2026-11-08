@@ -153,7 +153,7 @@ export default function ManageHistory() {
               <View key={scan.id} className="bg-primary rounded-xl p-4 mb-3 border border-gray-200">
                 <View className="flex-row justify-between items-center">
                   <Text className="text-[#0B1D51] font-semibold text-lg">
-                    {scan.species.toUpperCase() ?? "Unknown Species"}
+                    {scan.id}: {scan.species.toUpperCase() ?? "Unknown Species"}
                   </Text>
                   <Text className={`font-bold text-sm ${gradeColor(scan.final_quality)}`}>
                     {scan.final_quality}

@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
-  const { logOut, username } = useAuth();
+  const { logOut, username, role } = useAuth();
   const isGuest = username === "Guest";
+  const isAdmin = role === "admin";
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
@@ -56,6 +57,17 @@ export default function Home() {
         <Text className="text-[#0B1D51] text-3xl font-semibold text-center">
           Welcome{isGuest ? " Guest!" : ` ${username}!`}
         </Text>
+
+        {isAdmin && (
+          <TouchableOpacity
+            className="bg-white py-2 px-4 w-48 border border-black rounded mt-4"
+            onPress={() => router.replace("/(admin)/(stack)/adminHome")}
+          >
+            <Text className="text-center font-semibold text-[#0B1D51]">
+              Back to Admin Dashboard
+            </Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4" onPress={() => router.push('/scan/capture')}>
           <Text className="text-center font-semibold text-[#0B1D51] ">Scan a Fish!</Text>

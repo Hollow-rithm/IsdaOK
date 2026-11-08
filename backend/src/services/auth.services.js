@@ -3,6 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail, sendResetEmail } from "../utils/mailer.js";
 
+// Keep verification enabled unless the backend is explicitly put into test mode.
+const requiresEmailVerification = () =>
+	process.env.EMAIL_VERIFICATION_MODE !== "bypass";
+
 export const register = async ({ username, email, password }) => {
 	if (!username || !email || !password) {
 		throw new Error("All fields are required");
@@ -15,30 +19,36 @@ export const register = async ({ username, email, password }) => {
 	}
 
 	const hashed_pass = await bcrypt.hash(password, 10);
+	const requiresVerification = requiresEmailVerification();
 
 	const [result] = await db.query(
-		"INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-		[username, email, hashed_pass]);
+		"INSERT INTO users (username, email, password, is_verified) VALUES (?, ?, ?, ?)",
+		[username, email, hashed_pass, requiresVerification ? 0 : 1]);
 
-	const verificationToken = jwt.sign(
-		{ email },
-		process.env.JWT_SECRET,
-		{ expiresIn: "5m" }
-	);
+	if (requiresVerification) {
+		const verificationToken = jwt.sign(
+			{ email },
+			process.env.JWT_SECRET,
+			{ expiresIn: "5m" }
+		);
 
-	const expiry = new Date(Date.now() + 5 * 60 * 1000);
+		const expiry = new Date(Date.now() + 5 * 60 * 1000);
 
-	await db.query(
-		"INSERT INTO user_tokens (user_id, type, token, expires_at) VALUES (?, 'verification', ?, ?)",
-		[result.insertId, verificationToken, expiry]
-	);
+		await db.query(
+			"INSERT INTO user_tokens (user_id, type, token, expires_at) VALUES (?, 'verification', ?, ?)",
+			[result.insertId, verificationToken, expiry]
+		);
 
-	const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
-	await sendVerificationEmail(email, verificationLink);
+		const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
+		await sendVerificationEmail(email, verificationLink);
+	}
 
 	return {
 		status: "success",
-		message: "Registered! Please Check your email for verification.",
+		message: requiresVerification
+			? "Registered! Please check your email for verification."
+			: "Registered and verified (test mode).",
+		requiresVerification,
 		userID: result.insertId
 	};
 };
