@@ -86,10 +86,14 @@ export default function SignUp() {
 
 				if (res.ok && data.status === "success") {
 					setSuccess("Registered Successfully!");
-					router.replace({
-						pathname: "/verifyEmail",
-						params: { email }
-					});
+					if (data.requiresVerification) {
+						router.replace({
+							pathname: "/verifyEmail",
+							params: { email }
+						});
+					} else {
+						router.replace("/signin");
+					}
 				} else {
 					setError(data.message || "Registration Failed");
 				}

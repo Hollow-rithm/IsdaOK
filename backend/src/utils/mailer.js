@@ -1,11 +1,19 @@
-import nodemailer from "nodemailer";
 import "dotenv/config";
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend;
+
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not defined in environment variables");
+  }
+
+  resend ??= new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 export const sendVerificationEmail = async (toEmail, verificationLink) => {
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: 'IsdaOK <noreply@isdaok.app>',
     to: toEmail,
     subject: 'Verify Your Email (no reply)',
@@ -19,7 +27,7 @@ export const sendVerificationEmail = async (toEmail, verificationLink) => {
 };
 
 export const sendResetEmail = async (toEmail, resetLink) => {
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: 'IsdaOK <noreply@isdaok.app>',
     to: toEmail,
     subject: 'Reset Your Password (no reply)',

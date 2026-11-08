@@ -16,10 +16,7 @@ export const register = async (req, res) => {
 	try {
 		const result = await authService.register({ username, email, password });
 
-		res.status(201).json({
-			status: "success",
-			message: "User Created",
-		});
+		res.status(201).json(result);
 	} catch (err) {
 		res.status(err.status ?? 400).json({
 			status: "error",

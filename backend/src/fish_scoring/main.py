@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 import logging
 import numpy as np
 
-from preprocessing import image_utils, error_validator
+from image_capture_gate import error_validator
+from preprocessing import image_utils
 from segmentation import fish_segmenter, eye_segmenter, gill_segmenter
 from features import eye_features, body_features, gill_features, ml_features
 from scoring import eye_scorer, body_scorer, gill_scorer, rule_scorer, final_scorer
@@ -38,19 +39,6 @@ app = FastAPI(
 def _to_serializable(d):
     return {k: float(v) if isinstance(v, np.float32) else v for k, v in d.items()}
 
-def _build_incomplete_response(*, has_fish, has_gills, has_eyes, message):
-    return JSONResponse(
-        status_code=200,
-        content={
-            "success": False,
-            "has_fish": has_fish,
-            "has_gills": has_gills,
-            "has_eyes": has_eyes,
-            "message": message,
-        }
-    )
-
-
 @app.get("/health")
 async def health_check():
     return {
@@ -82,7 +70,6 @@ async def _run_pipeline(
     eye_image: UploadFile | None,
 ):   
     #Decode Images
-
     print("Reading image")
     fish_img = _decode_or_raise(await fish_image.read(), "Fish image could not be decoded.")
     # Image Error Handling
@@ -221,7 +208,7 @@ async def _process_gill(gill_image: UploadFile | None):
  
     if gill_img is None:
         logger.warning("Gill image could not be decoded; using defaults.")
-        return None, False, DEFAULT_GILL_FEATS, None
+        return False, DEFAULT_GILL_FEATS, None
  
     gill_img = image_utils.resize_gills(gill_img)
     image_utils.save("gill_roi", gill_img)

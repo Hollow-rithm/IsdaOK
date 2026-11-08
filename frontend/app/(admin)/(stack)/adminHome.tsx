@@ -16,6 +16,10 @@ export default function AdminHome() {
 					Welcome
 				</Text>
 
+				<TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4" onPress={() => router.push("/(user)/(drawer)/home")}>
+					<Text className="text-center font-semibold text-[#0B1D51] ">Go to Home</Text>
+				</TouchableOpacity>
+
 				<TouchableOpacity className="bg-white py-2 px-4 w-40 border border-black rounded mt-4" onPress={() => router.push("./manage")}>
 					<Text className="text-center font-semibold text-[#0B1D51] ">Manage Users</Text>
 				</TouchableOpacity>

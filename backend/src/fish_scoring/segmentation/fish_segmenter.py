@@ -95,7 +95,7 @@ def segment(img):
     contours = [c for c in contours if cv.contourArea(c) > 5000]
 
     if not contours:
-        return None, None, None, None, None
+        return None, None, None
 
     fish_contour = max(contours, key=cv.contourArea)
     fx, fy, fw, fh = cv.boundingRect(fish_contour)
