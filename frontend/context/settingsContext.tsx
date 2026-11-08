@@ -19,7 +19,7 @@ const defaults: Settings = {
   photoQuality: '720p',
   saveLocally: false,
   saveMode: 'result',
-  imageViewMode: 'Segmented',
+  imageViewMode: 'Raw',
 }
 
 const SettingsContext = createContext<{
