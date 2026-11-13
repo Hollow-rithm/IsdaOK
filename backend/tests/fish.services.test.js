@@ -16,15 +16,16 @@ const mlResponse = {
   ml_quality: "HIGH",
   final_quality: "HIGH",
   features: {
-    eye: { red_intensity: 0.1, red_coverage: 0.2, eye_cloudiness: 0.3 },
+    eye: { lab_a_mean: 0.1, red_ratio: 0.2, lbp_texture_score: 0.3, canny_edge_density: 0.4, mean_saturation: 0.5 },
     body: { shine_coverage: 0.4, shine_intensity: 0.5, body_color_b: 0.6 },
     gill: { hue_mean: 0.1, redness_purity: 0.2, brightness_mean: 0.3, brown_dominance: 0.4, color_cov: 0.5 },
-  }
+  },
+  success: true,
 };
 
 describe("fishService.analyzeFish()", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     fs.existsSync.mockReturnValue(false);
     fs.createReadStream.mockReturnValue("stream");
     fs.promises = { unlink: jest.fn().mockResolvedValue()};
@@ -134,7 +135,7 @@ describe("fishService.analyzeFish()", () => {
 
 
 describe("fishService.getHistory()", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   test("Provides scan history for the given user", async () => {
     db.query.mockResolvedValueOnce([[{
@@ -162,7 +163,7 @@ describe("fishService.getHistory()", () => {
 
 
 describe("fishService.deleteRecord()", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => jest.resetAllMocks());
 
   test("Successfully deletes record", async () => {
     db.query

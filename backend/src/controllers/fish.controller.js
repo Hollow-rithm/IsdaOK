@@ -3,10 +3,10 @@ import db from "../config/database.js";
 
 export const analyzeFish = async (req, res) => {
     try {
-        console.log("Reading image in controller");
-        console.log("HEADERS:", req.headers);
-        console.log("FILE:", req.files);
-        console.log("BODY:", req.body);
+        // console.log("Reading image in controller");
+        // console.log("HEADERS:", req.headers);
+        // console.log("FILE:", req.files);
+        // console.log("BODY:", req.body);
 
         const fishImage = req.files?.fish_image?.[0];
         const gillImage = req.files?.gill_image?.[0];
@@ -29,7 +29,7 @@ export const analyzeFish = async (req, res) => {
         //     })
         // }
         if (!result.success) {
-            return res.status(200).json(result)
+            return res.status(400).json(result)
         }
         return res.status(200).json(result);
 

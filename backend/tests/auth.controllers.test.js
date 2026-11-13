@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken";
 
 jest.mock("../src/services/auth.services.js");
 jest.mock("jsonwebtoken");
+jest.mock("../src/utils/mailer.js", () => ({
+  sendVerificationEmail: jest.fn(),
+  sendResetEmail: jest.fn(),
+}));
 
 process.env.JWT_SECRET = "test";
 
@@ -50,7 +54,7 @@ describe("authController.register()", () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: "success" }));
   });
 
-  test("Registration fails if email already exists)", async () => {
+  test("Registration fails if email already exists", async () => {
     const err = new Error("Email already exists");
     err.status = 400;
     authService.register.mockRejectedValue(err);

@@ -7,7 +7,10 @@ import { sendVerificationEmail, sendResetEmail } from "../src/utils/mailer.js";
 jest.mock("../src/config/database.js");
 jest.mock("bcryptjs");
 jest.mock("jsonwebtoken");
-jest.mock("../src/utils/mailer.js");
+jest.mock("../src/utils/mailer.js", () => ({
+  sendVerificationEmail: jest.fn(),
+  sendResetEmail: jest.fn(),
+}));
 
 process.env.JWT_SECRET = "test";
 process.env.BASE_URL = "http://localhost:3000";

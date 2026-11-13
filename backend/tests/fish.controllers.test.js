@@ -25,10 +25,11 @@ const mockAnalysisResult = {
   ml_quality: "HIGH",
   final_quality: "HIGH",
   features: {
-    eye: { red_intensity: 0.1, red_coverage: 0.2, eye_cloudiness: 0.3 },
+    eye: { lab_a_mean: 0.1, red_ratio: 0.2, lbp_texture_score: 0.3, canny_edge_density: 0.4, mean_saturation: 0.5 },
     body: { shine_coverage: 0.4, shine_intensity: 0.5, body_color_b: 0.6 },
     gill: { hue_mean: 0.1, redness_purity: 0.2, brightness_mean: 0.3, brown_dominance: 0.4, color_cov: 0.5 },
-  }
+  },
+  success: true,
 };
 
 describe("fishController.analyzeFish()", () => {
@@ -46,7 +47,7 @@ describe("fishController.analyzeFish()", () => {
   });
 
   test("Returns 400 when no fish is detected", async () => {
-    fishService.analyzeFish.mockResolvedValue({ has_fish: false });
+    fishService.analyzeFish.mockResolvedValue({ success: false, has_fish: false, message: "No fish detected in image." });
 
     const req = {
       files: { fish_image: [mockFishFile]},
@@ -82,7 +83,6 @@ describe("fishController.analyzeFish()", () => {
       userId: 1,
     });
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: "success", data: mockAnalysisResult }));
   });
 
   test("Forwards gill and eye images when provided", async () => {

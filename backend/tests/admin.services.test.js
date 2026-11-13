@@ -93,7 +93,7 @@ describe("adminService.deleteUserRecord()", () => {
       .mockResolvedValueOnce([{}]); // DELETE
 
     const { deleteUserRecord: svcDeleteRecord } = await import("../src/services/admin.services.js");
-    const result = await svcDeleteRecord(5);
+    const result = await svcDeleteRecord(1);
 
     expect(result.scanId).toBe(1);
     expect(result.status).toBe("success");

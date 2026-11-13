@@ -151,11 +151,11 @@ describe("adminController.getUserHistory()", () => {
   });
 
   test("Can raise unexpected service error", async () => {
-    adminService.deleteUser.mockRejectedValue(new Error("Delete failed"));
+    fishService.getHistory.mockRejectedValue(new Error("DB error"));
 
     const req = { params: { id: 1 }};
     const res = mockRes();
-    await deleteUser(req, res);
+    await getUserHistory(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
   });
@@ -191,11 +191,11 @@ describe("adminController.deleteUserRecord()", () => {
   });
 
   test("Can raise unexpected service error", async () => {
-    adminService.deleteUser.mockRejectedValue(new Error("Delete failed"));
+    adminService.deleteUserRecord.mockRejectedValue(new Error("Delete failed"));
 
     const req = { params: { id: 1 }};
     const res = mockRes();
-    await deleteUser(req, res);
+    await deleteUserRecord(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
   });
